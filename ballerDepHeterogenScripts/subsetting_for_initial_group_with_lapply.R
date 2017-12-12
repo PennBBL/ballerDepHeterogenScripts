@@ -4,10 +4,11 @@
 #################################################
 
 #This does the subsetting, runs statistics with lapply instead of loop, visualizes progress with visreg, and does fdr correction
-
+# it then makes table 1 (demographics)
 #load libraries
-library("visreg")
+library(visreg)
 library(mgcv)
+library(tableone)
 
 #read in csvs
 demographics <- read.csv("/Users/test/BBL/projects/ballerDepHeterogen/data/n9498_demographics_go1_20161212.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_demographics_go1_20161212.csv
@@ -124,3 +125,24 @@ write.csv(CNB_names_and_fdr_values_gam, file = "/Users/test/BBL/projects/ballerD
 #checkmodel with visreg, HOW CAN I GET NAMES INTO GAM PLOTS???
 lapply(CNB_cog_score_stats_lm_dep_binarized, function(x) {visreg(x)}) 
 lapply(CNB_cog_score_stats_gam_dep_binarized, function(x) {visreg(x)}) 
+
+#Make table 1 (demographics)
+#subset demographics
+subset_demographics_for_table1 <- data.frame(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$sex, subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$race, subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$medu1, subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$age_in_years, subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$dep_binarized)
+listVars <- c("Gender", "Race", "Maternal Ed", "Age") #Gender 1 = male, 2 = female, Race 1 = caucasian, Maternal Ed = years, age = years, dep 1 = dep, 0 = non_dep
+names(subset_demographics_for_table1) <- c(listVars, "Depression")
+
+#Change categorical values to have names
+subset_demographics_for_table1$Gender <- ifelse(subset_demographics_for_table1$Gender == 1, "Male", "Female")
+subset_demographics_for_table1$Depression <- ifelse(subset_demographics_for_table1$Depression == 1, "Depressed", "Non-depressed")
+subset_demographics_for_table1$Race <- ifelse(subset_demographics_for_table1$Race == "1", "Caucasian","Non-caucasian")
+
+#make variable list
+table_titles <- c("Non-depressed", "depressed", "p-value")
+
+#Define Categorical Variables
+cat_variables <- c("Gender", "Race", "Depression")
+
+#create demographics table
+demographics_table <- CreateTableOne(vars = listVars, data = subset_demographics_for_table1, factorVars = cat_variables, strata = c("Depression"))
+print(demographics_table, showAllLevels = TRUE)
