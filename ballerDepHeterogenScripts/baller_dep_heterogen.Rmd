@@ -166,13 +166,19 @@ cat_variables <- c("Gender", "Race", "Depression")
 
 #create demographics table
 demographics_table <- CreateTableOne(vars = listVars, data = subset_demographics_for_table1, factorVars = cat_variables, strata = c("Depression"))
-print(demographics_table, showAllLevels = TRUE)
+#print(demographics_table, showAllLevels = TRUE)
 
 
 
 ```
+## Including CNB measures that are FDR corrected
 
-## Including Plots
+```{r CNB_names_and_fdr_values}
+print(CNB_names_and_fdr_values_lm)
+print(CNB_names_and_fdr_values_gam)
+```
+
+## Including Tables
 
 Table 1: Demographics no levels shown
 ```{r R_demo, echo=TRUE}
