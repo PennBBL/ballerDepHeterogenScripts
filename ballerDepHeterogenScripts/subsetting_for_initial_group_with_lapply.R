@@ -42,8 +42,11 @@ subset_dep_or_no_psych_and_no_medicalratingExclude <- subset.data.frame(dem_cnb_
 #would binarize depression smry score to 0 and 1-- 4 and <4
 dep_binarized <- ifelse(subset_dep_or_no_psych_and_no_medicalratingExclude$smry_dep == 4, 1, 0)
 subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED <- cbind(subset_dep_or_no_psych_and_no_medicalratingExclude, dep_binarized) #N = 3284
-#subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$dep_binarized <- as.factor(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED)
+subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$dep_binarized <- as.factor(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$dep_binarized)
 
+#see sex as factor
+subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$sex <- as.factor(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$sex
+                                                                                 )
 #divide ageAtCNB by 12 for age
 age_in_years <- subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$ageAtCnb1/12
 subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED <- cbind(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED, age_in_years)
@@ -126,7 +129,7 @@ write.csv(CNB_names_and_fdr_values_lm, file = "/Users/test/BBL_wcnw/n3284_dep776
 write.csv(CNB_names_and_fdr_values_gam, file = "/Users/test/BBL_wcnw/n3284_dep776_nondep2508_mass_univ_FDR_corrected_gam_20171211.csv")
 
 #checkmodel with visreg, HOW CAN I GET NAMES INTO GAM PLOTS???
-lapply(CNB_cog_score_stats_lm_dep_binarized, function(x) {visreg(x)}) 
+#lapply(CNB_cog_score_stats_lm_dep_binarized, function(x) {visreg(x)}) 
 lapply(CNB_cog_score_stats_gam_dep_binarized, function(x) {visreg(x)}) 
 
 #Make table 1 (demographics)
