@@ -13,10 +13,10 @@ library(mgcv)
 library(tableone)
 
 #read in csvs
-demographics <- read.csv("/Users/test/BBL_wcnw/n9498_demographics_go1_20161212.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_demographics_go1_20161212.csv
-cnb_scores <- read.csv("/Users/test/BBL_wcnw/n9498_cnb_zscores_fr_20170202.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_cnb_zscores_fr_20170202.csv
-health <- read.csv("/Users/test/BBL_wcnw/n9498_health_20170405.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_health_20170405.csv
-psych_summary <- read.csv("/Users/test/BBL_wcnw/n9498_goassess_psych_summary_vars_20131014.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_goassess_psych_summary_vars_20131014.csv
+demographics <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_demographics_go1_20161212.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_demographics_go1_20161212.csv
+cnb_scores <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_cnb_zscores_fr_20170202.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_cnb_zscores_fr_20170202.csv
+health <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_health_20170405.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_health_20170405.csv
+psych_summary <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_goassess_psych_summary_vars_20131014.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_goassess_psych_summary_vars_20131014.csv
 
 #remove people with NA for race, age, or sex.  START WITH N = 9498
 demographics_noNA_race <- demographics[!is.na(demographics$race),] #everyone has a race, N = 9498
@@ -39,14 +39,14 @@ subset_just_dep_and_no_medicalratingExclude <- subset.data.frame(dem_cnb_psych_h
 subset_no_psych_no_medicalratingExclude <- subset.data.frame(dem_cnb_psych_health_merged, (medicalratingExclude == 0) & (smry_psych_overall_rtg < 4), select = "bblid") #subset people who are psychiatrically healthy, N = 2508
 subset_dep_or_no_psych_and_no_medicalratingExclude <- subset.data.frame(dem_cnb_psych_health_merged, (medicalratingExclude == 0) & ((smry_dep == 4) | (smry_psych_overall_rtg <4))) #subset including both depressed and healthies, good for regressions, N = 3284
 
-#would binarize depression smry score to 0 and 1-- 4 and <4
+#would binarize depression smry score to 0 (less than 4, not depressed) and 1 (score 4 , depressed)
 dep_binarized <- ifelse(subset_dep_or_no_psych_and_no_medicalratingExclude$smry_dep == 4, 1, 0)
 subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED <- cbind(subset_dep_or_no_psych_and_no_medicalratingExclude, dep_binarized) #N = 3284
-subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$dep_binarized <- as.factor(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$dep_binarized)
 
-#see sex as factor
-subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$sex <- as.factor(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$sex
-                                                                                 )
+#make depression and gender into factor scores
+subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$dep_binarized <- as.factor(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$dep_binarized)
+subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$sex <- as.factor(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$sex)
+
 #divide ageAtCNB by 12 for age
 age_in_years <- subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$ageAtCnb1/12
 subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED <- cbind(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED, age_in_years)
@@ -74,7 +74,7 @@ CNB_cog_score_stats_lm_dep_binarized <- lapply(cnb_measure_names, function(x)
 #using gam, results stored in list
 CNB_cog_score_stats_gam_dep_binarized <- lapply(cnb_measure_names, function(x) 
 {
-  gam(substitute(i ~ dep_binarized + sex + s(age_in_years), list(i = as.name(x))), data = subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED, method="REML")
+  gam(substitute(i ~ dep_binarized + sex + age_in_years, list(i = as.name(x))), data = subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED)
 }) 
 
 #add names for each list element
@@ -125,11 +125,11 @@ names(CNB_names_and_fdr_values_lm) <- c("CNB_measure", "p_FDR_corr")
 names(CNB_names_and_fdr_values_gam) <- c("CNB_measure", "p_FDR_corr")
 
 #write the results of the mass univariate stats to files
-write.csv(CNB_names_and_fdr_values_lm, file = "/Users/test/BBL_wcnw/n3284_dep776_nondep2508_mass_univ_FDR_corrected_lm_20171211.csv")
-write.csv(CNB_names_and_fdr_values_gam, file = "/Users/test/BBL_wcnw/n3284_dep776_nondep2508_mass_univ_FDR_corrected_gam_20171211.csv")
+write.csv(CNB_names_and_fdr_values_lm, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/n3284_dep776_nondep2508_mass_univ_FDR_corrected_lm_20171211.csv")
+write.csv(CNB_names_and_fdr_values_gam, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/n3284_dep776_nondep2508_mass_univ_FDR_corrected_gam_20171211.csv")
 
-#checkmodel with visreg, HOW CAN I GET NAMES INTO GAM PLOTS???
-#lapply(CNB_cog_score_stats_lm_dep_binarized, function(x) {visreg(x)}) 
+#checkmodel with visreg
+lapply(CNB_cog_score_stats_lm_dep_binarized, function(x) {visreg(x)}) 
 lapply(CNB_cog_score_stats_gam_dep_binarized, function(x) {visreg(x)}) 
 
 #Make table 1 (demographics)
