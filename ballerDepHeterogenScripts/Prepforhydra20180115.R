@@ -1,8 +1,9 @@
 library(visreg)
 library(mgcv)
 library(tableone)
-library(plyr)
+library(dplyr)
 library(plm)
+library(MatchIt)
 
 #read in csvs
 demographics <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_demographics_go1_20161212.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_demographics_go1_20161212.csv
@@ -43,7 +44,7 @@ subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$sex <- as.factor
 subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$age_in_years <- subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$ageAtCnb1/12
 
 #age demeaned and squared, from Toni
-subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$ageSq <- I(scale(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$age_in_years, scale = FALSE, center = TRUE)^2)
+subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$ageSq <- as.numeric(I(scale(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$age_in_years, scale = FALSE, center = TRUE)^2))
 
 #Subset only variables needed for hydra analysis 
 #(BBLID, cognitive variables, depression), also do by males(1555)/females(1729) separately
@@ -63,3 +64,19 @@ write.csv(subset_bblidAndCog_features_males, file="/Users/eballer/BBL/from_chead
 write.csv(subset_bblidAndCovariates_males, file="/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_males/Covariates.csv")
 write.csv(subset_bblidAndCog_features_females, file="/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_females/Features.csv")
 write.csv(subset_bblidAndCovariates_females, file="/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_females/Covariates.csv")
+
+
+#match with matchit
+data.unmatched = subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED
+data.unmatched$unmatchedRows =rownames(data.unmatched)
+dataset = data.unmatched
+# Some preprocessing
+dataset = dplyr::select(dataset, sex, age_in_years, ageSq, medu1, race, dep_binarized, unmatchedRows)
+#dataset = dplyr::filter(dataset, !is.na(group))# "PS": 1, "TD": 0dataset$group = 1*(dataset$group=="PS")# "male": 1, "female": 0dataset$sex = 1*(dataset$sex=="male")
+# Remove subjects with NA for maternal edu
+dataset = dplyr::filter(dataset, !is.na(medu1))
+
+#GAM for propensity score
+ps.model =gam(dep_binarized ~s(age_in_years) +s(medu1) + race + sex, data=dataset, family=binomial)
+ps =exp(predict(ps.model))/(1 +exp(predict(ps.model)))
+#m.out <-matchit(dep_binarized ~ age_in_years, data=dataset, method="nearest", exact=c("race", "medu1", "sex"), distance="mahalanobis")
