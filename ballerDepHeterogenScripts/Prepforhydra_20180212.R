@@ -78,8 +78,8 @@ subset_bblidAndCog_features_females <- subset_bblidAndCog_features_females[compl
 
 #subset of covariates (BBLID, sex, age in years), also do by males/females
 subset_bblidAndCovariates <- data.frame(cbind(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED[1:2], subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED[78]))
-subset_bblidAndCovariates_males <- subset.data.frame(data.frame(cbind(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED[1:2], subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED[78])), subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$sex == 1)
-subset_bblidAndCovariates_females <- subset.data.frame(data.frame(cbind(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED[1:2], subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED[78])), subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$sex == 2)
+subset_bblidAndCovariates_males <- subset.data.frame(data.frame(cbind(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED[1], subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED[78])), subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$sex == 1)
+subset_bblidAndCovariates_females <- subset.data.frame(data.frame(cbind(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED[1], subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED[78])), subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$sex == 2)
 
 #only include bblid and covariates for people who have full hydra sets (again, n(3022), male 1434/ female 1588)
 subset_bblidAndCovariates <- subset_bblidAndCovariates[subset_bblidAndCovariates$bblid %in% c(subset_bblidAndCog_features$bblid), ]
@@ -179,7 +179,7 @@ write.csv(subset_bblidAndCovariates_females_r, file="/Users/eballer/BBL/from_che
 
 
 #match with matchit n(3022), male (1434)/ female (1588), this is NOT residuals
-data.unmatched = subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED
+data.unmatched = subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED[complete.cases(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED[14:39]),]
 data.unmatched$unmatchedRows =rownames(data.unmatched)
 dataset = data.unmatched
 
@@ -247,12 +247,26 @@ legend("bottomright",c("Non-white, non-depressed", "Non-white, depressed", "Whit
 # Make the final matched data set
 data.matched = data.unmatched[data.unmatched$unmatchedRows%in%m.data$unmatchedRows,]
 data.matched$unmatchedRows = NULL
-
 saveRDS(data.matched, file='/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydraMatched_age_race_medu1_sex_20180115_matched.rds')
 
 ####FOR HYDRA####
-for_hydra_data.matched <- data.frame(cbind(data.matched[1], data.matched[14:39], data.matched[77]))
-write.csv(for_hydra_data.matched, file="/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched/CogFeatures.csv", row.names = FALSE, quote = FALSE)
+
+#all genders together
+for_hydra_data.matched_features <- data.frame(cbind(data.matched[1], data.matched[14:39], data.matched[77]))
+for_hydra_data.matched_cov = subset.data.frame(data.frame(cbind(data.matched[1:2], data.matched[14:39], data.matched[78])))
+
+#covariate just age for matched, males: n = 470, females n = 954
+data.matched_male_features = subset.data.frame(data.frame(cbind(data.matched[1], data.matched[14:39], data.matched[77])), data.matched$sex == 1)
+data.matched_female_features = subset.data.frame(data.frame(cbind(data.matched[1], data.matched[14:39], data.matched[77])), data.matched$sex == 2)
+data.matched_male_cov = subset.data.frame(data.frame(cbind(data.matched[1], data.matched[78])), data.matched$sex == 1)
+data.matched_female_cov = subset.data.frame(data.frame(cbind(data.matched[1], data.matched[78])), data.matched$sex == 2)
+
+write.csv(for_hydra_data.matched_features, file="/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched/CogFeatures.csv", row.names = FALSE, quote = FALSE)
+write.csv(for_hydra_data.matched_features, file="/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched/CogCovariates.csv", row.names = FALSE, quote = FALSE)
+write.csv(data.matched_male_features, file="/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched_males/CogFeatures.csv", row.names = FALSE, quote = FALSE)
+write.csv(data.matched_male_cov, file="/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched_males/CogCovariates.csv", row.names = FALSE, quote = FALSE)
+write.csv(data.matched_female_features, file="/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched_females/CogFeatures.csv", row.names = FALSE, quote = FALSE)
+write.csv(data.matched_female_cov, file="/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched_females/CogCovariates.csv", row.names = FALSE, quote = FALSE)
 
 #Make table 1 (demographics) for matched data
 #subset demographics
