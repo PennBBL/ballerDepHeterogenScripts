@@ -6,8 +6,8 @@ library(plm)
 library(MatchIt)
 
 ###### This script reads in demographics, cnb_scores, health and psych summaries, merges them, removes NAs, codes and separates by depression#####
-####Also preps for hydra, both using a typical GAM model and matching (we lose a lot of people) and also with residuals plotted so we don't have to match#########
-########Also provides matched data sets and tests them, if we decide to use them.  It significantly reduces N to match (dataset from 3022 to 1424)
+####Also preps for Hydra, both using a typical GAM model and matching (we lose a lot of people) and also with residuals plotted so we don't have to match#########
+########Also provides unmatched data sets and tests them, if we decide to use them.  It significantly reduces N to match (dataset from 3022 to 1424)
 
 
 #######################################################
@@ -20,7 +20,7 @@ cnb_scores <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9
 health <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_health_20170405.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_health_20170405.csv
 psych_summary <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_goassess_psych_summary_vars_20131014.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_goassess_psych_summary_vars_20131014.csv
 
-#read in hydra cluster data -> AG (all_gender), M(males), F(females) 
+#read in Hydra cluster data -> AG (all_gender), M(males), F(females) 
 hydra_AG_matched_clusters <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/hydra_output_from_cbica/CogData_all_gender_matched_n1424_HydraSubtypes.csv", header = TRUE, sep = ",")
 hydra_AG_unmatched_clusters <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/hydra_output_from_cbica/CogData_all_gender_unmatched_n3022_HydraSubtypes.csv", header = TRUE, sep = ",")
 hydra_AG_residuals_clusters <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/hydra_output_from_cbica/CogData_all_gender_unmatched_resid_n3022_HydraSubtypes.csv", header = TRUE, sep = ",") 
@@ -122,39 +122,50 @@ subset_with_clusters_M_resid <- merge(subset_dep_or_no_psych_and_no_medicalratin
 
 #get CNB measure names
 cnb_measure_names <- names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED)[grep("_z", names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED))] #get the names of all the columns with _z in the name
+cluster_names <- colnames(hydra_AG_matched_clusters[,2:11])
 
 #using lm, results stored in list
 
+CNB_cog_score_cluster_stats_lm_AG_matched_by_cluster_test <- lapply(cluster_names, function(x)
+{
+  cluster <- as.name(x)
+  CNB_cog_score_cluster_stats_lm_AG_test <- lapply(cnb_measure_names, function(x) 
+  {
+    print(cluster)
+  #  lm(substitute(i ~ cluster, list(i = as.name(x))), data = subset_with_clusters_AG_matched)
+  })
+})
+
 CNB_cog_score_cluster_stats_lm_AG_matched <- lapply(cnb_measure_names, function(x) 
 {
-  lm(substitute(i ~ Hydra_k2, list(i = as.name(x))), data = subset_with_clusters_AG_matched)
+  lm(substitute(i ~ Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_AG_matched)
 })
 
 CNB_cog_score_cluster_stats_lm_AG_unmatched <- lapply(cnb_measure_names, function(x) 
 {
-   lm(substitute(i ~ Hydra_k2, list(i = as.name(x))), data = subset_with_clusters_AG_unmatched)
- # lm(substitute(i ~ Hydra_k2 + race + age_in_years, list(i = as.name(x))), data = subset_with_clusters_AG_unmatched)
+   lm(substitute(i ~ Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_AG_unmatched)
+ # lm(substitute(i ~ Hydra_k3 + race + age_in_years, list(i = as.name(x))), data = subset_with_clusters_AG_unmatched)
 })
 
 CNB_cog_score_cluster_stats_lm_AG_resid <- lapply(cnb_measure_names, function(x) 
 {
-  lm(substitute(i ~ Hydra_k2, list(i = as.name(x))), data = subset_with_clusters_AG_resid)
+  lm(substitute(i ~ Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_AG_resid)
 })
 
 CNB_cog_score_cluster_stats_anova_AG_matched <- lapply(cnb_measure_names, function(x) 
 {
-  anova(lm(substitute(i ~ Hydra_k2, list(i = as.name(x))), data = subset_with_clusters_AG_matched))
+  anova(lm(substitute(i ~ Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_AG_matched))
 })
 
 CNB_cog_score_cluster_stats_anova_AG_unmatched <- lapply(cnb_measure_names, function(x) 
 {
-  anova(lm(substitute(i ~ Hydra_k2, list(i = as.name(x))), data = subset_with_clusters_AG_unmatched))
-#  anova(lm(substitute(i ~ Hydra_k2 + race + age_in_years, list(i = as.name(x))), data = subset_with_clusters_AG_unmatched))
+  anova(lm(substitute(i ~ Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_AG_unmatched))
+#  anova(lm(substitute(i ~ Hydra_k3 + race + age_in_years, list(i = as.name(x))), data = subset_with_clusters_AG_unmatched))
 })
 
 CNB_cog_score_cluster_stats_anova_AG_resid <- lapply(cnb_measure_names, function(x) 
 {
-  anova(lm(substitute(i ~ Hydra_k2, list(i = as.name(x))), data = subset_with_clusters_AG_resid))
+  anova(lm(substitute(i ~ Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_AG_resid))
 })
 
 names(CNB_cog_score_cluster_stats_lm_AG_matched) <- cnb_measure_names
@@ -176,24 +187,75 @@ lapply(CNB_cog_score_cluster_stats_lm_AG_resid, function(x) {visreg(x)})
 
 ####From prep script, will obviously need to be edited)
 #Make table 1 (demographics)
-#subset demographics
-listVars <- c("Race_binarized", "Sex", "Maternal Ed", "Age", "Depression") #Race 1 = caucasian, Maternal Ed = years, age = years, dep 1 = dep, 0 = non_dep
 
-demo_data.matched <- data.frame(data.matched$race_binarized, data.matched$sex, data.matched$medu1, data.matched$age_in_years, data.matched$dep_binarized)
-names(demo_data.matched) <- c(listVars)
+#######Matched group ##############
+#subset demographics
+listVars <- c("Race", "Sex", "Maternal Ed", "Age", "Depression", "Cluster") #Race 1 = caucasian, Maternal Ed = years, age = years, dep 1 = dep, 0 = non_dep
+demo_hydra_k3_AG_matched <- data.frame(subset_with_clusters_AG_matched$race_binarized, subset_with_clusters_AG_matched$sex, subset_with_clusters_AG_matched$medu1, subset_with_clusters_AG_matched$age_in_years, subset_with_clusters_AG_matched$dep_binarized, subset_with_clusters_AG_matched$Hydra_k3)
+names(demo_hydra_k3_AG_matched) <- c(listVars)
 
 #Change categorical values to have names
-demo_data.matched$Depression <- ifelse(demo_data.matched$Depression == 1, "Depressed", "Non-depressed")
-demo_data.matched$Race <- ifelse(demo_data.matched$Race == 1, "Caucasian", "Non-caucasian")
-demo_data.matched$Sex <- ifelse(demo_data.matched$Sex == 1, "Male", "Female")
+demo_hydra_k3_AG_matched$Depression <- ifelse(demo_hydra_k3_AG_matched$Depression == 1, "Depressed", "Non-depressed")
+demo_hydra_k3_AG_matched$Race <- ifelse(demo_hydra_k3_AG_matched$Race == 1, "Caucasian", "Non-caucasian")
+demo_hydra_k3_AG_matched$Sex <- ifelse(demo_hydra_k3_AG_matched$Sex == 1, "Male", "Female")
 
 #make variable list
-table_titles <- c("Non-depressed", "Depressed", "P-value")
+#table_titles <- c("Cluster 1", "Cluster 2")
+#table_titles <- c("Cluster 1", "Depressed", "P-value")
 
 #Define Categorical Variables
-cat_variables <- c("Race", "Depression", "Sex")
+cat_variables <- c("Race", "Depression", "Sex", "Cluster")
+
+title <- c("hydra_k3 demographics")
 
 #create demographics table
-demo_data.matched_table <- CreateTableOne(vars = listVars, data = demo_data.matched, factorVars = cat_variables, strata = c("Depression"))
-print(demo_data.matched_table, showAllLevels = TRUE)
+demo_hydra_k3_AG_matched_table <- CreateTableOne(vars = listVars, data = demo_hydra_k3_AG_matched, factorVars = cat_variables, strata = c("Cluster"))
+print(demo_hydra_k3_AG_matched_table, showAllLevels = TRUE)
 
+#######Unmatched group ##############
+#subset demographics
+listVars <- c("Race", "Sex", "Maternal Ed", "Age", "Depression", "Cluster") #Race 1 = caucasian, Maternal Ed = years, age = years, dep 1 = dep, 0 = non_dep
+demo_hydra_k3_AG_unmatched <- data.frame(subset_with_clusters_AG_unmatched$race_binarized, subset_with_clusters_AG_unmatched$sex, subset_with_clusters_AG_unmatched$medu1, subset_with_clusters_AG_unmatched$age_in_years, subset_with_clusters_AG_unmatched$dep_binarized, subset_with_clusters_AG_unmatched$Hydra_k3)
+names(demo_hydra_k3_AG_unmatched) <- c(listVars)
+
+#Change categorical values to have names
+demo_hydra_k3_AG_unmatched$Depression <- ifelse(demo_hydra_k3_AG_unmatched$Depression == 1, "Depressed", "Non-depressed")
+demo_hydra_k3_AG_unmatched$Race <- ifelse(demo_hydra_k3_AG_unmatched$Race == 1, "Caucasian", "Non-caucasian")
+demo_hydra_k3_AG_unmatched$Sex <- ifelse(demo_hydra_k3_AG_unmatched$Sex == 1, "Male", "Female")
+
+#make variable list
+#table_titles <- c("Cluster 1", "Cluster 2")
+#table_titles <- c("Cluster 1", "Depressed", "P-value")
+
+#Define Categorical Variables
+cat_variables <- c("Race", "Depression", "Sex", "Cluster")
+
+title <- c("hydra_k3 demographics")
+
+#create demographics table
+demo_hydra_k3_AG_unmatched_table <- CreateTableOne(vars = listVars, data = demo_hydra_k3_AG_unmatched, factorVars = cat_variables, strata = c("Cluster"))
+print(demo_hydra_k3_AG_unmatched_table, showAllLevels = TRUE)
+
+#######Ununmatched residuals group ##############
+#subset demographics
+listVars <- c("Race", "Sex", "Maternal Ed", "Age", "Depression", "Cluster") #Race 1 = caucasian, Maternal Ed = years, age = years, dep 1 = dep, 0 = non_dep
+demo_hydra_k3_AG_resid <- data.frame(subset_with_clusters_AG_resid$race_binarized, subset_with_clusters_AG_resid$sex, subset_with_clusters_AG_resid$medu1, subset_with_clusters_AG_resid$age_in_years, subset_with_clusters_AG_resid$dep_binarized, subset_with_clusters_AG_resid$Hydra_k3)
+names(demo_hydra_k3_AG_resid) <- c(listVars)
+
+#Change categorical values to have names
+demo_hydra_k3_AG_resid$Depression <- ifelse(demo_hydra_k3_AG_resid$Depression == 1, "Depressed", "Non-depressed")
+demo_hydra_k3_AG_resid$Race <- ifelse(demo_hydra_k3_AG_resid$Race == 1, "Caucasian", "Non-caucasian")
+demo_hydra_k3_AG_resid$Sex <- ifelse(demo_hydra_k3_AG_resid$Sex == 1, "Male", "Female")
+
+#make variable list
+#table_titles <- c("Cluster 1", "Cluster 2")
+#table_titles <- c("Cluster 1", "Depressed", "P-value")
+
+#Define Categorical Variables
+cat_variables <- c("Race", "Depression", "Sex", "Cluster")
+
+title <- c("Hydra_k3 demographics")
+
+#create demographics table
+demo_hydra_k3_AG_resid_table <- CreateTableOne(vars = listVars, data = demo_hydra_k3_AG_resid, factorVars = cat_variables, strata = c("Cluster"))
+print(demo_hydra_k3_AG_resid_table, showAllLevels = TRUE)
