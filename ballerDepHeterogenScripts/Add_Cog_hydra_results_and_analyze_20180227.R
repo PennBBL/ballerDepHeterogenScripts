@@ -4,7 +4,9 @@ library(tableone)
 library(dplyr)
 library(plm)
 library(MatchIt)
-
+library(tidyr)
+library(ggplot2)
+library(reshape)
 ###### This script reads in demographics, cnb_scores, health and psych summaries, merges them, removes NAs, codes and separates by depression#####
 ####Also preps for Hydra, both using a typical GAM model and matching (we lose a lot of people) and also with residuals plotted so we don't have to match#########
 ########Also provides unmatched data sets and tests them, if we decide to use them.  It significantly reduces N to match (dataset from 3022 to 1424)
@@ -187,6 +189,17 @@ lapply(CNB_cog_score_cluster_stats_lm_AG_resid, function(x) {visreg(x)})
 
 ####From prep script, will obviously need to be edited)
 #Make table 1 (demographics)
+
+##########Try to make bar graphs#########
+dat <- data.frame(cluster=c(subset_with_clusters_AG_matched$Hydra_k3), age=c(subset_with_clusters_AG_matched$age_in_years), medu1=c(subset_with_clusters_AG_matched$medu1), race=c(subset_with_clusters_AG_matched$race_binarized), sex_males=c(subset_with_clusters_AG_matched$sex))
+dat_cont <- data.frame(cluster=c(subset_with_clusters_AG_matched$Hydra_k3), age=c(subset_with_clusters_AG_matched$age_in_years), medu1=c(subset_with_clusters_AG_matched$medu1))
+dat_cat <- data.frame(cluster=c(subset_with_clusters_AG_matched$Hydra_k3), race=c(subset_with_clusters_AG_matched$race_binarized), sex=c(subset_with_clusters_AG_matched$sex))
+dat.m <- melt(dat, id.vars='cluster')
+dat_cont.m <- melt(dat_cont, id.vars='cluster')
+dat_cat.m <- melt(dat_cat, id.vars='cluster')
+ggplot(dat.m, aes(fill=cluster, x=cluster, y=value))+ geom_bar(stat='identity') + facet_grid(.~variable) + labs(x='Clusters',y='')
+ggplot(dat_cont.m, aes(fill=cluster, x=cluster, y=value)) + geom_bar(stat='identity') + facet_grid(.~variable) + labs(x='Clusters',y='')
+ggplot(dat_cat.m, aes(fill=cluster, x=cluster, y=value)) + geom_bar(stat='identity') + facet_grid(.~variable) + labs(x='Clusters',y='')
 
 #######Matched group ##############
 #subset demographics
