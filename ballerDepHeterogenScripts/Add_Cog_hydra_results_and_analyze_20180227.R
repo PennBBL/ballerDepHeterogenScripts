@@ -197,7 +197,7 @@ dat_cat <- data.frame(cluster=c(subset_with_clusters_AG_matched$Hydra_k3), race=
 dat.m <- melt(dat, id.vars='cluster')
 dat_cont.m <- melt(dat_cont, id.vars='cluster')
 dat_cat.m <- melt(dat_cat, id.vars='cluster')
-ggplot(dat.m, aes(fill=cluster, x=cluster, y=value))+ geom_bar(stat='identity') + facet_grid(.~variable) + labs(x='Clusters',y='')
+ggplot(dat.m, aes(fill=cluster, x=cluster, y="value"))+ geom_bar(stat="identity") + facet_grid(.~variable) + labs(x='Clusters',y='')
 ggplot(dat_cont.m, aes(fill=cluster, x=cluster, y=value)) + geom_bar(stat='identity') + facet_grid(.~variable) + labs(x='Clusters',y='')
 ggplot(dat_cat.m, aes(fill=cluster, x=cluster, y=value)) + geom_bar(stat='identity') + facet_grid(.~variable) + labs(x='Clusters',y='')
 
