@@ -1,5 +1,5 @@
 ######################
-#### READ IN DATA ####
+#### READ IN DATA MATCHED ####
 ######################
 subjData_matched <- readRDS("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/subset_with_clusters_AG_matched.rds")
 
@@ -86,6 +86,96 @@ print(table1)
 
 #SAVE TABLE
 write.csv(table1,"/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/table1_demo_matched.rds",row.names=TRUE,quote=FALSE)
+
+
+######################
+#### READ IN DATA UNMATCHED MATCHED ####
+######################
+subjData_unmatched <- readRDS("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/subset_with_clusters_AG_unmatched.rds")
+
+#########################################
+#### MAKE CLUSTER VARIABLES ####
+#########################################
+
+##Calculate Sds, sds, percentage of females, percentage of White, and Ns for all clusters (start with Hydra_3)
+
+#Cluster 1, TD(typically developing)
+numTD_um<-length(which(subjData_unmatched$Hydra_k3 == -1)) 
+ageTD_umMean<-mean(subjData_unmatched$age_in_years[which(subjData_unmatched$Hydra_k3==-1)])
+ageTD_umSd<-sd(subjData_unmatched$age_in_years[which(subjData_unmatched$Hydra_k3==-1)])
+femTD_um<-length(which(subjData_unmatched$sex==2 & subjData_unmatched$Hydra_k3==-1))/numTD_um
+whiteTD_um<-(length(which(subjData_unmatched$race==1 & subjData_unmatched$Hydra_k3==-1)))/numTD_um
+meduTD_umMean<-mean(subjData_unmatched$medu1[which(subjData_unmatched$Hydra_k3==-1)], na.rm = TRUE)
+meduTD_umSd<-sd(subjData_unmatched$medu1[which(subjData_unmatched$Hydra_k3==-1)], na.rm = TRUE)
+
+#um_Cluster 2, Depression um = unmatched
+num_um_Cluster2<-length(which(subjData_unmatched$Hydra_k3==1)) 
+age_um_Cluster2Mean<-mean(subjData_unmatched$age_in_years[which(subjData_unmatched$Hydra_k3==1)])
+age_um_Cluster2Sd<-sd(subjData_unmatched$age_in_years[which(subjData_unmatched$Hydra_k3==1)])
+fem_um_Cluster2<-length(which(subjData_unmatched$sex==2 & subjData_unmatched$Hydra_k3==1))/num_um_Cluster2
+white_um_Cluster2<-(length(which(subjData_unmatched$race==1 & subjData_unmatched$Hydra_k3==1)))/num_um_Cluster2
+medu_um_Cluster2Mean<-mean(subjData_unmatched$medu1[which(subjData_unmatched$Hydra_k3==1)], na.rm = TRUE)
+medu_um_Cluster2Sd<-sd(subjData_unmatched$medu1[which(subjData_unmatched$Hydra_k3==1)], na.rm = TRUE)
+
+#_um_Cluster 3, Depression
+num_um_Cluster3<-length(which(subjData_unmatched$Hydra_k3==2)) 
+age_um_Cluster3Mean<-mean(subjData_unmatched$age_in_years[which(subjData_unmatched$Hydra_k3==2)])
+age_um_Cluster3Sd<-sd(subjData_unmatched$age_in_years[which(subjData_unmatched$Hydra_k3==2)])
+fem_um_Cluster3<-length(which(subjData_unmatched$sex==2 & subjData_unmatched$Hydra_k3==2))/num_um_Cluster3
+white_um_Cluster3<-(length(which(subjData_unmatched$race==1 & subjData_unmatched$Hydra_k3==2)))/num_um_Cluster3
+medu_um_Cluster3Mean<-mean(subjData_unmatched$medu1[which(subjData_unmatched$Hydra_k3==2)], na.rm = TRUE)
+medu_um_Cluster3Sd<-sd(subjData_unmatched$medu1[which(subjData_unmatched$Hydra_k3==2)], na.rm = TRUE)
+
+#_um_Cluster 4, Depression
+num_um_Cluster4<-length(which(subjData_unmatched$Hydra_k3 ==3)) 
+age_um_Cluster4Mean<-mean(subjData_unmatched$age_in_years[which(subjData_unmatched$Hydra_k3==3)])
+age_um_Cluster4Sd<-sd(subjData_unmatched$age_in_years[which(subjData_unmatched$Hydra_k3==3)])
+fem_um_Cluster4<-length(which(subjData_unmatched$sex==2 & subjData_unmatched$Hydra_k3==3))/num_um_Cluster4
+white_um_Cluster4<-(length(which(subjData_unmatched$race==1 & subjData_unmatched$Hydra_k3==3)))/num_um_Cluster4
+medu_um_Cluster4Mean<-mean(subjData_unmatched$medu1[which(subjData_unmatched$Hydra_k3==3)], na.rm = TRUE)
+medu_um_Cluster4Sd<-sd(subjData_unmatched$medu1[which(subjData_unmatched$Hydra_k3==3)], na.rm = TRUE)
+
+###############################
+#### TABLE 1: DEMOGRAPHICS ####
+###############################
+#Combine variables
+bblid_and_cluster_names<-c("bblid","Hydra_k1","Hydra_k2","Hydra_k3","Hydra_k4")
+um_clusterDf_um<-subjData_unmatched[,bblid_and_cluster_names]
+
+numComb_um<-c(numTD_um,num_um_Cluster2,num_um_Cluster3,num_um_Cluster4)
+ageMeanComb_um<-round(c(ageTD_umMean,age_um_Cluster2Mean,age_um_Cluster3Mean,age_um_Cluster4Mean), 2)
+ageSdComb_um<-round(c(ageTD_umSd,age_um_Cluster2Sd,age_um_Cluster3Sd,age_um_Cluster4Sd), 2)
+
+femComb_um<-c(femTD_um,fem_um_Cluster2,fem_um_Cluster3,fem_um_Cluster4)
+whiteComb_um<-c(whiteTD_um,white_um_Cluster2,white_um_Cluster3,white_um_Cluster4)
+
+meduMeanComb_um<-round(c(meduTD_umMean,medu_um_Cluster2Mean,medu_um_Cluster3Mean,medu_um_Cluster4Mean), 2)
+meduSdComb_um<-round(c(meduTD_umSd,medu_um_Cluster2Sd,medu_um_Cluster3Sd,medu_um_Cluster4Sd), 2)
+
+#MAKE TABLE
+um_cluster_namesFull<-c("um_Typically Developing","um_Cluster 1","um_Cluster 2","um_Cluster 3")
+table2<-as.data.frame(matrix(nrow=4,ncol=7))
+row.names(table2)<-um_cluster_namesFull
+colnames(table2)[1]<-"N"
+colnames(table2)[2]<-"Female (%)"
+colnames(table2)[3]<-"Caucasian (%)"
+colnames(table2)[4]<-"Mean Age"
+colnames(table2)[5]<-"SD Age"
+colnames(table2)[6]<-"Mean Maternal Education (Years)"
+colnames(table2)[7]<-"SD Maternal Education"
+table2[,1]<-numComb_um
+table2[,2]<-femComb_um
+table2[,3]<-whiteComb_um
+table2[,4]<-ageMeanComb_um
+table2[,5]<-ageSdComb_um
+table2[,6]<-meduMeanComb_um
+table2[,7]<-meduSdComb_um
+
+#PRINT TABLE
+print(table2)
+
+#SAVE TABLE
+write.csv(table2,"/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/table2_demo_unmatched.rds",row.names=TRUE,quote=FALSE)
 
 ####################################################
 #### FIGURE 1: BIFACTORS BY SCREENING CATEGORY ####  THIS IS TONI's need to update past this
