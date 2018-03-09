@@ -10,7 +10,7 @@ subjData_matched <- readRDS("/Users/eballer/BBL/from_chead/ballerDepHeterogen/da
 ##Calculate Sds, sds, percentage of females, percentage of White, and Ns for all clusters (start with Hydra_3)
 
 #Cluster 1, TD(typically developing)
-numTD<-length(subjData_matched$Hydra_k3[which(subj_data_matched$Hydra_k3==-1)]) 
+numTD<-length(which(subjData_matched$Hydra_k3 == -1)) 
 ageTDMean<-mean(subjData_matched$age_in_years[which(subjData_matched$Hydra_k3==-1)])
 ageTDSd<-sd(subjData_matched$age_in_years[which(subjData_matched$Hydra_k3==-1)])
 femTD<-length(which(subjData_matched$sex==2 & subjData_matched$Hydra_k3==-1))/numTD
@@ -19,7 +19,7 @@ meduTDMean<-mean(subjData_matched$medu1[which(subjData_matched$Hydra_k3==-1)])
 meduTDSd<-sd(subjData_matched$medu1[which(subjData_matched$Hydra_k3==-1)])
 
 #Cluster 2, Depression
-numCluster2<-length(subjData_matched$Hydra_k3[which(subj_data_matched$Hydra_k3==1)]) 
+numCluster2<-length(which(subjData_matched$Hydra_k3==1)) 
 ageCluster2Mean<-mean(subjData_matched$age_in_years[which(subjData_matched$Hydra_k3==1)])
 ageCluster2Sd<-sd(subjData_matched$age_in_years[which(subjData_matched$Hydra_k3==1)])
 femCluster2<-length(which(subjData_matched$sex==2 & subjData_matched$Hydra_k3==1))/numCluster2
@@ -28,7 +28,7 @@ meduCluster2Mean<-mean(subjData_matched$medu1[which(subjData_matched$Hydra_k3==1
 meduCluster2Sd<-sd(subjData_matched$medu1[which(subjData_matched$Hydra_k3==1)])
 
 #Cluster 3, Depression
-numCluster3<-length(subjData_matched$Hydra_k3[which(subj_data_matched$Hydra_k3==2)]) 
+numCluster3<-length(which(subjData_matched$Hydra_k3==2)) 
 ageCluster3Mean<-mean(subjData_matched$age_in_years[which(subjData_matched$Hydra_k3==2)])
 ageCluster3Sd<-sd(subjData_matched$age_in_years[which(subjData_matched$Hydra_k3==2)])
 femCluster3<-length(which(subjData_matched$sex==2 & subjData_matched$Hydra_k3==2))/numCluster3
@@ -37,7 +37,7 @@ meduCluster3Mean<-mean(subjData_matched$medu1[which(subjData_matched$Hydra_k3==2
 meduCluster3Sd<-sd(subjData_matched$medu1[which(subjData_matched$Hydra_k3==2)])
 
 #Cluster 4, Depression
-numCluster4<-length(subjData_matched$Hydra_k3[which(subj_data_matched$Hydra_k3==3)]) 
+numCluster4<-length(which(subjData_matched$Hydra_k3 ==3)) 
 ageCluster4Mean<-mean(subjData_matched$age_in_years[which(subjData_matched$Hydra_k3==3)])
 ageCluster4Sd<-sd(subjData_matched$age_in_years[which(subjData_matched$Hydra_k3==3)])
 femCluster4<-length(which(subjData_matched$sex==2 & subjData_matched$Hydra_k3==3))/numCluster4

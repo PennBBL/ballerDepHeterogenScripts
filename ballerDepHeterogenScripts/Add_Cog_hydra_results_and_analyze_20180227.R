@@ -117,6 +117,18 @@ subset_with_clusters_M_matched <- merge(subset_dep_or_no_psych_and_no_medicalrat
 subset_with_clusters_M_unmatched <- merge(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED, hydra_M_unmatched_clusters, by = "bblid")
 subset_with_clusters_M_resid <- merge(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED, hydra_M_residuals_clusters, by = "bblid")
 
+#save objects
+saveRDS(object = subset_with_clusters_AG_matched , file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/subset_with_clusters_AG_matched.rds")
+saveRDS(object = subset_with_clusters_AG_unmatched , file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/subset_with_clusters_AG_unmatched.rds")
+saveRDS(object = subset_with_clusters_AG_resid , file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/subset_with_clusters_AG_resid.rds")
+
+saveRDS(object = subset_with_clusters_F_matched , file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/subset_with_clusters_F_matched.rds")
+saveRDS(object = subset_with_clusters_F_unmatched , file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/subset_with_clusters_F_unmatched.rds")
+saveRDS(object = subset_with_clusters_F_resid , file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/subset_with_clusters_F_resid.rds")
+
+saveRDS(object = subset_with_clusters_M_matched , file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/subset_with_clusters_M_matched.rds")
+saveRDS(object = subset_with_clusters_M_unmatched , file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/subset_with_clusters_M_unmatched.rds")
+saveRDS(object = subset_with_clusters_M_resid , file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/subset_with_clusters_M_resid.rds")
 
 ###################################################
 ####Run visreg on clustered data, using lapply#####
@@ -126,17 +138,24 @@ subset_with_clusters_M_resid <- merge(subset_dep_or_no_psych_and_no_medicalratin
 cnb_measure_names <- names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED)[grep("_z", names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED))] #get the names of all the columns with _z in the name
 cluster_names <- colnames(hydra_AG_matched_clusters[,2:11])
 
+cnb_measure_names_list <- names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED)[grep("_z", names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED))] #get the names of all the columns with _z in the name
+cluster_names_list <- colnames(hydra_AG_matched_clusters[,2:11])
+
 #using lm, results stored in list
 
-CNB_cog_score_cluster_stats_lm_AG_matched_by_cluster_test <- lapply(cluster_names, function(x)
+####THIS ACTUALLY NOW NESTS ALL OF THE HYDRA CLUSTERS!! ####
+
+CNB_cog_score_cluster_stats_lm_AG_matched_by_cluster_test <- lapply(cluster_names_list, function(cluster_name)
 {
-  cluster <- as.name(x)
-  CNB_cog_score_cluster_stats_lm_AG_test <- lapply(cnb_measure_names, function(x) 
+  CNB_cog_score_cluster_stats_lm_AG_test <- lapply(cnb_measure_names_list, cluster=as.name(cluster_name), function(cnb_measure_name, cluster) 
   {
-    print(cluster)
-  #  lm(substitute(i ~ cluster, list(i = as.name(x))), data = subset_with_clusters_AG_matched)
+    cnb_measure <- as.name(cnb_measure_name)
+    lm(substitute(cnb_measure ~ cluster, list(cnb_measure = cnb_measure, cluster = cluster)), data = subset_with_clusters_AG_matched)
   })
+  #print(names(CNB_cog_score_cluster_stats_lm_AG_test))
+  #names(CNB_cog_score_cluster_stats_lm_AG_test) <- cnb_measure_names_list
 })
+names(CNB_cog_score_cluster_stats_lm_AG_matched_by_cluster_test) <- cluster_names_list
 
 CNB_cog_score_cluster_stats_lm_AG_matched <- lapply(cnb_measure_names, function(x) 
 {
@@ -192,14 +211,22 @@ lapply(CNB_cog_score_cluster_stats_lm_AG_resid, function(x) {visreg(x)})
 
 ##########Try to make bar graphs#########
 dat <- data.frame(cluster=c(subset_with_clusters_AG_matched$Hydra_k3), age=c(subset_with_clusters_AG_matched$age_in_years), medu1=c(subset_with_clusters_AG_matched$medu1), race=c(subset_with_clusters_AG_matched$race_binarized), sex_males=c(subset_with_clusters_AG_matched$sex))
+dat_age_sd_sem <- data.frame(cl = c("TD", "Cluster1", "Cluster2", "Cluster3"), age = c(mean(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k3 ==-1)]), mean(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k3 ==1)]), mean(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k3 ==2)]), mean(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k3 ==3)])), age_sd = c(sd(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k3 ==-1)]), sd(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k3 ==1)]), sd(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k3 ==2)]), sd(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k3 ==3)])))
+dat_age_sd_sem$sem <- dat_age_sd_sem$age_sd/sqrt(length(dat_age_sd_sem))
+dat_medu_sd_sem <- data.frame(cl = c("TD", "Cluster1", "Cluster2", "Cluster3"), medu = c(mean(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k3 ==-1)]), mean(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k3 ==1)]), mean(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k3 ==2)]), mean(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k3 ==3)])), age_sd = c(sd(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k3 ==-1)]), sd(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k3 ==1)]), sd(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k3 ==2)]), sd(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k3 ==3)])))
+dat_medu_sd_sem$sem <- dat_medu_sd_sem$age_sd/sqrt(length(dat_medu_sd_sem))
+
 dat_cont <- data.frame(cluster=c(subset_with_clusters_AG_matched$Hydra_k3), age=c(subset_with_clusters_AG_matched$age_in_years), medu1=c(subset_with_clusters_AG_matched$medu1))
 dat_cat <- data.frame(cluster=c(subset_with_clusters_AG_matched$Hydra_k3), race=c(subset_with_clusters_AG_matched$race_binarized), sex=c(subset_with_clusters_AG_matched$sex))
 dat.m <- melt(dat, id.vars='cluster')
 dat_cont.m <- melt(dat_cont, id.vars='cluster')
 dat_cat.m <- melt(dat_cat, id.vars='cluster')
-ggplot(dat.m, aes(fill=cluster, x=cluster, y="value"))+ geom_bar(stat="identity") + facet_grid(.~variable) + labs(x='Clusters',y='')
-ggplot(dat_cont.m, aes(fill=cluster, x=cluster, y=value)) + geom_bar(stat='identity') + facet_grid(.~variable) + labs(x='Clusters',y='')
-ggplot(dat_cat.m, aes(fill=cluster, x=cluster, y=value)) + geom_bar(stat='identity') + facet_grid(.~variable) + labs(x='Clusters',y='')
+ggplot(dat.m, aes(fill=cluster, x=cluster, y=value))+ geom_bar(stat="identity") + facet_grid(.~variable) + labs(x='Clusters_matched',y='')
+ggplot(dat_age_sd_sem, aes(x = cl, y = age, fill = cl)) + geom_col() + geom_errorbar(aes(ymin=age-sem, ymax=age+sem),width=.2,position=position_dodge(.9))
+ggplot(dat_medu_sd_sem, aes(x = cl, y = medu, fill = cl)) + geom_col() + geom_errorbar(aes(ymin=medu-sem, ymax=medu+sem),width=.2,position=position_dodge(.9))
+
+ggplot(dat_cont.m, aes(fill=cluster, x=cluster, y=value)) + geom_bar(stat='identity') + facet_grid(.~variable) + labs(x='Clusters_matched',y='')
+ggplot(dat_cat.m, aes(fill=cluster, x=cluster, y=value)) + geom_bar(stat='identity') + facet_grid(.~variable) + labs(x='Clusters_matched',y='')
 
 #######Matched group ##############
 #subset demographics
@@ -235,10 +262,6 @@ names(demo_hydra_k3_AG_unmatched) <- c(listVars)
 demo_hydra_k3_AG_unmatched$Depression <- ifelse(demo_hydra_k3_AG_unmatched$Depression == 1, "Depressed", "Non-depressed")
 demo_hydra_k3_AG_unmatched$Race <- ifelse(demo_hydra_k3_AG_unmatched$Race == 1, "Caucasian", "Non-caucasian")
 demo_hydra_k3_AG_unmatched$Sex <- ifelse(demo_hydra_k3_AG_unmatched$Sex == 1, "Male", "Female")
-
-#make variable list
-#table_titles <- c("Cluster 1", "Cluster 2")
-#table_titles <- c("Cluster 1", "Depressed", "P-value")
 
 #Define Categorical Variables
 cat_variables <- c("Race", "Depression", "Sex", "Cluster")
