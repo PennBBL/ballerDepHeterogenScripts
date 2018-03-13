@@ -152,8 +152,7 @@ CNB_cog_score_cluster_stats_lm_AG_matched_by_cluster_test <- lapply(cluster_name
     cnb_measure <- as.name(cnb_measure_name)
     lm(substitute(cnb_measure ~ cluster, list(cnb_measure = cnb_measure, cluster = cluster)), data = subset_with_clusters_AG_matched)
   })
-  #print(names(CNB_cog_score_cluster_stats_lm_AG_test))
-  #names(CNB_cog_score_cluster_stats_lm_AG_test) <- cnb_measure_names_list
+  setNames(CNB_cog_score_cluster_stats_lm_AG_test, cnb_measure_names_list)
 })
 names(CNB_cog_score_cluster_stats_lm_AG_matched_by_cluster_test) <- cluster_names_list
 
@@ -165,7 +164,6 @@ CNB_cog_score_cluster_stats_lm_AG_matched <- lapply(cnb_measure_names, function(
 CNB_cog_score_cluster_stats_lm_AG_unmatched <- lapply(cnb_measure_names, function(x) 
 {
    lm(substitute(i ~ Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_AG_unmatched)
- # lm(substitute(i ~ Hydra_k3 + race + age_in_years, list(i = as.name(x))), data = subset_with_clusters_AG_unmatched)
 })
 
 CNB_cog_score_cluster_stats_lm_AG_resid <- lapply(cnb_measure_names, function(x) 
@@ -181,7 +179,6 @@ CNB_cog_score_cluster_stats_anova_AG_matched <- lapply(cnb_measure_names, functi
 CNB_cog_score_cluster_stats_anova_AG_unmatched <- lapply(cnb_measure_names, function(x) 
 {
   anova(lm(substitute(i ~ Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_AG_unmatched))
-#  anova(lm(substitute(i ~ Hydra_k3 + race + age_in_years, list(i = as.name(x))), data = subset_with_clusters_AG_unmatched))
 })
 
 CNB_cog_score_cluster_stats_anova_AG_resid <- lapply(cnb_measure_names, function(x) 
@@ -211,7 +208,7 @@ lapply(CNB_cog_score_cluster_stats_lm_AG_resid, function(x) {visreg(x)})
 
 ##########Try to make bar graphs#########
 dat <- data.frame(cluster=c(subset_with_clusters_AG_matched$Hydra_k3), age=c(subset_with_clusters_AG_matched$age_in_years), medu1=c(subset_with_clusters_AG_matched$medu1), race=c(subset_with_clusters_AG_matched$race_binarized), sex_males=c(subset_with_clusters_AG_matched$sex))
-#dat_age_sd_sem is the data frame that will by cluster(vertical), columns (age, medu), last rows are standard dec and sem
+#dat_age_sd_sem is the data frame that will be cluster(vertical), columns (age, medu), last rows are standard dec and sem
 dat_age_sd_sem <- data.frame(cl = c("TD", "Cluster1", "Cluster2", "Cluster3"), age = c(mean(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k3 ==-1)]), mean(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k3 ==1)]), mean(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k3 ==2)]), mean(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k3 ==3)])), age_sd = c(sd(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k3 ==-1)]), sd(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k3 ==1)]), sd(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k3 ==2)]), sd(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k3 ==3)])))
 dat_age_sd_sem$sem <- dat_age_sd_sem$age_sd/sqrt(nrow(dat)) 
 dat_medu_sd_sem <- data.frame(cl = c("TD", "Cluster1", "Cluster2", "Cluster3"), medu = c(mean(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k3 ==-1)]), mean(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k3 ==1)]), mean(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k3 ==2)]), mean(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k3 ==3)])), age_sd = c(sd(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k3 ==-1)]), sd(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k3 ==1)]), sd(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k3 ==2)]), sd(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k3 ==3)])))
@@ -229,6 +226,30 @@ ggplot(dat_medu_sd_sem, aes(x = cl, y = medu, fill = cl)) + geom_col() + geom_er
 ggplot(dat_cont.m, aes(fill=cluster, x=cluster, y=value)) + geom_bar(stat='identity') + facet_grid(.~variable) + labs(x='Clusters_matched',y='')
 ggplot(dat_cat.m, aes(fill=cluster, x=cluster, y=value)) + geom_bar(stat='identity') + facet_grid(.~variable) + labs(x='Clusters_matched',y='')
 
+#######Matched group all clusters ##############
+#subset demographics
+listVars <- c("Race", "Sex", "Maternal Ed", "Age", "Depression", "Cluster") #Race 1 = caucasian, Maternal Ed = years, age = years, dep 1 = dep, 0 = non_dep
+demo_hydra_k3_AG_matched <- data.frame(subset_with_clusters_AG_matched$race_binarized, subset_with_clusters_AG_matched$sex, subset_with_clusters_AG_matched$medu1, subset_with_clusters_AG_matched$age_in_years, subset_with_clusters_AG_matched$dep_binarized, subset_with_clusters_AG_matched$Hydra_k3)
+names(demo_hydra_k3_AG_matched) <- c(listVars)
+
+#Change categorical values to have names
+demo_hydra_k3_AG_matched$Depression <- ifelse(demo_hydra_k3_AG_matched$Depression == 1, "Depressed", "Non-depressed")
+demo_hydra_k3_AG_matched$Race <- ifelse(demo_hydra_k3_AG_matched$Race == 1, "Caucasian", "Non-caucasian")
+demo_hydra_k3_AG_matched$Sex <- ifelse(demo_hydra_k3_AG_matched$Sex == 1, "Male", "Female")
+
+#make variable list
+#table_titles <- c("Cluster 1", "Cluster 2")
+#table_titles <- c("Cluster 1", "Depressed", "P-value")
+
+#Define Categorical Variables
+cat_variables <- c("Race", "Depression", "Sex", "Cluster")
+
+title <- c("hydra_k3 demographics")
+
+#create demographics table
+demo_hydra_k3_AG_matched_table <- CreateTableOne(vars = listVars, data = demo_hydra_k3_AG_matched, factorVars = cat_variables, strata = c("Cluster"))
+print(demo_hydra_k3_AG_matched_table, showAllLevels = TRUE)
+#-----end of Lapply going through all cluster #s
 #######Matched group ##############
 #subset demographics
 listVars <- c("Race", "Sex", "Maternal Ed", "Age", "Depression", "Cluster") #Race 1 = caucasian, Maternal Ed = years, age = years, dep 1 = dep, 0 = non_dep
