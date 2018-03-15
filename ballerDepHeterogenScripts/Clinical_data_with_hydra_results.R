@@ -217,9 +217,9 @@ names(clinical_cog_score_cluster_stats_anova_AG_unmatched) <- clinical_measure_n
 names(clinical_cog_score_cluster_stats_anova_AG_resid) <- clinical_measure_names
 
 #checkmodel with visreg, uncomment when want to check
-#lapply(clinical_cog_score_cluster_stats_lm_AG_matched, function(x) {visreg(x)}) 
-#lapply(clinical_cog_score_cluster_stats_lm_AG_unmatched, function(x) {visreg(x)}) 
-#lapply(clinical_cog_score_cluster_stats_lm_AG_resid, function(x) {visreg(x)}) 
+lapply(clinical_cog_score_cluster_stats_lm_AG_matched, function(x) {visreg(x)}) 
+lapply(clinical_cog_score_cluster_stats_lm_AG_unmatched, function(x) {visreg(x)}) 
+lapply(clinical_cog_score_cluster_stats_lm_AG_resid, function(x) {visreg(x)}) 
 
 #WILL HAVE TO DO THIS FOR MALES AND FEMALES#
 
@@ -291,8 +291,8 @@ dat.m <- melt(dat, id.vars='cluster')
 dat_cont.m <- melt(dat_cont, id.vars='cluster')
 dat_cat.m <- melt(dat_cat, id.vars='cluster')
 
-ggplot(dat.m, aes(fill=cluster, x=cluster, y=value))+ geom_bar(stat="identity") + facet_grid(.~variable) + 
-  labs(x='Clusters_matched',y='') + scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3")) 
+#ggplot(dat.m, aes(fill=cluster, x=cluster, y=value))+ geom_bar(stat="identity") + facet_grid(.~variable) + 
+ # labs(x='Clusters_matched',y='') + scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3")) 
 
 ggplot(dat_age_sd_sem, aes(x = cl, y = age, fill = cl)) + geom_col() + 
   geom_errorbar(aes(ymin=age-sem, ymax=age+sem),width=.2,position=position_dodge(.9)) + 
@@ -306,13 +306,13 @@ ggplot(dat_medu_sd_sem, aes(x = cl, y = medu, fill = cl)) + geom_col() +
   ggtitle("Maternal Edu by Cluster") + scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2", "Cluster3")) +
   guides(fill=guide_legend(title=NULL)) 
 
-ggplot(dat_cont.m, aes(fill=cluster, x=cluster, y=value)) + geom_bar(stat='identity') + 
-  facet_grid(.~variable) + labs(x='Clusters_matched',y='') + 
-  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3"))
+#ggplot(dat_cont.m, aes(fill=cluster, x=cluster, y=value)) + geom_bar(stat='identity') + 
+ # facet_grid(.~variable) + labs(x='Clusters_matched',y='') + 
+  #scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3"))
 
-ggplot(dat_cat.m, aes(fill=cluster, x=cluster, y=value)) + geom_bar(stat='identity') + 
-  facet_grid(.~variable) + labs(x='Clusters_matched',y='') +
-  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3"))
+#ggplot(dat_cat.m, aes(fill=cluster, x=cluster, y=value)) + geom_bar(stat='identity') + 
+ # facet_grid(.~variable) + labs(x='Clusters_matched',y='') +
+#  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3"))
 
 
 ###################################################
