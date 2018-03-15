@@ -7,7 +7,7 @@ library(MatchIt)
 library(tidyr)
 library(ggplot2)
 library(reshape)
-###### This script reads in demographics, cnb_scores, health and psych summaries, merges them, removes NAs, codes and separates by depression#####
+###### This script reads in demographics, clinical_scores, health and psych summaries, merges them, removes NAs, codes and separates by depression#####
 ####Also preps for Hydra, both using a typical GAM model and matching (we lose a lot of people) and also with residuals plotted so we don't have to match#########
 ########Also provides unmatched data sets and tests them, if we decide to use them.  It significantly reduces N to match (dataset from 3022 to 1424)
 
@@ -18,7 +18,7 @@ library(reshape)
 
 #read in csvs
 demographics <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_demographics_go1_20161212.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_demographics_go1_20161212.csv
-cnb_scores <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_cnb_zscores_fr_20170202.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_cnb_zscores_fr_20170202.csv
+clinical_scores <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_goassess_itemwise_bifactor_scores_20161219.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_goassess_itemwise_bifactor_scores_20161219.csv
 health <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_health_20170405.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_health_20170405.csv
 psych_summary <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_goassess_psych_summary_vars_20131014.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_goassess_psych_summary_vars_20131014.csv
 
@@ -51,28 +51,27 @@ hydra_M_residuals_clusters[hydra_names] <- lapply(hydra_M_residuals_clusters[hyd
 
 
 ############
-#prepping and merging big CNB and demographics stuff
+#prepping and merging big clinical and demographics stuff
 ############
 
 #remove people with NA for race, age, or sex.  START WITH N = 9498
 demographics_noNA_race <- demographics[!is.na(demographics$race),] #everyone has a race, N = 9498
 demographics_noNA_race_age <- demographics_noNA_race[!is.na(demographics_noNA_race$ageAtClinicalAssess1),] # 86 people do not have age at clinical assessment.  N = 9412
 demographics_noNA_race_age_sex <- demographics_noNA_race_age[!is.na(demographics_noNA_race_age$sex),] #everyone has a sex, N = 9412
-demographics_noNA_race_age_andCNBage_sex <- demographics_noNA_race_age_sex[!is.na(demographics_noNA_race_age_sex$ageAtCnb1),] #6 people do not have ageAtCnb1, N = 9406
 
 #remove people with NA for depression or total psych score, START WITH N = 9498
 psych_summary_no_NA_dep <- psych_summary[!is.na(psych_summary$smry_dep),] #take out those with NA for depression, 87 people N = 9411
 psych_summary_no_NA_dep_and_smry_psych_overall <- psych_summary_no_NA_dep[!is.na(psych_summary_no_NA_dep$smry_psych_overall_rtg),] #take out those with NA for overall psych rtg, no additional people lost, N = 9411
 
-#merge demographics and cnb #this is if we want to include people without full demographic data
-dem_cnb <- merge(demographics_noNA_race_age_andCNBage_sex, cnb_scores, by = "bblid") #merge demographics and cnb, N = 9406
+#merge demographics and clinical #this is if we want to include people without full demographic data
+dem_clinical <- merge(demographics_noNA_race_age_sex, clinical_scores, by = "bblid") #merge demographics and clinical, N = 9350
 psych_health <- merge(psych_summary_no_NA_dep_and_smry_psych_overall, health, by = "bblid") #merge psych and health, N = 9411
-dem_cnb_psych_health_merged <- merge (dem_cnb, psych_health, by = "bblid") #merge all 4 csvs, lost 1 person [134716] (had demographics, but no psych ratings): N = 9405
+dem_clinical_psych_health_merged <- merge (dem_clinical, psych_health, by = "bblid") #merge all 3 csvs, lost 1 person [134716] (had demographics, but no psych ratings): N = 9350
 
 #make subsets
-subset_just_dep_and_no_medicalratingExclude <- subset.data.frame(dem_cnb_psych_health_merged, (medicalratingExclude == 0) & (smry_dep == 4), select = "bblid") #subset people who were not medically excluded and who are depressed, N = 776
-subset_no_psych_no_medicalratingExclude <- subset.data.frame(dem_cnb_psych_health_merged, (medicalratingExclude == 0) & (smry_psych_overall_rtg < 4), select = "bblid") #subset people who are psychiatrically healthy, N = 2508
-subset_dep_or_no_psych_and_no_medicalratingExclude <- subset.data.frame(dem_cnb_psych_health_merged, (medicalratingExclude == 0) & ((smry_dep == 4) | (smry_psych_overall_rtg <4))) #subset including both depressed and healthies, good for regressions, N = 3284
+subset_just_dep_and_no_medicalratingExclude <- subset.data.frame(dem_clinical_psych_health_merged, (medicalratingExclude == 0) & (smry_dep == 4), select = "bblid") #subset people who were not medically excluded and who are depressed, N = 776
+subset_no_psych_no_medicalratingExclude <- subset.data.frame(dem_clinical_psych_health_merged, (medicalratingExclude == 0) & (smry_psych_overall_rtg < 4), select = "bblid") #subset people who are psychiatrically healthy, N = 2508
+subset_dep_or_no_psych_and_no_medicalratingExclude <- subset.data.frame(dem_clinical_psych_health_merged, (medicalratingExclude == 0) & ((smry_dep == 4) | (smry_psych_overall_rtg <4))) #subset including both depressed and healthies, good for regressions, N = 3284
 
 #would binarize depression smry score to -1 (less than 4, not depressed) and 1 (score 4 , depressed)
 dep_binarized <- ifelse(subset_dep_or_no_psych_and_no_medicalratingExclude$smry_dep == 4, 1, -1)
@@ -82,8 +81,8 @@ subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED <- cbind(subset_
 subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$dep_binarized <- as.factor(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$dep_binarized)
 subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$sex <- as.factor(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$sex)
 
-#divide ageAtCNB by 12 for age
-subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$age_in_years <- subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$ageAtCnb1/12
+#divide ageAtclinical by 12 for age
+subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$age_in_years <- subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$ageAtClinicalAssess1/12
 
 #race binarized for plotting purposes, caucasian 1, non-caucasion 0
 subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$race_binarized <- ifelse(as.factor(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$race) == 1, 1, 0)
@@ -96,49 +95,49 @@ subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED <- subset_dep_or
 ################################################
 
 #AG (all gender), M (males), F (females) 
-#AG Matched - n 1424
-#AG Unmatched n = 3022
-#AG Resid n = 3022
+#AG Matched - n 1423
+#AG Unmatched n = 3014
+#AG Resid n = 3014
 subset_with_clusters_AG_matched <- merge(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED, hydra_AG_matched_clusters, by = "bblid")
 subset_with_clusters_AG_unmatched <- merge(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED, hydra_AG_unmatched_clusters, by = "bblid")
 subset_with_clusters_AG_resid <- merge(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED, hydra_AG_residuals_clusters, by = "bblid")
 
-#F Matched - n 954
-#F Unmatched n = 1588
-#F Resid n = 1588
+#F Matched - n 952
+#F Unmatched n = 1584
+#F Resid n = 1585
 subset_with_clusters_F_matched <- merge(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED, hydra_F_matched_clusters, by = "bblid")
 subset_with_clusters_F_unmatched <- merge(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED, hydra_F_unmatched_clusters, by = "bblid")
 subset_with_clusters_F_resid <- merge(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED, hydra_F_residuals_clusters, by = "bblid")
 
 #M Matched - n 470
-#M Unmatched n = 1434
-#M Resid n = 1434
+#M Unmatched n = 1430
+#M Resid n = 1430
 subset_with_clusters_M_matched <- merge(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED, hydra_M_matched_clusters, by = "bblid")
 subset_with_clusters_M_unmatched <- merge(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED, hydra_M_unmatched_clusters, by = "bblid")
 subset_with_clusters_M_resid <- merge(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED, hydra_M_residuals_clusters, by = "bblid")
 
 #save objects
-saveRDS(object = subset_with_clusters_AG_matched, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/subset_with_clusters_AG_matched_cnb.rds")
-saveRDS(object = subset_with_clusters_AG_unmatched, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/subset_with_clusters_AG_unmatched_cnb.rds")
-saveRDS(object = subset_with_clusters_AG_resid, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/subset_with_clusters_AG_resid_cnb.rds")
+saveRDS(object = subset_with_clusters_AG_matched, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/subset_with_clusters_AG_matched_clinical.rds")
+saveRDS(object = subset_with_clusters_AG_unmatched, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/subset_with_clusters_AG_unmatched_clinical.rds")
+saveRDS(object = subset_with_clusters_AG_resid, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/subset_with_clusters_AG_resid_clinical.rds")
 
-saveRDS(object = subset_with_clusters_F_matched, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/subset_with_clusters_F_matched_cnb.rds")
-saveRDS(object = subset_with_clusters_F_unmatched, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/subset_with_clusters_F_unmatched_cnb.rds")
-saveRDS(object = subset_with_clusters_F_resid, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/subset_with_clusters_F_resid_cnb.rds")
+saveRDS(object = subset_with_clusters_F_matched, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/subset_with_clusters_F_matched_clinical.rds")
+saveRDS(object = subset_with_clusters_F_unmatched, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/subset_with_clusters_F_unmatched_clinical.rds")
+saveRDS(object = subset_with_clusters_F_resid, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/subset_with_clusters_F_resid_clinical.rds")
 
-saveRDS(object = subset_with_clusters_M_matched, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/subset_with_clusters_M_matched_cnb.rds")
-saveRDS(object = subset_with_clusters_M_unmatched, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/subset_with_clusters_M_unmatched_cnb.rds")
-saveRDS(object = subset_with_clusters_M_resid, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/subset_with_clusters_M_resid_cnb.rds")
+saveRDS(object = subset_with_clusters_M_matched, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/subset_with_clusters_M_matched_clinical.rds")
+saveRDS(object = subset_with_clusters_M_unmatched, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/subset_with_clusters_M_unmatched_clinical.rds")
+saveRDS(object = subset_with_clusters_M_resid, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/subset_with_clusters_M_resid_clinical.rds")
 
 ###################################################
 ### Run visreg on clustered data, using lapply ####
 ###################################################
 
-#get CNB measure names
-cnb_measure_names <- names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED)[grep("_z", names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED))] #get the names of all the columns with _z in the name
+#get clinical measure names (grep factor)  do I need to grep smry?
+clinical_measure_names <- names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED)[grep("factor", names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED))] #get the names of all the columns with _z in the name
 cluster_names <- colnames(hydra_AG_matched_clusters[,2:11])
 
-cnb_measure_names_list <- names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED)[grep("_z", names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED))] #get the names of all the columns with _z in the name
+clinical_measure_names_list <- names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED)[grep("factor", names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED))] #get the names of all the columns with _z in the name
 cluster_names_list <- colnames(hydra_AG_matched_clusters[,2:11])
 
 
@@ -148,29 +147,29 @@ cluster_names_list <- colnames(hydra_AG_matched_clusters[,2:11])
 #################################
 
 #### All Hydra clusters in embedded lis t######
-CNB_cog_score_cluster_stats_lm_AG_matched_by_cluster_1through10 <- lapply(cluster_names_list, function(cluster_name)
+clinical_cog_score_cluster_stats_lm_AG_matched_by_cluster_1through10 <- lapply(cluster_names_list, function(cluster_name)
 {
-  CNB_cog_score_cluster_stats_lm_AG_matched_withincluster<- lapply(cnb_measure_names_list, cluster=as.name(cluster_name), function(cnb_measure_name, cluster) 
+  clinical_cog_score_cluster_stats_lm_AG_matched_withincluster<- lapply(clinical_measure_names_list, cluster=as.name(cluster_name), function(clinical_measure_name, cluster) 
   {
-    cnb_measure <- as.name(cnb_measure_name)
-    lm(substitute(cnb_measure ~ cluster, list(cnb_measure = cnb_measure, cluster = cluster)), data = subset_with_clusters_AG_matched)
+    clinical_measure <- as.name(clinical_measure_name)
+    lm(substitute(clinical_measure ~ cluster, list(clinical_measure = clinical_measure, cluster = cluster)), data = subset_with_clusters_AG_matched)
   })
-  setNames(CNB_cog_score_cluster_stats_lm_AG_matched_withincluster, cnb_measure_names_list)
+  setNames(clinical_cog_score_cluster_stats_lm_AG_matched_withincluster, clinical_measure_names_list)
 })
-names(CNB_cog_score_cluster_stats_lm_AG_matched_by_cluster_1through10) <- cluster_names_list
+names(clinical_cog_score_cluster_stats_lm_AG_matched_by_cluster_1through10) <- cluster_names_list
 
 ##### Just Hydra_3 clusters ######
-CNB_cog_score_cluster_stats_lm_AG_matched <- lapply(cnb_measure_names, function(x) 
+clinical_cog_score_cluster_stats_lm_AG_matched <- lapply(clinical_measure_names, function(x) 
 {
   lm(substitute(i ~ Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_AG_matched)
 })
 
-CNB_cog_score_cluster_stats_lm_AG_unmatched <- lapply(cnb_measure_names, function(x) 
+clinical_cog_score_cluster_stats_lm_AG_unmatched <- lapply(clinical_measure_names, function(x) 
 {
-   lm(substitute(i ~ Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_AG_unmatched)
+  lm(substitute(i ~ Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_AG_unmatched)
 })
 
-CNB_cog_score_cluster_stats_lm_AG_resid <- lapply(cnb_measure_names, function(x) 
+clinical_cog_score_cluster_stats_lm_AG_resid <- lapply(clinical_measure_names, function(x) 
 {
   lm(substitute(i ~ Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_AG_resid)
 })
@@ -181,46 +180,46 @@ CNB_cog_score_cluster_stats_lm_AG_resid <- lapply(cnb_measure_names, function(x)
 ##############################
 
 ######## All hydra clusters, Anova results ########
-CNB_cog_score_cluster_stats_anova_AG_matched_by_cluster_1through10 <- lapply(cluster_names_list, function(cluster_name)
+clinical_cog_score_cluster_stats_anova_AG_matched_by_cluster_1through10 <- lapply(cluster_names_list, function(cluster_name)
 {
-  CNB_cog_score_cluster_stats_anova_AG_withincluster <- lapply(cnb_measure_names_list, cluster=as.name(cluster_name), function(cnb_measure_name, cluster) 
+  clinical_cog_score_cluster_stats_anova_AG_withincluster <- lapply(clinical_measure_names_list, cluster=as.name(cluster_name), function(clinical_measure_name, cluster) 
   {
-     cnb_measure <- as.name(cnb_measure_name)
-     anova(lm(substitute(cnb_measure ~ cluster, list(cnb_measure = cnb_measure, cluster = cluster)), data = subset_with_clusters_AG_matched))
+    clinical_measure <- as.name(clinical_measure_name)
+    anova(lm(substitute(clinical_measure ~ cluster, list(clinical_measure = clinical_measure, cluster = cluster)), data = subset_with_clusters_AG_matched))
   })
-  setNames(CNB_cog_score_cluster_stats_anova_AG_withincluster, cnb_measure_names_list)
+  setNames(clinical_cog_score_cluster_stats_anova_AG_withincluster, clinical_measure_names_list)
 })
-names(CNB_cog_score_cluster_stats_anova_AG_matched_by_cluster_1through10) <- cluster_names_list
+names(clinical_cog_score_cluster_stats_anova_AG_matched_by_cluster_1through10) <- cluster_names_list
 
 
 #####Just Hydra 3 clusters ANOVA ########
-CNB_cog_score_cluster_stats_anova_AG_matched <- lapply(cnb_measure_names, function(x) 
+clinical_cog_score_cluster_stats_anova_AG_matched <- lapply(clinical_measure_names, function(x) 
 {
   anova(lm(substitute(i ~ Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_AG_matched))
 })
 
-CNB_cog_score_cluster_stats_anova_AG_unmatched <- lapply(cnb_measure_names, function(x) 
+clinical_cog_score_cluster_stats_anova_AG_unmatched <- lapply(clinical_measure_names, function(x) 
 {
   anova(lm(substitute(i ~ Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_AG_unmatched))
 })
 
-CNB_cog_score_cluster_stats_anova_AG_resid <- lapply(cnb_measure_names, function(x) 
+clinical_cog_score_cluster_stats_anova_AG_resid <- lapply(clinical_measure_names, function(x) 
 {
   anova(lm(substitute(i ~ Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_AG_resid))
 })
 
-names(CNB_cog_score_cluster_stats_lm_AG_matched) <- cnb_measure_names
-names(CNB_cog_score_cluster_stats_lm_AG_unmatched) <- cnb_measure_names
-names(CNB_cog_score_cluster_stats_lm_AG_resid) <- cnb_measure_names
+names(clinical_cog_score_cluster_stats_lm_AG_matched) <- clinical_measure_names
+names(clinical_cog_score_cluster_stats_lm_AG_unmatched) <- clinical_measure_names
+names(clinical_cog_score_cluster_stats_lm_AG_resid) <- clinical_measure_names
 
-names(CNB_cog_score_cluster_stats_anova_AG_matched) <- cnb_measure_names
-names(CNB_cog_score_cluster_stats_anova_AG_unmatched) <- cnb_measure_names
-names(CNB_cog_score_cluster_stats_anova_AG_resid) <- cnb_measure_names
+names(clinical_cog_score_cluster_stats_anova_AG_matched) <- clinical_measure_names
+names(clinical_cog_score_cluster_stats_anova_AG_unmatched) <- clinical_measure_names
+names(clinical_cog_score_cluster_stats_anova_AG_resid) <- clinical_measure_names
 
 #checkmodel with visreg, uncomment when want to check
-#lapply(CNB_cog_score_cluster_stats_lm_AG_matched, function(x) {visreg(x)}) 
-#lapply(CNB_cog_score_cluster_stats_lm_AG_unmatched, function(x) {visreg(x)}) 
-#lapply(CNB_cog_score_cluster_stats_lm_AG_resid, function(x) {visreg(x)}) 
+#lapply(clinical_cog_score_cluster_stats_lm_AG_matched, function(x) {visreg(x)}) 
+#lapply(clinical_cog_score_cluster_stats_lm_AG_unmatched, function(x) {visreg(x)}) 
+#lapply(clinical_cog_score_cluster_stats_lm_AG_resid, function(x) {visreg(x)}) 
 
 #WILL HAVE TO DO THIS FOR MALES AND FEMALES#
 
@@ -322,10 +321,10 @@ ggplot(dat_cat.m, aes(fill=cluster, x=cluster, y=value)) + geom_bar(stat='identi
 
 #Looking at Hydra_k3, but can redo with nested list
 #Look at model summaries
-models_anova <- lapply(CNB_cog_score_cluster_stats_anova_AG_matched, summary)
+models_anova <- lapply(clinical_cog_score_cluster_stats_anova_AG_matched, summary)
 
 #Pull p-values
-p_anova <- sapply(CNB_cog_score_cluster_stats_anova_AG_matched, function(v) v$"Pr(>F)"[1]) #$coef[,"Pr(>F)"][2]) #get the p value for dep binarized
+p_anova <- sapply(clinical_cog_score_cluster_stats_anova_AG_matched, function(v) v$"Pr(>F)"[1]) #$coef[,"Pr(>F)"][2]) #get the p value for dep binarized
 
 #Convert to data frame
 p_anova <- as.data.frame(p_anova)
@@ -338,22 +337,22 @@ pfdr_anova <- p.adjust(p_anova[,1],method="fdr")
 
 #Convert to data frame
 pfdr_anova <- as.data.frame(pfdr_anova)
-row.names(pfdr_anova) <- cnb_measure_names
+row.names(pfdr_anova) <- clinical_measure_names
 
 #To print fdr-corrected p-values to three decimal places
 pfdr_round_anova <- round(pfdr_anova,3)
 
 #List the NMF components that survive FDR correction
-CNB_fdr_anova <- row.names(pfdr_anova)[pfdr_anova<0.05]
+clinical_fdr_anova <- row.names(pfdr_anova)[pfdr_anova<0.05]
 
 #make a data frame with names and fdr values (rounded to 3 decimals)
-CNB_names_and_fdr_values_anova <- data.frame(cbind(CNB_fdr_anova, round(pfdr_anova[pfdr_anova<0.05],3)))
+clinical_names_and_fdr_values_anova <- data.frame(cbind(clinical_fdr_anova, round(pfdr_anova[pfdr_anova<0.05],3)))
 
 #add titles to names_and_fdr tables
-names(CNB_names_and_fdr_values_anova) <- c("CNB_measure", "p_FDR_corr")
+names(clinical_names_and_fdr_values_anova) <- c("clinical_measure", "p_FDR_corr")
 
 #write the results of the mass univariate stats to files
-#write.csv(CNB_names_and_fdr_values_anova, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/n3284_dep776_nondep2508_mass_univ_FDR_corrected_anova_20171211.csv")
+write.csv(clinical_names_and_fdr_values_anova, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_k3_clinical_20180315.csv")
 
 
 #############################
