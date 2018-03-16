@@ -7,10 +7,37 @@ library(MatchIt)
 library(tidyr)
 library(ggplot2)
 library(reshape)
+theme_update(plot.title = element_text(hjust = 0.5))
 ###### This script reads in demographics, cnb_scores, health and psych summaries, merges them, removes NAs, codes and separates by depression#####
-####Also preps for Hydra, both using a typical GAM model and matching (we lose a lot of people) and also with residuals plotted so we don't have to match#########
-########Also provides unmatched data sets and tests them, if we decide to use them.  It significantly reduces N to match (dataset from 3022 to 1424)
 
+
+#This script goes through demographics, cnb scores, health, and psych summaries, adds clustering information, runs statistics and makes graphs from results.
+
+#Part 1 : Read in csv.s
+#-This script reads in demographics, cnb_scores, health and psych summaries, merges them, removes NAs, codes and separates by depression.
+
+#Part 2 : merge with hydra
+#-It then merges these documents with hydra output (made in cbica), adding Hydra_k1 through Hydra_k10 columns (which represent the number of clusters)
+#-The script reads in 3 different types of groups (matched, unmatched, and residualized unmatched groups), and also does all gender together as well as separating them by gender.
+
+#Part 3 : LM
+#-The script then runs LM on each cognitive score (cnb_measure ~ hydra_group).  
+#-There is a test option that does this for all cnb measures and all hydra groups, but for the remainder of the analysis, Hydra_k3 was the only classification more deeply explored.
+
+#Part 4 : Anova
+#-Anovas were also run on the results of the LM of each cnb value by cluster.
+
+#Part 5 : Graphing
+#- Graphs were then made.  
+#*For continuous variables(age, medu1), the graphs represent means, with SEM as error bars
+#*For categorical variables (race, sex) the graphs are percentages (caucasian, male) per group, with chisq used to calculate significance
+
+#Part 6 : FDR Correction
+#-FDR correction was calculated for each cnb measure ANOVA output
+#-A table of the results was extracted
+
+#Part 7 : Demographics tables
+#- Demographics tables for each group (matched, unmatched, resid) were produced
 
 #######################################################
 ############ READ IN, MERGE AND SUBSET DATA############
@@ -130,9 +157,11 @@ saveRDS(object = subset_with_clusters_M_matched, file = "/Users/eballer/BBL/from
 saveRDS(object = subset_with_clusters_M_unmatched, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/subset_with_clusters_M_unmatched_cnb.rds")
 saveRDS(object = subset_with_clusters_M_resid, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/subset_with_clusters_M_resid_cnb.rds")
 
-###################################################
-### Run visreg on clustered data, using lapply ####
-###################################################
+
+#################################
+# Linear Model for each measure #
+##### Results stored in list ####
+#################################
 
 #get CNB measure names
 cnb_measure_names <- names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED)[grep("_z", names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED))] #get the names of all the columns with _z in the name
@@ -140,12 +169,6 @@ cluster_names <- colnames(hydra_AG_matched_clusters[,2:11])
 
 cnb_measure_names_list <- names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED)[grep("_z", names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED))] #get the names of all the columns with _z in the name
 cluster_names_list <- colnames(hydra_AG_matched_clusters[,2:11])
-
-
-#################################
-# Linear Model for each measure #
-##### Results stored in list ####
-#################################
 
 #### All Hydra clusters in embedded lis t######
 CNB_cog_score_cluster_stats_lm_AG_matched_by_cluster_1through10 <- lapply(cluster_names_list, function(cluster_name)
@@ -292,8 +315,8 @@ dat.m <- melt(dat, id.vars='cluster')
 dat_cont.m <- melt(dat_cont, id.vars='cluster')
 dat_cat.m <- melt(dat_cat, id.vars='cluster')
 
-ggplot(dat.m, aes(fill=cluster, x=cluster, y=value))+ geom_bar(stat="identity") + facet_grid(.~variable) + 
-  labs(x='Clusters_matched',y='') + scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3")) 
+#ggplot(dat.m, aes(fill=cluster, x=cluster, y=value))+ geom_bar(stat="identity") + facet_grid(.~variable) + 
+ # labs(x='Clusters_matched',y='') + scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3")) 
 
 ggplot(dat_age_sd_sem, aes(x = cl, y = age, fill = cl)) + geom_col() + 
   geom_errorbar(aes(ymin=age-sem, ymax=age+sem),width=.2,position=position_dodge(.9)) + 
@@ -307,13 +330,13 @@ ggplot(dat_medu_sd_sem, aes(x = cl, y = medu, fill = cl)) + geom_col() +
   ggtitle("Maternal Edu by Cluster") + scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2", "Cluster3")) +
   guides(fill=guide_legend(title=NULL)) 
 
-ggplot(dat_cont.m, aes(fill=cluster, x=cluster, y=value)) + geom_bar(stat='identity') + 
-  facet_grid(.~variable) + labs(x='Clusters_matched',y='') + 
-  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3"))
+#ggplot(dat_cont.m, aes(fill=cluster, x=cluster, y=value)) + geom_bar(stat='identity') + 
+ # facet_grid(.~variable) + labs(x='Clusters_matched',y='') + 
+#  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3"))
 
-ggplot(dat_cat.m, aes(fill=cluster, x=cluster, y=value)) + geom_bar(stat='identity') + 
-  facet_grid(.~variable) + labs(x='Clusters_matched',y='') +
-  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3"))
+#ggplot(dat_cat.m, aes(fill=cluster, x=cluster, y=value)) + geom_bar(stat='identity') + 
+ # facet_grid(.~variable) + labs(x='Clusters_matched',y='') +
+#  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3"))
 
 
 ###################################################
