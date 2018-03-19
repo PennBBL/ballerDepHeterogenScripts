@@ -3,8 +3,8 @@ title: "Clinical data hydra results (primarily using Hydra_k3)"
 author: "Erica Baller"
 date: "3/16/2018"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -480,4 +480,3 @@ print(demo_hydra_k3_AG_resid_table, showAllLevels = TRUE)
 
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

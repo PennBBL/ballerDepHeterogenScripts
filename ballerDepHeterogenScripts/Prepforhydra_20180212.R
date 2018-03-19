@@ -253,7 +253,7 @@ saveRDS(data.matched, file='/Users/eballer/BBL/from_chead/ballerDepHeterogen/res
 
 #all genders together
 for_hydra_data.matched_features <- data.frame(cbind(data.matched[1], data.matched[14:39], data.matched[77]))
-for_hydra_data.matched_cov = subset.data.frame(data.frame(cbind(data.matched[1:2], data.matched[14:39], data.matched[78])))
+for_hydra_data.matched_cov = subset.data.frame(data.frame(cbind(data.matched[1], data.matched[78])))
 
 #covariate just age for matched, males: n = 470, females n = 954
 data.matched_male_features = subset.data.frame(data.frame(cbind(data.matched[1], data.matched[14:39], data.matched[77])), data.matched$sex == 1)
@@ -262,7 +262,7 @@ data.matched_male_cov = subset.data.frame(data.frame(cbind(data.matched[1], data
 data.matched_female_cov = subset.data.frame(data.frame(cbind(data.matched[1], data.matched[78])), data.matched$sex == 2)
 
 write.csv(for_hydra_data.matched_features, file="/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched/CogFeatures.csv", row.names = FALSE, quote = FALSE)
-write.csv(for_hydra_data.matched_features, file="/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched/CogCovariates.csv", row.names = FALSE, quote = FALSE)
+write.csv(for_hydra_data.matched_cov, file="/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched/CogCovariates.csv", row.names = FALSE, quote = FALSE)
 write.csv(data.matched_male_features, file="/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched_males/CogFeatures.csv", row.names = FALSE, quote = FALSE)
 write.csv(data.matched_male_cov, file="/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched_males/CogCovariates.csv", row.names = FALSE, quote = FALSE)
 write.csv(data.matched_female_features, file="/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched_females/CogFeatures.csv", row.names = FALSE, quote = FALSE)
