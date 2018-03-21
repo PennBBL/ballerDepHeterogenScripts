@@ -271,7 +271,15 @@ names(df_mean_processing_speed_z) <- c("TD", "Cluster 1", "Cluster 2")
 names(df_mean_efficiency_z) <- c("TD", "Cluster 1", "Cluster 2")
 
 df_mean_acc_speed_eff <- rbind(df_mean_accuracy_z, df_mean_processing_speed_z, df_mean_efficiency_z)
-print(df_mean_acc_speed_eff)
+#print(df_mean_acc_speed_eff)
+
+cnb_all_measures <- data.frame(cl=c("TD", "Cluster1", "Cluster2"), acc = df_mean_accuracy_z, speed = df_mean_processing_speed_z, eff = df_mean_efficiency_z)
+cnb_measures_for_plot <- melt(cnb_all_measures)
+names(cnb_measures_for_plot) <- c("cluster", "cnb", "z_score")
+ggplot(data = cnb_measures_for_plot, aes(x = cnb, y = z_score, group = cluster)) + 
+  geom_line(aes(color=cluster)) +
+  geom_point(aes(color=cluster)) + 
+  ggtitle("Hydra_k2 Cognitive Measures")
 #######Chi-square for males/females and race########
 ##########By males, and by caucasians ##############
 
@@ -321,6 +329,15 @@ ggplot(dat_sex_race_no_significance, aes(x = cl, y = percent_caucasian, fill=cl)
   ggtitle("Hydra_k2 % Caucasian, p = 2.187e-14") + scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2")) + 
   guides(fill=guide_legend(title=NULL))
 
+percentages <- data.frame(cl=c("TD", "Cluster1", "Cluster2"), percent_males = percent_men_all_clusters, percent_caucasians = percent_caucasian_all_clusters)
+percentages_for_plot <- melt(percentages)
+names(percentages_for_plot) <- c("cluster", "group", "percent")
+ggplot(data = percentages_for_plot, aes(x = group, y = percent, group = cluster)) + 
+  geom_line(aes(color=cluster)) +
+  geom_point(aes(color=cluster)) + 
+  ggtitle("Hydra_k2 Percentages")
+
+
 #############################
 ######### Bar Graphs ########
 #############################
@@ -338,7 +355,6 @@ dat_age_sd_sem <- data.frame(cl = c("TD", "Cluster1", "Cluster2"),
                                         sd(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k2 ==2)])))
 
 dat_age_sd_sem$sem <- dat_age_sd_sem$age_sd/sqrt(nrow(dat)) 
-#dat_medu_sd_sem <- data.frame(cl = c("TD", "Cluster1", "Cluster2", "Cluster3"), medu = c(mean(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k2 ==-1)]), mean(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k2 ==1)]), mean(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k2 ==2)]), mean(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k2 ==3)])), age_sd = c(sd(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k2 ==-1)]), sd(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k2 ==1)]), sd(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k2 ==2)]), sd(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k2 ==3)])))
 dat_medu_sd_sem <- data.frame(cl = c("TD", "Cluster1", "Cluster2"), 
                               medu = c(mean(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k2 ==-1)]),
                                        mean(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k2 ==1)]), 
@@ -359,30 +375,33 @@ dat.m <- melt(dat, id.vars='cluster')
 #ggplot(dat.m, aes(fill=cluster, x=cluster, y=value))+ geom_bar(stat="identity") + facet_grid(.~variable) + 
  # labs(x='Clusters_matched',y='') + scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3")) 
 
+age = c(mean(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k2 ==-1)]), 
+        mean(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k2 ==1)]), 
+        mean(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k2 ==2)])) 
+
+medu = c(mean(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k2 ==-1)]),
+         mean(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k2 ==1)]), 
+         mean(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k2 ==2)]))
+
+age_and_medu <- data.frame(cl=c("TD", "Cluster1", "Cluster2"), age = age, medu = medu)
+age_and_medu_for_plot <- melt(age_and_medu)
+names(age_and_medu_for_plot) <- c("cluster", "group", "years")
+ggplot(data = age_and_medu_for_plot, aes(x = group, y = years, group = cluster)) + 
+  geom_line(aes(color=cluster)) +
+  geom_point(aes(color=cluster)) + 
+  ggtitle("Hydra_k2 Ages")
+
 ggplot(dat_age_sd_sem, aes(x = cl, y = age, fill = cl)) + geom_col() + 
   geom_errorbar(aes(ymin=age-sem, ymax=age+sem),width=.2,position=position_dodge(.9)) + 
- # scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3")) + ylim(0, 18) + xlab("Clusters") + ylab("Age in Years") + 
-#  ggtitle("Age by Cluster") + scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2", "Cluster3")) +
   scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2")) + ylim(0, 18) + xlab("Clusters") + ylab("Age in Years") + 
   ggtitle("Age by Cluster") + scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2")) +
     guides(fill=guide_legend(title=NULL)) 
 
 ggplot(dat_medu_sd_sem, aes(x = cl, y = medu, fill = cl)) + geom_col() + 
   geom_errorbar(aes(ymin=medu-sem, ymax=medu+sem),width=.2,position=position_dodge(.9)) + 
- # scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3")) + ylim(0, 18) + xlab("Clusters") + ylab("Maternal Ed in Years") + 
-  #ggtitle("Maternal Edu by Cluster") + scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2", "Cluster3")) +
   scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2")) + ylim(0, 18) + xlab("Clusters") + ylab("Maternal Ed in Years") + 
   ggtitle("Maternal Edu by Cluster") + scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2")) +
-  
   guides(fill=guide_legend(title=NULL)) 
-
-#ggplot(dat_cont.m, aes(fill=cluster, x=cluster, y=value)) + geom_bar(stat='identity') + 
- # facet_grid(.~variable) + labs(x='Clusters_matched',y='') + 
-#  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3"))
-
-#ggplot(dat_cat.m, aes(fill=cluster, x=cluster, y=value)) + geom_bar(stat='identity') + 
- # facet_grid(.~variable) + labs(x='Clusters_matched',y='') +
-#  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3"))
 
 
 ###################################################

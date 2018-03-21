@@ -32,15 +32,17 @@ Part 5 : LM
   -The script then runs LM on each cognitive score (cnb_measure ~ hydra_group).  
   -There is a test option that does this for all cnb measures and all hydra groups, but for the remainder of the analysis, Hydra_k2 was the only classification more deeply explored.
 
-Part 6 : Anova
+Part 6: Visreg : Look at results of linear model graphically
+  -Allows you to visualize each cluster by cognitive measure
+
+Part 7 : Anova
   -Anovas were also run on the results of the LM of each cnb value by cluster.
   
-Part 7 : FDR Correction
+Part 8 : FDR Correction
   -FDR correction was calculated for each cnb measure ANOVA output
   -A table of the results was extracted
   
-Part 8: Visreg
-  -Allows you to visualize each cluster by cognitive measure
+
   
 ```{r prepping data}
 library(visreg)
@@ -56,7 +58,8 @@ theme_update(plot.title = element_text(hjust = 0.5))
 
 ```
 
-#PREPPING DATAn (part 1 and 2) (read in csvs, merge with hydra)
+#PREPPING DATA (part 1 and 2) 
+#(read in csvs, merge with hydra)
 
 ```{r prep, echo=FALSE}
 #######################################################
@@ -302,6 +305,14 @@ ggplot(dat_sex_race_no_significance, aes(x = cl, y = percent_caucasian, fill=cl)
   ggtitle("Hydra_k2 % Caucasian, p = 2.187e-14") + scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2")) + 
   guides(fill=guide_legend(title=NULL))
 
+percentages <- data.frame(cl=c("TD", "Cluster1", "Cluster2"), percent_males = percent_men_all_clusters, percent_caucasians = percent_caucasian_all_clusters)
+percentages_for_plot <- melt(percentages)
+names(percentages_for_plot) <- c("cluster", "group", "percent")
+ggplot(data = percentages_for_plot, aes(x = group, y = percent, group = cluster)) + 
+  geom_line(aes(color=cluster)) +
+  geom_point(aes(color=cluster)) + 
+  ggtitle("Hydra_k2 Percentages")
+
 #############################
 ######### Bar Graphs ########
 #############################
@@ -339,36 +350,41 @@ dat.m <- melt(dat, id.vars='cluster')
 
 #ggplot(dat.m, aes(fill=cluster, x=cluster, y=value))+ geom_bar(stat="identity") + facet_grid(.~variable) + 
 # labs(x='Clusters_matched',y='') + scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3")) 
+age = c(mean(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k2 ==-1)]), 
+        mean(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k2 ==1)]), 
+        mean(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k2 ==2)])) 
+
+medu = c(mean(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k2 ==-1)]),
+         mean(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k2 ==1)]), 
+         mean(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k2 ==2)]))
+
+age_and_medu <- data.frame(cl=c("TD", "Cluster1", "Cluster2"), age = age, medu = medu)
+age_and_medu_for_plot <- melt(age_and_medu)
+names(age_and_medu_for_plot) <- c("cluster", "group", "years")
+ggplot(data = age_and_medu_for_plot, aes(x = group, y = years, group = cluster)) + 
+  geom_line(aes(color=cluster)) +
+  geom_point(aes(color=cluster)) + 
+  ggtitle("Hydra_k2 Ages")
 
 ggplot(dat_age_sd_sem, aes(x = cl, y = age, fill = cl)) + geom_col() + 
   geom_errorbar(aes(ymin=age-sem, ymax=age+sem),width=.2,position=position_dodge(.9)) + 
-  # scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3")) + ylim(0, 18) + xlab("Clusters") + ylab("Age in Years") + 
-  #  ggtitle("Age by Cluster") + scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2", "Cluster3")) +
   scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2")) + ylim(0, 18) + xlab("Clusters") + ylab("Age in Years") + 
   ggtitle("Age by Cluster") + scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2")) +
   guides(fill=guide_legend(title=NULL)) 
 
 ggplot(dat_medu_sd_sem, aes(x = cl, y = medu, fill = cl)) + geom_col() + 
   geom_errorbar(aes(ymin=medu-sem, ymax=medu+sem),width=.2,position=position_dodge(.9)) + 
-  # scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3")) + ylim(0, 18) + xlab("Clusters") + ylab("Maternal Ed in Years") + 
-  #ggtitle("Maternal Edu by Cluster") + scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2", "Cluster3")) +
   scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2")) + ylim(0, 18) + xlab("Clusters") + ylab("Maternal Ed in Years") + 
   ggtitle("Maternal Edu by Cluster") + scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2")) +
   
   guides(fill=guide_legend(title=NULL)) 
 
-#ggplot(dat_cont.m, aes(fill=cluster, x=cluster, y=value)) + geom_bar(stat='identity') + 
-# facet_grid(.~variable) + labs(x='Clusters_matched',y='') + 
-#  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3"))
 
-#ggplot(dat_cat.m, aes(fill=cluster, x=cluster, y=value)) + geom_bar(stat='identity') + 
-# facet_grid(.~variable) + labs(x='Clusters_matched',y='') +
-#  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3"))
 
 
 ```
 
-Part 5-7: linear model, anova, and FDR correction
+Part 5-8: linear model with visreg, anova, and FDR correction
 ```{r stats}
 ###################################################
 ### Average Z-scores for accuracy and speed #######
@@ -394,13 +410,15 @@ names(df_mean_efficiency_z) <- c("TD", "Cluster 1", "Cluster 2")
 df_mean_acc_speed_eff <- rbind(df_mean_accuracy_z, df_mean_processing_speed_z, df_mean_efficiency_z)
 print(df_mean_acc_speed_eff)
 
+#prepare for plot
 cnb_all_measures <- data.frame(cl=c("TD", "Cluster1", "Cluster2"), acc = df_mean_accuracy_z, speed = df_mean_processing_speed_z, eff = df_mean_efficiency_z)
-ggplot(data=cnb_all_measures, aes(x=cl, group=1)) + 
-  geom_line(aes(y=acc,color="red")) + 
-  geom_line(aes(y=speed,color="blue")) +
-  geom_line(aes(y=eff,color="pink")) +
-  ylab("z-score") + xlab("cluster") +
-  ggtitle("Hydra_k2 CNB Measures")
+cnb_measures_for_plot <- melt(cnb_all_measures)
+names(cnb_measures_for_plot) <- c("cluster", "cnb", "z_score")
+ggplot(data = cnb_measures_for_plot, aes(x = cnb, y = z_score, group = cluster)) + 
+  geom_line(aes(color=cluster)) +
+  geom_point(aes(color=cluster)) + 
+  ggtitle("Hydra_k2 Cognitive Measures")
+
   
 ggplot(cnb_all_measures, aes(x = cl, y = acc, fill=cl)) + geom_col() +
   scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2")) + xlab("Clusters") + ylab("Accuracy") + 
@@ -457,6 +475,9 @@ CNB_cog_score_cluster_stats_lm_AG_resid <- lapply(cnb_measure_names, function(x)
   lm(substitute(i ~ Hydra_k2, list(i = as.name(x))), data = subset_with_clusters_AG_resid)
 })
 
+invisible(lapply(CNB_cog_score_cluster_stats_lm_AG_matched, function(x) {visreg(x)}))
+invisible(lapply(CNB_cog_score_cluster_stats_lm_AG_unmatched, function(x) {visreg(x)}))
+invisible(lapply(CNB_cog_score_cluster_stats_lm_AG_resid, function(x) {visreg(x)}))
 
 ##############################
 ####### Statistics ###########
@@ -538,17 +559,10 @@ CNB_names_and_fdr_values_anova <- data.frame(cbind(CNB_fdr_anova, round(pfdr_ano
 #add titles to names_and_fdr tables
 names(CNB_names_and_fdr_values_anova) <- c("CNB_measure", "p_FDR_corr")
 
+#print output
+print(CNB_names_and_fdr_values_anova)
 #write the results of the mass univariate stats to files
 #write.csv(CNB_names_and_fdr_values_anova, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/n3284_dep776_nondep2508_mass_univ_FDR_corrected_anova_20171211.csv")
-
-```
-
-Part 8: visreg 
-```{r visreg}
-#checkmodel with visreg, uncomment when want to check
-lapply(CNB_cog_score_cluster_stats_lm_AG_matched, function(x) {visreg(x)}) 
-lapply(CNB_cog_score_cluster_stats_lm_AG_unmatched, function(x) {visreg(x)}) 
-lapply(CNB_cog_score_cluster_stats_lm_AG_resid, function(x) {visreg(x)}) 
 
 ```
 
