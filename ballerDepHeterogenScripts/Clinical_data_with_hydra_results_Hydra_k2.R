@@ -24,16 +24,19 @@ library(reshape)
 #Part 4 : Anova
 #-Anovas were also run on the results of the LM of each clinical value by cluster.
 
-#Part 5 : Graphing
+#Part 5: Average z-scores and accuracy
+#This is to understand the features of the data to try to make global sense of the findings
+
+#Part 6 : Graphing
 #- Graphs were then made.  
 #*For continuous variables(age, medu1), the graphs represent means, with SEM as error bars
 #*For categorical variables (race, sex) the graphs are percentages (caucasian, male) per group, with chisq used to calculate significance
 
-#Part 6 : FDR Correction
+#Part 7 : FDR Correction
 #-FDR correction was calculated for each clinical measure ANOVA output
 #-A table of the results was extracted
 
-#Part 7 : Demographics tables
+#Part 8 : Demographics tables
 #- Demographics tables for each group (matched, unmatched, resid) were produced
 
 #######################################################
@@ -248,7 +251,7 @@ lapply(clinical_cog_score_cluster_stats_lm_AG_resid, function(x) {visreg(x)})
 ###################################################
 
 #Get stats of mean accuracy, processing speed and efficiency - TD in the middle, group 1 lower accuracy, processing speed and efficiency, 2 is high on all 3
-df_mean_mood <-c(mean(subset_with_clusters_AG_matched$mood_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == -1)]),
+df_mean_mood <- c(mean(subset_with_clusters_AG_matched$mood_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == -1)]),
                        mean(subset_with_clusters_AG_matched$mood_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == 1)]),
                        mean(subset_with_clusters_AG_matched$mood_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == 2)]))
 
@@ -268,9 +271,42 @@ df_mean_overall <- c(mean(subset_with_clusters_AG_matched$overall_psychopatholog
                      mean(subset_with_clusters_AG_matched$overall_psychopathology_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == 1)]),
                      mean(subset_with_clusters_AG_matched$overall_psychopathology_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == 2)]))
 
-df_mean_clinical <- rbind(df_mean_mood, df_mean_psychosis, df_mean_phobias, df_mean_externalizing, df_mean_overall)
-colnames(df_mean_clinical) <- c("TD", "Cluster 1", "Cluster 2")
-print(df_mean_clinical)
+clinical_all_measures <- data.frame(cl=c("TD", "Cluster1", "Cluster2"), mood =c(df_mean_mood), psychosis = c(df_mean_psychosis), phobias = c(df_mean_phobias), externalizing = c(df_mean_externalizing), overall = c(df_mean_overall))
+#df <- data.frame(dose=c("TD", "Cluster1", "Cluster2"),len=c(df_mean_mood))
+ggplot(data=clinical_all_measures, aes(x=cl, group=1)) + 
+  geom_line(aes(y=mood,color="red")) + 
+  geom_line(aes(y=psychosis,color="blue")) +
+  geom_line(aes(y=phobias,color="pink")) +
+  geom_line(aes(y=externalizing,color="orange")) +
+  geom_line(aes(y=overall,color="purple")) +
+  ylab("z-score") + xlab("cluster") +
+  ggtitle("Hydra_k2 Clinical Measures")  
+
+ggplot(clinical_all_measures, aes(x = cl, y = mood, fill=cl)) + geom_col() +
+  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2")) + xlab("Clusters") + ylab("mood") + 
+  ggtitle("Hydra_k2 mood") + scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2")) +
+  guides(fill=guide_legend(title=NULL))
+
+ggplot(clinical_all_measures, aes(x = cl, y = psychosis, fill=cl)) + geom_col() +
+  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2")) + xlab("Clusters") + ylab("psychosis") + 
+  ggtitle("Hydra_k2 psychosis") + scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2")) +
+  guides(fill=guide_legend(title=NULL))
+
+ggplot(clinical_all_measures, aes(x = cl, y = phobias, fill=cl)) + geom_col() +
+  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2")) + xlab("Clusters") + ylab("phobias") + 
+  ggtitle("Hydra_k2 phobias") + scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2")) +
+  guides(fill=guide_legend(title=NULL))
+
+ggplot(clinical_all_measures, aes(x = cl, y = externalizing, fill=cl)) + geom_col() +
+  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2")) + xlab("Clusters") + ylab("externalizing") + 
+  ggtitle("Hydra_k2 externalizing") + scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2")) +
+  guides(fill=guide_legend(title=NULL))
+
+ggplot(clinical_all_measures, aes(x = cl, y = overall, fill=cl)) + geom_col() +
+  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2")) + xlab("Clusters") + ylab("overall") + 
+  ggtitle("Hydra_k2 overall") + scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2")) +
+  guides(fill=guide_legend(title=NULL))
+
 
 #######Chi-square for males/females and race########
 ##########By males, and by caucasians ##############
@@ -347,11 +383,11 @@ dat_medu_sd_sem <- data.frame(cl = c("TD", "Cluster1", "Cluster2"),
                                       
 dat_medu_sd_sem$sem <- dat_medu_sd_sem$age_sd/sqrt(nrow(dat))
 
-dat_cont <- data.frame(cluster=c(subset_with_clusters_AG_matched$Hydra_k2), age=c(subset_with_clusters_AG_matched$age_in_years), medu1=c(subset_with_clusters_AG_matched$medu1))
-dat_cat <- data.frame(cluster=c(subset_with_clusters_AG_matched$Hydra_k2), race=c(subset_with_clusters_AG_matched$race_binarized), sex=c(subset_with_clusters_AG_matched$sex))
+#dat_cont <- data.frame(cluster=c(subset_with_clusters_AG_matched$Hydra_k2), age=c(subset_with_clusters_AG_matched$age_in_years), medu1=c(subset_with_clusters_AG_matched$medu1))
+#dat_cat <- data.frame(cluster=c(subset_with_clusters_AG_matched$Hydra_k2), race=c(subset_with_clusters_AG_matched$race_binarized), sex=c(subset_with_clusters_AG_matched$sex))
 dat.m <- melt(dat, id.vars='cluster')
-dat_cont.m <- melt(dat_cont, id.vars='cluster')
-dat_cat.m <- melt(dat_cat, id.vars='cluster')
+#dat_cont.m <- melt(dat_cont, id.vars='cluster')
+#dat_cat.m <- melt(dat_cat, id.vars='cluster')
 
 #ggplot(dat.m, aes(fill=cluster, x=cluster, y=value))+ geom_bar(stat="identity") + facet_grid(.~variable) + 
  # labs(x='Clusters_matched',y='') + scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3")) 
