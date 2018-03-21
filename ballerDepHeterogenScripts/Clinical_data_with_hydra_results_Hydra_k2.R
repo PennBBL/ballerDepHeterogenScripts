@@ -215,7 +215,7 @@ clinical_cog_score_cluster_stats_anova_AG_matched_by_cluster_1through10 <- lappl
 names(clinical_cog_score_cluster_stats_anova_AG_matched_by_cluster_1through10) <- cluster_names_list
 
 
-#####Just Hydra 3 clusters ANOVA ########
+#####Just Hydra 2 clusters ANOVA ########
 clinical_cog_score_cluster_stats_anova_AG_matched <- lapply(clinical_measure_names, function(x) 
 {
   anova(lm(substitute(i ~ Hydra_k2, list(i = as.name(x))), data = subset_with_clusters_AG_matched))
@@ -333,27 +333,27 @@ ggplot(data = clinical_measures_for_plot, aes(x = clinical, y = z_score, group =
 ggplot(clinical_all_measures, aes(x = cl, y = mood, fill=cl)) + geom_col() +
   scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2")) + xlab("Clusters") + ylab("mood") + 
   ggtitle("Hydra_k2 mood") #+ scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2")) +
-  guides(fill=guide_legend(title=NULL))
+#  guides(fill=guide_legend(title=NULL))
 
 ggplot(clinical_all_measures, aes(x = cl, y = psychosis, fill=cl)) + geom_col() +
   scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2")) + xlab("Clusters") + ylab("psychosis") + 
   ggtitle("Hydra_k2 psychosis") #+ scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2")) +
-  guides(fill=guide_legend(title=NULL))
+ # guides(fill=guide_legend(title=NULL))
 
 ggplot(clinical_all_measures, aes(x = cl, y = phobias, fill=cl)) + geom_col() +
   scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2")) + xlab("Clusters") + ylab("phobias") + 
   ggtitle("Hydra_k2 phobias")# + scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2")) +
-  guides(fill=guide_legend(title=NULL))
+#  guides(fill=guide_legend(title=NULL))
 
 ggplot(clinical_all_measures, aes(x = cl, y = extern, fill=cl)) + geom_col() +
   scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2")) + xlab("Clusters") + ylab("externalizing") + 
   ggtitle("Hydra_k2 externalizing") #+ scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2")) +
-  guides(fill=guide_legend(title=NULL))
+ # guides(fill=guide_legend(title=NULL))
 
 ggplot(clinical_all_measures, aes(x = cl, y = overall, fill=cl)) + geom_col() +
   scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2")) + xlab("Clusters") + ylab("overall") + 
   ggtitle("Hydra_k2 overall")# + scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2")) +
-  guides(fill=guide_legend(title=NULL))
+ # guides(fill=guide_legend(title=NULL))
 
 
 #######Chi-square for males/females and race########

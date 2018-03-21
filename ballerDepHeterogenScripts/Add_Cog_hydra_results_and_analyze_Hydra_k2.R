@@ -184,7 +184,7 @@ CNB_cog_score_cluster_stats_lm_AG_matched_by_cluster_1through10 <- lapply(cluste
 })
 names(CNB_cog_score_cluster_stats_lm_AG_matched_by_cluster_1through10) <- cluster_names_list
 
-##### Just Hydra_3 clusters ######
+##### Just Hydra_2 clusters ######
 CNB_cog_score_cluster_stats_lm_AG_matched <- lapply(cnb_measure_names, function(x) 
 {
   lm(substitute(i ~ Hydra_k2, list(i = as.name(x))), data = subset_with_clusters_AG_matched)
