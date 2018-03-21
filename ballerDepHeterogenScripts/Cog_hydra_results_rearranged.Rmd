@@ -595,8 +595,11 @@ names(CNB_names_and_fdr_values_anova) <- c("CNB_measure", "p_FDR_corr")
 
 print(CNB_names_and_fdr_values_anova)
 
+print("MATCHED")
 invisible(lapply(CNB_cog_score_cluster_stats_lm_AG_matched, function(x) {visreg(x)}))
+print("UNMATCHED")
 invisible(lapply(CNB_cog_score_cluster_stats_lm_AG_unmatched, function(x) {visreg(x)}))
+print("Residualized MATCHED")
 invisible(lapply(CNB_cog_score_cluster_stats_lm_AG_resid, function(x) {visreg(x)}))
 
 
