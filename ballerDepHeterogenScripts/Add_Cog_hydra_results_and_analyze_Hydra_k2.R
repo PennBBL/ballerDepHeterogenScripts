@@ -243,9 +243,9 @@ names(CNB_cog_score_cluster_stats_anova_AG_unmatched) <- cnb_measure_names
 names(CNB_cog_score_cluster_stats_anova_AG_resid) <- cnb_measure_names
 
 #checkmodel with visreg, uncomment when want to check
-lapply(CNB_cog_score_cluster_stats_lm_AG_matched, function(x) {visreg(x)}) 
-lapply(CNB_cog_score_cluster_stats_lm_AG_unmatched, function(x) {visreg(x)}) 
-lapply(CNB_cog_score_cluster_stats_lm_AG_resid, function(x) {visreg(x)}) 
+invisible(lapply(CNB_cog_score_cluster_stats_lm_AG_matched, function(x) {visreg(x)})) 
+invisible(lapply(CNB_cog_score_cluster_stats_lm_AG_unmatched, function(x) {visreg(x)})) 
+invisible(lapply(CNB_cog_score_cluster_stats_lm_AG_resid, function(x) {visreg(x)})) 
 
 #WILL HAVE TO DO THIS FOR MALES AND FEMALES#
 
@@ -271,15 +271,50 @@ names(df_mean_processing_speed_z) <- c("TD", "Cluster 1", "Cluster 2")
 names(df_mean_efficiency_z) <- c("TD", "Cluster 1", "Cluster 2")
 
 df_mean_acc_speed_eff <- rbind(df_mean_accuracy_z, df_mean_processing_speed_z, df_mean_efficiency_z)
-#print(df_mean_acc_speed_eff)
+
+#error bars: will go through each type of symptom, get mean and standard deviation, then divide to get sem
+cnb_data_acc_sd_sem <- data.frame(cl = c("TD", "Cluster1", "Cluster2"), mean_acc = c(mean(subset_with_clusters_AG_matched$NAR_Overall_Accuracy[which(subset_with_clusters_AG_matched$Hydra_k2 ==-1)]),
+                                                                                            mean(subset_with_clusters_AG_matched$NAR_Overall_Accuracy[which(subset_with_clusters_AG_matched$Hydra_k2 ==1)]),
+                                                                                            mean(subset_with_clusters_AG_matched$NAR_Overall_Accuracy[which(subset_with_clusters_AG_matched$Hydra_k2 ==2)])),
+                                        sd_acc = c(sd(subset_with_clusters_AG_matched$NAR_Overall_Accuracy[which(subset_with_clusters_AG_matched$Hydra_k2 == -1)]),
+                                                    sd(subset_with_clusters_AG_matched$NAR_Overall_Accuracy[which(subset_with_clusters_AG_matched$Hydra_k2 ==1)]),
+                                                    sd(subset_with_clusters_AG_matched$NAR_Overall_Accuracy[which(subset_with_clusters_AG_matched$Hydra_k2 ==2)])))
+
+cnb_data_speed_sd_sem <- data.frame(cl = c("TD", "Cluster1", "Cluster2"), mean_speed = c(mean(subset_with_clusters_AG_matched$NAR_Overall_Speed[which(subset_with_clusters_AG_matched$Hydra_k2 ==-1)]),
+                                                                                                      mean(subset_with_clusters_AG_matched$NAR_Overall_Speed[which(subset_with_clusters_AG_matched$Hydra_k2 ==1)]),
+                                                                                                      mean(subset_with_clusters_AG_matched$NAR_Overall_Speed[which(subset_with_clusters_AG_matched$Hydra_k2 ==2)])),
+                                             sd_speed = c(sd(subset_with_clusters_AG_matched$NAR_Overall_Speed[which(subset_with_clusters_AG_matched$Hydra_k2 == -1)]),
+                                                              sd(subset_with_clusters_AG_matched$NAR_Overall_Speed[which(subset_with_clusters_AG_matched$Hydra_k2 ==1)]),
+                                                              sd(subset_with_clusters_AG_matched$NAR_Overall_Speed[which(subset_with_clusters_AG_matched$Hydra_k2 ==2)])))
+
+cnb_data_eff_sd_sem <- data.frame(cl = c("TD", "Cluster1", "Cluster2"), mean_eff = c(mean(subset_with_clusters_AG_matched$NAR_Overall_Efficiency[which(subset_with_clusters_AG_matched$Hydra_k2 ==-1)]),
+                                                                                                  mean(subset_with_clusters_AG_matched$NAR_Overall_Efficiency[which(subset_with_clusters_AG_matched$Hydra_k2 ==1)]),
+                                                                                                  mean(subset_with_clusters_AG_matched$NAR_Overall_Efficiency[which(subset_with_clusters_AG_matched$Hydra_k2 ==2)])),
+                                           sd_eff = c(sd(subset_with_clusters_AG_matched$NAR_Overall_Efficiency[which(subset_with_clusters_AG_matched$Hydra_k2 == -1)]),
+                                                          sd(subset_with_clusters_AG_matched$NAR_Overall_Efficiency[which(subset_with_clusters_AG_matched$Hydra_k2 ==1)]),
+                                                          sd(subset_with_clusters_AG_matched$NAR_Overall_Efficiency[which(subset_with_clusters_AG_matched$Hydra_k2 ==2)])))
+
+
+cnb_data_acc_sd_sem$sem = cnb_data_acc_sd_sem$sd_acc/sqrt(nrow(subset_with_clusters_AG_matched))
+cnb_data_speed_sd_sem$sem = cnb_data_speed_sd_sem$sd_speed/sqrt(nrow(subset_with_clusters_AG_matched))
+cnb_data_eff_sd_sem$sem = cnb_data_eff_sd_sem$sd_eff/sqrt(nrow(subset_with_clusters_AG_matched))
+
+#make a data frame with all standard errors
+all_sem <- data.frame(cnb_data_acc_sd_sem$sem, cnb_data_speed_sd_sem$sem, cnb_data_eff_sd_sem$sem)
+#make a single column of sem in the data frame mood (TD, Cluster1, Cluster 2), psychosis(TD, cluster 1, cluster 2), etc
+all_sem_one_col <- data.frame(sem=unlist(all_sem, use.names = FALSE))
 
 cnb_all_measures <- data.frame(cl=c("TD", "Cluster1", "Cluster2"), acc = df_mean_accuracy_z, speed = df_mean_processing_speed_z, eff = df_mean_efficiency_z)
 cnb_measures_for_plot <- melt(cnb_all_measures)
 names(cnb_measures_for_plot) <- c("cluster", "cnb", "z_score")
+cnb_measures_for_plot$sem <- all_sem_one_col
+
 ggplot(data = cnb_measures_for_plot, aes(x = cnb, y = z_score, group = cluster)) + 
   geom_line(aes(color=cluster)) +
   geom_point(aes(color=cluster)) + 
+  geom_errorbar(aes(ymin=z_score-sem, ymax=z_score+sem), width=.1) +
   ggtitle("Hydra_k2 Cognitive Measures")
+
 #######Chi-square for males/females and race########
 ##########By males, and by caucasians ##############
 
