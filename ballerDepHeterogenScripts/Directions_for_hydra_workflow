@@ -1,0 +1,135 @@
+Directions for Hydra
+1. Prep for Hydra
+Prepforhydra_20180212.R
+
+2. Move files to chead and then to cbica
+DIRECTIONS FROM TONI. THESE WORK!!!
+ssh eballer@chead.uphs.upenn.edu
+ssh ballere@cbica-cluster.uphs.upenn.edu
+sudo -u pncheterogeneity sudosh
+scp -r eballer@chead.uphs.upenn.edu:/data/jux/BBL/projects/ballerDepHeterogen/results/from_local_comp/hydra_all_gender/* /cbica/projects/pncHeterogeneity/ballerDepHeterogen/subjectData
+
+3. Run Hydra
+
+--------- From Toni-------------
+0. ssh -y eballer@chead.uphs.upenn.edu (old pwd !x2, + !x1
+1. On CBICA:
+ssh ballere@cbica-cluster.uphs.upenn.edu (regular epic pwd)
+sudo -u pncheterogeneity sudosh
+cd /cbica/projects/pncHeterogeneity/{YOUR FOLDER}/scripts
+a. There are two files of interest:
+
+run_hydra_experiment_csv.m
+a. For input data provided in a .csv file
+run_hydra_experiment_nii.m (we haven't tried this one yet)
+a. For input imaging data stored in nifti files
+b. The basic input that both files need is the csv files and the output directory
+c. There are a number of optional inputs that determine parameters of the classifier, number of clusters to examine, as well as number of folds for the cross-validation experiment.
+See the comments in run_hydra_experiment_csv.m or run_hydra_experiment_nii.m for details.
+Copy the covariates and brain features files from chead to cbica.
+a. ssh eballer@chead.uphs.upenn.edu
+b. ssh ballere@cbica-cluster.uphs.upenn.edu
+c. sudo -u pncheterogeneity sudosh
+d. scp -r eballer@chead.uphs.upenn.edu:/data/jux/BBL/projects/ballerDepHeterogen/results/from_local_comp/hydra_all_gender/ /cbica/projects/pncHeterogeneity/ballerDepHeterogen/subjectData/hydra_all_gender/
+e. scp -r eballer@chead.uphs.upenn.edu:/data/jux/BBL/projects/ballerDepHeterogen/results/from_local_comp/hydra_males/ /cbica/projects/pncHeterogeneity/ballerDepHeterogen/subjectData/hydra_males/
+f. scp -r eballer@chead.uphs.upenn.edu:/data/jux/BBL/projects/ballerDepHeterogen/results/from_local_comp/hydra_females/* /cbica/projects/pncHeterogeneity/ballerDepHeterogen/subjectData/females/
+
+Run HYDRA
+
+a. Aris has created two scripts for submitting jobs to sge (submit_run_hydra_experiment_csv and submit_run_hydra_experiment_nii)
+
+To use the submit scripts, you need to change the following (if it says "buffer is read only" type CNTRL+X CNTRL+C to clear the read only):
+a. name@account to your email account and uncomment respective lines to get email notifications
+b. ${dir2sge} to directory where you are going to create the sge_job_output directory for storing the sge output messages
+c. ${path2HydraExe} to the directory where the executables are located
+b. To run
+First, we have to compile the code (Aris has already done this for us; the output is "run_hydra_experiment_csv*")
+cd /cbica/projects/pncHeterogeneity/{YOUR FOLDER}/scripts
+mcc -m run_hydra_experiment_csv -I ./hydra_package
+Next, make sure the results folder path is specified correctly in "submitrun_hydra_experiment_csv*"
+a. If running multiple analyses, then create separate results folders and update the results paths in the submit script AND the qsub command for each new run, otherwise the output "HYDRA_results.mat" will get overwritten.
+Run the qsub command
+qsub ./submitrun_hydra_experiment_csv{NAME OF SCRIPT} /cbica/projects/pncHeterogeneity/{PATH TO FEATURES} /cbica/projects/pncHeterogeneity/{PATH TO RESULTS FOLDER} 'covCSV' /cbica/projects/pncHeterogeneity/{PATH TO COVARIATES}
+Check the status of your qsub by typing: qstat
+a. "r" means running, "qw" means queued and waiting
+You will get an email when the script starts running and one when it finishes (takes about 30 minutes to 1.5 hours to run, depending on how busy the cluster is and how many subjects and features you have).
+Warnings (log files for trouble shooting are in your results folder)
+"WARNING: class label 1 specified in weight is not found"
+a. Aris says this is a normal warning.
+b. Often, and especially when Hydra attempts to split the disease subjects to a large number of clusters, some of the clusters do not get populated at all.
+-------------------OUTPUT HYDRA---------
+Output (HYDRA will output a results .mat file and two log files in your results folder)
+
+a. HYDRA_results.mat contains:
+
+Adjusted Rand Index (ARI) for selecting the optimal K
+
+a. Choose the largest ARI to pick the ideal cluster size
+
+CIDX which has cluster assignments for the different solutions
+
+a. CIDX contains one column for each clustering solution
+
+E.g., the first column is the 1 cluster solution (patients vs controls)
+
+The second is the 2 cluster solution (2 clusters of patients vs controls), etc.
+
+ID - list of IDs
+
+Clustering - the different values of K that were examined (default = 10)
+
+b. To see the results (optional):
+
+  cd  /cbica/projects/pncHeterogeneity/{YOUR RESULTS FOLDER}
+
+  matlab -nodesktop
+
+  #load results
+
+  load('HYDRA_results.mat')
+
+  #show variable names
+
+  who
+
+  #type a variable name to see it's values
+
+  ARI
+
+  #double check that IDs and CIDX have the same length (number of subjects)
+
+  whos ID
+
+  whos CIDX
+c. Save the ARI values and the IDs and cluster assignments (CIDX) to .csv files using the script "SaveHydraOutput.m"
+
+Make sure you have used "sudo -u pncheterogeneity sudosh" first, otherwise you won't be able to write files to this folder
+
+Make sure you have a copy of the function "csvwrite_with_headers.m" in your results folder
+
+Check that the paths in "SaveHydraOutput.m" are specified correctly before running this script.
+
+cd /cbica/projects/pncHeterogeneity/{YOUR RESULTS FOLDER}
+
+matlab -nodesktop
+
+SaveHydraOutput
+
+If the HydraSubtypes.csv saves with a ^M at the end of the header line, you'll have to remove this. I just do this by hand in emacs and resave.
+
+Now you can copy the .csv back to chead, merge with your subject level data, and run any analyses you want.
+--------------End of Toni's instructions ----------
+- directions can also be found on my trello board
+
+4. Transfer resulting files back to chead and then local
+
+5. Run cognitive analysis
+Add_Cog_hydra_results_and_analyze_Hydra_k2.R
+
+6. Run clinical analysis
+Clinical_data_with_hydra_results_Hydra_k2.R
+
+7. Run .rmd files to get nice output <rearranged so that the demographics come first, the tables next, then anaylis, then visreg
+Clinical_hydra_analysis_Hydra_k2_rearranged.Rmd
+Cog_hydra_results_rearranged_k2.Rmd
+

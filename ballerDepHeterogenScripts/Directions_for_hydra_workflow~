@@ -1,0 +1,13 @@
+Directions for Hydra
+1. Prep for Hydra
+Prepforhydra_20180212.R
+2. Move files to chead and then to cbica
+3. Run Hydra
+4. Transfer resulting files back to chead and then local
+5. Run cognitive analysis
+CNB_hydra_analysis_Hydra_k2.Rmd CNB_hydra_analysis_Hydra_k2.pdf
+6. Run clinical analysis
+Clinical_data_with_hydra_results_Hydra_k2.R
+7. Run .rmd files to get nice output
+Clinical_hydra_analysis_Hydra_k2_rearranged.Rmd Cog_hydra_results_rearranged_k2.Rmd
+Add_Cog_hydra_results_and_analyze_Hydra_k2.R
