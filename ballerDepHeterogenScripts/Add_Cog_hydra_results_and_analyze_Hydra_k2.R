@@ -305,7 +305,7 @@ all_sem <- data.frame(cnb_data_acc_sd_sem$sem, cnb_data_speed_sd_sem$sem, cnb_da
 all_sem_one_col <- data.frame(sem=unlist(all_sem, use.names = FALSE))
 
 cnb_all_measures <- data.frame(cl=c("TD", "Cluster1", "Cluster2"), acc = df_mean_accuracy_z, speed = df_mean_processing_speed_z, eff = df_mean_efficiency_z)
-cnb_measures_for_plot <- melt(cnb_all_measures)
+cnb_measures_for_plot <- melt(cnb_all_measures, id.vars = "cl")
 names(cnb_measures_for_plot) <- c("cluster", "cnb", "z_score")
 cnb_measures_for_plot$sem <- all_sem_one_col
 
@@ -403,7 +403,7 @@ dat_medu_sd_sem <- data.frame(cl = c("TD", "Cluster1", "Cluster2"),
                                       
 
 dat_medu_sd_sem$sem <- dat_medu_sd_sem$medu_sd/sqrt(nrow(dat))
-dat_age_medu_sem_melted <- melt(c(dat_age_sd_sem$sem,dat_medu_sd_sem$sem))
+dat_age_medu_sem_melted <- melt(c(dat_age_sd_sem$sem,dat_medu_sd_sem$sem), id.vars = "cl")
 
 #dat_cont <- data.frame(cluster=c(subset_with_clusters_AG_matched$Hydra_k2), age=c(subset_with_clusters_AG_matched$age_in_years), medu1=c(subset_with_clusters_AG_matched$medu1))
 #dat_cat <- data.frame(cluster=c(subset_with_clusters_AG_matched$Hydra_k2), race=c(subset_with_clusters_AG_matched$race_binarized), sex=c(subset_with_clusters_AG_matched$sex))
@@ -424,8 +424,8 @@ medu = c(mean(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_A
 
 #get everything into the right format
 age_and_medu <- data.frame(cl=c("TD", "Cluster1", "Cluster2"), age = age, medu = medu)
-dat_age_medu_sem_melted <- melt(c(dat_age_sd_sem$sem,dat_medu_sd_sem$sem))
-age_and_medu_for_plot <- melt(age_and_medu)
+dat_age_medu_sem_melted <- melt(c(dat_age_sd_sem$sem,dat_medu_sd_sem$sem), id.vars = "cl")
+age_and_medu_for_plot <- melt(age_and_medu, id.vars = "cl")
 age_and_medu_for_plot$sem <- dat_age_medu_sem_melted
 names(age_and_medu_for_plot) <- c("cluster", "group", "years", "sem")
 ggplot(data = age_and_medu_for_plot, aes(x = group, y = years, group = cluster)) + 
