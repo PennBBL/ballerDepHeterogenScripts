@@ -1,3 +1,5 @@
+cp ../../../ballerDepHeterogenScripts/*html ../../../results/.
+cp ../../../ballerDepHeterogenScripts/*pdf ../../../results/.
 cp ../../../ballerDepHeterogenScripts/* .
 git add *
 git commit -m "update"
