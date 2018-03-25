@@ -19,7 +19,7 @@ library(reshape)
 
 #Part 3 : LM
 #-The script then runs LM on each clinical score (clinical_measure ~ hydra_group).  
-#-There is a test option that does this for all clinical measures and all hydra groups, but for the remainder of the analysis, Hydra_k2 was the only classification more deeply explored.
+#-There is a test option that does this for all clinical measures and all hydra groups, but for the remainder of the analysis, Hydra_k3 was the only classification more deeply explored.
 
 #Part 4 : Anova
 #-Anovas were also run on the results of the LM of each clinical value by cluster.
@@ -184,17 +184,17 @@ names(clinical_cog_score_cluster_stats_lm_AG_matched_by_cluster_1through10) <- c
 ##### Just Hydra_2 clusters ######
 clinical_cog_score_cluster_stats_lm_AG_matched <- lapply(clinical_measure_names, function(x) 
 {
-  lm(substitute(i ~ Hydra_k2, list(i = as.name(x))), data = subset_with_clusters_AG_matched)
+  lm(substitute(i ~ Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_AG_matched)
 })
 
 clinical_cog_score_cluster_stats_lm_AG_unmatched <- lapply(clinical_measure_names, function(x) 
 {
-  lm(substitute(i ~ Hydra_k2, list(i = as.name(x))), data = subset_with_clusters_AG_unmatched)
+  lm(substitute(i ~ Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_AG_unmatched)
 })
 
 clinical_cog_score_cluster_stats_lm_AG_resid <- lapply(clinical_measure_names, function(x) 
 {
-  lm(substitute(i ~ Hydra_k2, list(i = as.name(x))), data = subset_with_clusters_AG_resid)
+  lm(substitute(i ~ Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_AG_resid)
 })
 
 
@@ -218,17 +218,17 @@ names(clinical_cog_score_cluster_stats_anova_AG_matched_by_cluster_1through10) <
 #####Just Hydra 2 clusters ANOVA ########
 clinical_cog_score_cluster_stats_anova_AG_matched <- lapply(clinical_measure_names, function(x) 
 {
-  anova(lm(substitute(i ~ Hydra_k2, list(i = as.name(x))), data = subset_with_clusters_AG_matched))
+  anova(lm(substitute(i ~ Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_AG_matched))
 })
 
 clinical_cog_score_cluster_stats_anova_AG_unmatched <- lapply(clinical_measure_names, function(x) 
 {
-  anova(lm(substitute(i ~ Hydra_k2, list(i = as.name(x))), data = subset_with_clusters_AG_unmatched))
+  anova(lm(substitute(i ~ Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_AG_unmatched))
 })
 
 clinical_cog_score_cluster_stats_anova_AG_resid <- lapply(clinical_measure_names, function(x) 
 {
-  anova(lm(substitute(i ~ Hydra_k2, list(i = as.name(x))), data = subset_with_clusters_AG_resid))
+  anova(lm(substitute(i ~ Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_AG_resid))
 })
 
 names(clinical_cog_score_cluster_stats_lm_AG_matched) <- clinical_measure_names
@@ -251,60 +251,81 @@ invisible(lapply(clinical_cog_score_cluster_stats_lm_AG_resid, function(x) {visr
 ###################################################
 
 #Get stats of mean accuracy, processing speed and efficiency - TD in the middle, group 1 lower accuracy, processing speed and efficiency, 2 is high on all 3
-df_mean_mood <- c(mean(subset_with_clusters_AG_matched$mood_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == -1)]),
-                       mean(subset_with_clusters_AG_matched$mood_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == 1)]),
-                       mean(subset_with_clusters_AG_matched$mood_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == 2)]))
+df_mean_mood <- c(mean(subset_with_clusters_AG_matched$mood_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == -1)]),
+                       mean(subset_with_clusters_AG_matched$mood_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == 1)]),
+                       mean(subset_with_clusters_AG_matched$mood_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == 2)]),
+                       mean(subset_with_clusters_AG_matched$mood_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == 3)]))
 
-df_mean_psychosis <- c(mean(subset_with_clusters_AG_matched$psychosis_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == -1)]),
-                                mean(subset_with_clusters_AG_matched$psychosis_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == 1)]),
-                                mean(subset_with_clusters_AG_matched$psychosis_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == 2)]))
+df_mean_psychosis <- c(mean(subset_with_clusters_AG_matched$psychosis_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == -1)]),
+                                mean(subset_with_clusters_AG_matched$psychosis_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == 1)]),
+                                mean(subset_with_clusters_AG_matched$psychosis_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == 2)]),
+                                mean(subset_with_clusters_AG_matched$psychosis_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == 3)]))
 
-df_mean_phobias <- c(mean(subset_with_clusters_AG_matched$phobias_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == -1)]),
-                          mean(subset_with_clusters_AG_matched$phobias_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == 1)]),
-                          mean(subset_with_clusters_AG_matched$phobias_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == 2)]))
 
-df_mean_externalizing <- c(mean(subset_with_clusters_AG_matched$externalizing_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == -1)]),
-                           mean(subset_with_clusters_AG_matched$externalizing_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == 1)]),
-                           mean(subset_with_clusters_AG_matched$externalizing_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == 2)]))
+df_mean_phobias <- c(mean(subset_with_clusters_AG_matched$phobias_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == -1)]),
+                          mean(subset_with_clusters_AG_matched$phobias_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == 1)]),
+                          mean(subset_with_clusters_AG_matched$phobias_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == 2)]),
+                          mean(subset_with_clusters_AG_matched$phobias_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == 3)]))
 
-df_mean_overall <- c(mean(subset_with_clusters_AG_matched$overall_psychopathology_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == -1)]),
-                     mean(subset_with_clusters_AG_matched$overall_psychopathology_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == 1)]),
-                     mean(subset_with_clusters_AG_matched$overall_psychopathology_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == 2)]))
+df_mean_externalizing <- c(mean(subset_with_clusters_AG_matched$externalizing_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == -1)]),
+                           mean(subset_with_clusters_AG_matched$externalizing_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == 1)]),
+                           mean(subset_with_clusters_AG_matched$externalizing_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == 2)]),
+                           mean(subset_with_clusters_AG_matched$externalizing_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == 3)]))
+
+
+df_mean_overall <- c(mean(subset_with_clusters_AG_matched$overall_psychopathology_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == -1)]),
+                     mean(subset_with_clusters_AG_matched$overall_psychopathology_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == 1)]),
+                     mean(subset_with_clusters_AG_matched$overall_psychopathology_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == 2)]),
+                     mean(subset_with_clusters_AG_matched$overall_psychopathology_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == 3)]))
+
 
 #error bars: will go through each type of symptom, get mean and standard deviation, then divide to get sem
-clinical_data_mood_sd_sem <- data.frame(cl = c("TD", "Cluster1", "Cluster2"), mean_mood = c(mean(subset_with_clusters_AG_matched$mood_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 ==-1)]),
-                                                                                            mean(subset_with_clusters_AG_matched$mood_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 ==1)]),
-                                                                                            mean(subset_with_clusters_AG_matched$mood_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 ==2)])),
-                                                                              sd_mood = c(sd(subset_with_clusters_AG_matched$mood_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == -1)]),
-                                                                                          sd(subset_with_clusters_AG_matched$mood_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 ==1)]),
-                                                                                          sd(subset_with_clusters_AG_matched$mood_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 ==2)])))
+clinical_data_mood_sd_sem <- data.frame(cl = c("TD", "Cluster1", "Cluster2", "Cluster3"), mean_mood = c(mean(subset_with_clusters_AG_matched$mood_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==-1)]),
+                                                                                            mean(subset_with_clusters_AG_matched$mood_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==1)]),
+                                                                                            mean(subset_with_clusters_AG_matched$mood_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==2)]),
+                                                                                            mean(subset_with_clusters_AG_matched$mood_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==3)])),
+                                                                              sd_mood = c(sd(subset_with_clusters_AG_matched$mood_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == -1)]),
+                                                                                          sd(subset_with_clusters_AG_matched$mood_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==1)]),
+                                                                                          sd(subset_with_clusters_AG_matched$mood_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==2)]),
+                                                                                          sd(subset_with_clusters_AG_matched$mood_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==3)])))
 
-clinical_data_psychosis_sd_sem <- data.frame(cl = c("TD", "Cluster1", "Cluster2"), mean_psychosis = c(mean(subset_with_clusters_AG_matched$psychosis_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 ==-1)]),
-                                                                                            mean(subset_with_clusters_AG_matched$psychosis_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 ==1)]),
-                                                                                            mean(subset_with_clusters_AG_matched$psychosis_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 ==2)])),
-                                                    sd_psychosis = c(sd(subset_with_clusters_AG_matched$psychosis_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == -1)]),
-                                                    sd(subset_with_clusters_AG_matched$psychosis_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 ==1)]),
-                                                    sd(subset_with_clusters_AG_matched$psychosis_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 ==2)])))
+clinical_data_psychosis_sd_sem <- data.frame(cl = c("TD", "Cluster1", "Cluster2", "Cluster3"), mean_psychosis = c(mean(subset_with_clusters_AG_matched$psychosis_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==-1)]),
+                                                                                            mean(subset_with_clusters_AG_matched$psychosis_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==1)]),
+                                                                                            mean(subset_with_clusters_AG_matched$psychosis_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==2)]),
+                                                                                            mean(subset_with_clusters_AG_matched$psychosis_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==3)])),
+                                                    sd_psychosis = c(sd(subset_with_clusters_AG_matched$psychosis_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == -1)]),
+                                                    sd(subset_with_clusters_AG_matched$psychosis_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==1)]),
+                                                    sd(subset_with_clusters_AG_matched$psychosis_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==2)]),
+                                                    sd(subset_with_clusters_AG_matched$psychosis_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==3)])))
 
-clinical_data_phobias_sd_sem <- data.frame(cl = c("TD", "Cluster1", "Cluster2"), mean_phobias = c(mean(subset_with_clusters_AG_matched$phobias_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 ==-1)]),
-                                                                                            mean(subset_with_clusters_AG_matched$phobias_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 ==1)]),
-                                                                                            mean(subset_with_clusters_AG_matched$phobias_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 ==2)])),
-                                                    sd_phobias = c(sd(subset_with_clusters_AG_matched$phobias_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == -1)]),
-                                                    sd(subset_with_clusters_AG_matched$phobias_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 ==1)]),
-                                                    sd(subset_with_clusters_AG_matched$phobias_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 ==2)])))
 
-clinical_data_externalizing_sd_sem <- data.frame(cl = c("TD", "Cluster1", "Cluster2"), mean_externalizing = c(mean(subset_with_clusters_AG_matched$externalizing_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 ==-1)]),
-                                                                                            mean(subset_with_clusters_AG_matched$externalizing_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 ==1)]),
-                                                                                            mean(subset_with_clusters_AG_matched$externalizing_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 ==2)])),
-                                                    sd_externalizing = c(sd(subset_with_clusters_AG_matched$externalizing_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == -1)]),
-                                                    sd(subset_with_clusters_AG_matched$externalizing_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 ==1)]),
-                                                    sd(subset_with_clusters_AG_matched$externalizing_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 ==2)])))
-clinical_data_overall_sd_sem <- data.frame(cl = c("TD", "Cluster1", "Cluster2"), mean_overall = c(mean(subset_with_clusters_AG_matched$overall_psychopathology_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 ==-1)]),
-                                                                                                              mean(subset_with_clusters_AG_matched$overall_psychopathology_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 ==1)]),
-                                                                                                              mean(subset_with_clusters_AG_matched$overall_psychopathology_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 ==2)])),
-                                                                      sd_overall = c(sd(subset_with_clusters_AG_matched$overall_psychopathology_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == -1)]),
-                                                                      sd(subset_with_clusters_AG_matched$overall_psychopathology_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 ==1)]),
-                                                                      sd(subset_with_clusters_AG_matched$overall_psychopathology_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 ==2)])))
+clinical_data_phobias_sd_sem <- data.frame(cl = c("TD", "Cluster1", "Cluster2", "Cluster3"), mean_phobias = c(mean(subset_with_clusters_AG_matched$phobias_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==-1)]),
+                                                                                            mean(subset_with_clusters_AG_matched$phobias_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==1)]),
+                                                                                            mean(subset_with_clusters_AG_matched$phobias_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==2)]),
+                                                                                            mean(subset_with_clusters_AG_matched$phobias_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==3)])),
+                                                    sd_phobias = c(sd(subset_with_clusters_AG_matched$phobias_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == -1)]),
+                                                    sd(subset_with_clusters_AG_matched$phobias_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==1)]),
+                                                    sd(subset_with_clusters_AG_matched$phobias_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==2)]),
+                                                    sd(subset_with_clusters_AG_matched$phobias_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==3)])))
+
+
+clinical_data_externalizing_sd_sem <- data.frame(cl = c("TD", "Cluster1", "Cluster2", "Cluster3"), mean_externalizing = c(mean(subset_with_clusters_AG_matched$externalizing_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==-1)]),
+                                                                                            mean(subset_with_clusters_AG_matched$externalizing_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==1)]),
+                                                                                            mean(subset_with_clusters_AG_matched$externalizing_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==2)]),
+                                                                                            mean(subset_with_clusters_AG_matched$externalizing_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==3)])),
+                                                    sd_externalizing = c(sd(subset_with_clusters_AG_matched$externalizing_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == -1)]),
+                                                    sd(subset_with_clusters_AG_matched$externalizing_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==1)]),
+                                                    sd(subset_with_clusters_AG_matched$externalizing_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==2)]),
+                                                    sd(subset_with_clusters_AG_matched$externalizing_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==3)])))
+
+clinical_data_overall_sd_sem <- data.frame(cl = c("TD", "Cluster1", "Cluster2", "Cluster3"), mean_overall = c(mean(subset_with_clusters_AG_matched$overall_psychopathology_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==-1)]),
+                                                                                                              mean(subset_with_clusters_AG_matched$overall_psychopathology_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==1)]),
+                                                                                                              mean(subset_with_clusters_AG_matched$overall_psychopathology_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==2)]),
+                                                                                                              mean(subset_with_clusters_AG_matched$overall_psychopathology_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==3)])),
+                                                                      sd_overall = c(sd(subset_with_clusters_AG_matched$overall_psychopathology_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == -1)]),
+                                                                      sd(subset_with_clusters_AG_matched$overall_psychopathology_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==1)]),
+                                                                      sd(subset_with_clusters_AG_matched$overall_psychopathology_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==2)]),
+                                                                      sd(subset_with_clusters_AG_matched$overall_psychopathology_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 ==3)])))
 
 clinical_data_mood_sd_sem$sem = clinical_data_mood_sd_sem$sd_mood/sqrt(nrow(subset_with_clusters_AG_matched))
 clinical_data_psychosis_sd_sem$sem = clinical_data_psychosis_sd_sem$sd_psychosis/sqrt(nrow(subset_with_clusters_AG_matched))
@@ -314,10 +335,10 @@ clinical_data_overall_sd_sem$sem = clinical_data_overall_sd_sem$sd_overall/sqrt(
 
 #make a data frame with all standard errors
 all_sem <- data.frame(clinical_data_mood_sd_sem$sem, clinical_data_psychosis_sd_sem$sem, clinical_data_phobias_sd_sem$sem, clinical_data_externalizing_sd_sem$sem, clinical_data_mood_sd_sem$sem)
-#make a single column of sem in the data frame mood (TD, Cluster1, Cluster 2), psychosis(TD, cluster 1, cluster 2), etc
+#make a single column of sem in the data frame mood (TD, Cluster1, Cluster 2, Cluster3), psychosis(TD, cluster 1, cluster 2), etc
 all_sem_one_col <- data.frame(sem=unlist(all_sem, use.names = FALSE))
 
-clinical_all_measures <- data.frame(cl=c("TD", "Cluster1", "Cluster2"), mood =c(df_mean_mood), psychosis = c(df_mean_psychosis), phobias = c(df_mean_phobias), extern = c(df_mean_externalizing), overall = c(df_mean_overall))
+clinical_all_measures <- data.frame(cl=c("TD", "Cluster1", "Cluster2", "Cluster3"), mood =c(df_mean_mood), psychosis = c(df_mean_psychosis), phobias = c(df_mean_phobias), extern = c(df_mean_externalizing), overall = c(df_mean_overall))
 clinical_measures_for_plot <- melt(clinical_all_measures)
 
 #add sems to clinical_measures_for_plot
@@ -327,32 +348,32 @@ ggplot(data = clinical_measures_for_plot, aes(x = clinical, y = z_score, group =
   geom_line(aes(color=cluster)) +
   geom_point(aes(color=cluster)) + 
   geom_errorbar(aes(ymin=z_score-sem, ymax=z_score+sem), width=.1) +
-  ggtitle("Hydra_k2 Clinical Measures") 
+  ggtitle("Hydra_k3 Clinical Measures") 
   
  
 ggplot(clinical_all_measures, aes(x = cl, y = mood, fill=cl)) + geom_col() +
-  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2")) + xlab("Clusters") + ylab("mood") + 
-  ggtitle("Hydra_k2 mood") #+ scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2")) +
+  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3")) + xlab("Clusters") + ylab("mood") + 
+  ggtitle("Hydra_k3 mood") #+ scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2", "Cluster3")) +
 #  guides(fill=guide_legend(title=NULL))
 
 ggplot(clinical_all_measures, aes(x = cl, y = psychosis, fill=cl)) + geom_col() +
-  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2")) + xlab("Clusters") + ylab("psychosis") + 
-  ggtitle("Hydra_k2 psychosis") #+ scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2")) +
+  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3")) + xlab("Clusters") + ylab("psychosis") + 
+  ggtitle("Hydra_k3 psychosis") #+ scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2", "Cluster3")) +
  # guides(fill=guide_legend(title=NULL))
 
 ggplot(clinical_all_measures, aes(x = cl, y = phobias, fill=cl)) + geom_col() +
-  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2")) + xlab("Clusters") + ylab("phobias") + 
-  ggtitle("Hydra_k2 phobias")# + scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2")) +
+  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3")) + xlab("Clusters") + ylab("phobias") + 
+  ggtitle("Hydra_k3 phobias")# + scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2", "Cluster3")) +
 #  guides(fill=guide_legend(title=NULL))
 
 ggplot(clinical_all_measures, aes(x = cl, y = extern, fill=cl)) + geom_col() +
-  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2")) + xlab("Clusters") + ylab("externalizing") + 
-  ggtitle("Hydra_k2 externalizing") #+ scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2")) +
+  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3")) + xlab("Clusters") + ylab("externalizing") + 
+  ggtitle("Hydra_k3 externalizing") #+ scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2", "Cluster3")) +
  # guides(fill=guide_legend(title=NULL))
 
 ggplot(clinical_all_measures, aes(x = cl, y = overall, fill=cl)) + geom_col() +
-  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2")) + xlab("Clusters") + ylab("overall") + 
-  ggtitle("Hydra_k2 overall")# + scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2")) +
+  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3")) + xlab("Clusters") + ylab("overall") + 
+  ggtitle("Hydra_k3 overall")# + scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2", "Cluster3")) +
  # guides(fill=guide_legend(title=NULL))
 
 
@@ -361,111 +382,115 @@ ggplot(clinical_all_measures, aes(x = cl, y = overall, fill=cl)) + geom_col() +
 
 #Chi squared sex - significance p = 0.12
 #if just want to look at clusters, not TD, look at commented line below, otherwise keep as is
-###chisq_matched_sex <- chisq.test(subset_with_clusters_AG_matched$sex, (subset_with_clusters_AG_matched$Hydra_k2 != -1))
-chisq_matched_sex <- chisq.test(subset_with_clusters_AG_matched$sex, subset_with_clusters_AG_matched$Hydra_k2)
+###chisq_matched_sex <- chisq.test(subset_with_clusters_AG_matched$sex, (subset_with_clusters_AG_matched$Hydra_k3 != -1))
+chisq_matched_sex <- chisq.test(subset_with_clusters_AG_matched$sex, subset_with_clusters_AG_matched$Hydra_k3)
 chisq_matched_sex_pvalue <- chisq_matched_sex$p.value
-total_people_Hydra_k2 <- c(length(subset_with_clusters_AG_matched$sex[which(subset_with_clusters_AG_matched$Hydra_k2 == -1)]), 
-                           length(subset_with_clusters_AG_matched$sex[which(subset_with_clusters_AG_matched$Hydra_k2 == 1)]), 
-                           length(subset_with_clusters_AG_matched$sex[which(subset_with_clusters_AG_matched$Hydra_k2 == 2)]))
-                         #  length(subset_with_clusters_AG_matched$sex[which(subset_with_clusters_AG_matched$Hydra_k2 == 3)]))
+total_people_Hydra_k3 <- c(length(subset_with_clusters_AG_matched$sex[which(subset_with_clusters_AG_matched$Hydra_k3 == -1)]), 
+                           length(subset_with_clusters_AG_matched$sex[which(subset_with_clusters_AG_matched$Hydra_k3 == 1)]), 
+                           length(subset_with_clusters_AG_matched$sex[which(subset_with_clusters_AG_matched$Hydra_k3 == 2)]),
+                           length(subset_with_clusters_AG_matched$sex[which(subset_with_clusters_AG_matched$Hydra_k3 == 3)]))
 
-num_men_all_clusters <- c(length(subset_with_clusters_AG_matched$sex[which(subset_with_clusters_AG_matched$Hydra_k2 == -1 & subset_with_clusters_AG_matched$sex == 1)]), 
-                          length(subset_with_clusters_AG_matched$sex[which(subset_with_clusters_AG_matched$Hydra_k2 == 1 & subset_with_clusters_AG_matched$sex == 1)]), 
-                          length(subset_with_clusters_AG_matched$sex[which(subset_with_clusters_AG_matched$Hydra_k2 == 2 & subset_with_clusters_AG_matched$sex == 1)])) 
-                         # length(subset_with_clusters_AG_matched$sex[which(subset_with_clusters_AG_matched$Hydra_k2 == 3 & subset_with_clusters_AG_matched$sex == 1)]))
-percent_men_all_clusters <- (num_men_all_clusters/total_people_Hydra_k2) * 100
+num_men_all_clusters <- c(length(subset_with_clusters_AG_matched$sex[which(subset_with_clusters_AG_matched$Hydra_k3 == -1 & subset_with_clusters_AG_matched$sex == 1)]), 
+                          length(subset_with_clusters_AG_matched$sex[which(subset_with_clusters_AG_matched$Hydra_k3 == 1 & subset_with_clusters_AG_matched$sex == 1)]), 
+                          length(subset_with_clusters_AG_matched$sex[which(subset_with_clusters_AG_matched$Hydra_k3 == 2 & subset_with_clusters_AG_matched$sex == 1)]), 
+                          length(subset_with_clusters_AG_matched$sex[which(subset_with_clusters_AG_matched$Hydra_k3 == 3 & subset_with_clusters_AG_matched$sex == 1)]))
+percent_men_all_clusters <- (num_men_all_clusters/total_people_Hydra_k3) * 100
 
 
 #Chi square race - p-value = 4.854e-13
-chisq_matched_race <- chisq.test(subset_with_clusters_AG_matched$race_binarized, subset_with_clusters_AG_matched$Hydra_k2)
+chisq_matched_race <- chisq.test(subset_with_clusters_AG_matched$race_binarized, subset_with_clusters_AG_matched$Hydra_k3)
 chisq_matched_race_pvalue <- chisq_matched_race$p.value
-num_caucasian_all_clusters <- c(length(subset_with_clusters_AG_matched$race_binarized[which(subset_with_clusters_AG_matched$Hydra_k2 == -1 & subset_with_clusters_AG_matched$race_binarized == 1)]), 
-                                length(subset_with_clusters_AG_matched$race_binarized[which(subset_with_clusters_AG_matched$Hydra_k2 == 1 & subset_with_clusters_AG_matched$race_binarized == 1)]), 
-                                length(subset_with_clusters_AG_matched$race_binarized[which(subset_with_clusters_AG_matched$Hydra_k2 == 2 & subset_with_clusters_AG_matched$race_binarized == 1)]))
-                              #  length(subset_with_clusters_AG_matched$race_binarized[which(subset_with_clusters_AG_matched$Hydra_k2 == 3 & subset_with_clusters_AG_matched$race_binarized == 1)]))
-percent_caucasian_all_clusters <- (num_caucasian_all_clusters/total_people_Hydra_k2)*100
+num_caucasian_all_clusters <- c(length(subset_with_clusters_AG_matched$race_binarized[which(subset_with_clusters_AG_matched$Hydra_k3 == -1 & subset_with_clusters_AG_matched$race_binarized == 1)]), 
+                                length(subset_with_clusters_AG_matched$race_binarized[which(subset_with_clusters_AG_matched$Hydra_k3 == 1 & subset_with_clusters_AG_matched$race_binarized == 1)]), 
+                                length(subset_with_clusters_AG_matched$race_binarized[which(subset_with_clusters_AG_matched$Hydra_k3 == 2 & subset_with_clusters_AG_matched$race_binarized == 1)]),
+                                length(subset_with_clusters_AG_matched$race_binarized[which(subset_with_clusters_AG_matched$Hydra_k3 == 3 & subset_with_clusters_AG_matched$race_binarized == 1)]))
+percent_caucasian_all_clusters <- (num_caucasian_all_clusters/total_people_Hydra_k3)*100
 
 p_values <- c("", chisq_matched_sex_pvalue, "", chisq_matched_race_pvalue)
-dat_sex_race <- data.frame(cl = c("TD", "Cluster1", "Cluster2", "Significance"), 
+dat_sex_race <- data.frame(cl = c("TD", "Cluster1", "Cluster2", "Cluster3", "Significance"), 
                            num_males = c(num_men_all_clusters, "---"),
                            percent_males = round(c(percent_men_all_clusters, chisq_matched_sex_pvalue), 2), 
                            num_caucasians = c(num_caucasian_all_clusters, "---"),
                            percent_caucasian = round(c(percent_caucasian_all_clusters, chisq_matched_race_pvalue),2))
-dat_sex_race_no_significance <-  data.frame(cl = c("TD", "Cluster1", "Cluster2"), 
+dat_sex_race_no_significance <-  data.frame(cl = c("TD", "Cluster1", "Cluster2", "Cluster3"), 
                                             num_males = (num_men_all_clusters),
                                             percent_males = percent_men_all_clusters, 
                                             num_caucasians = num_caucasian_all_clusters,
                                             percent_caucasian = percent_caucasian_all_clusters)                 
 ggplot(dat_sex_race_no_significance, aes(x = cl, y = percent_males, fill=cl)) + geom_col() +
-  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2")) + ylim(0, 100) + xlab("Clusters") + ylab("% Male") + 
-  ggtitle("Hydra_k2 % Male, p = 0.0154") + scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2")) +
+  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3")) + ylim(0, 100) + xlab("Clusters") + ylab("% Male") + 
+  ggtitle("Hydra_k3 % Male, p = 0.0154") + scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2", "Cluster3")) +
   guides(fill=guide_legend(title=NULL))
 ggplot(dat_sex_race_no_significance, aes(x = cl, y = percent_caucasian, fill=cl)) + geom_col() + 
-  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2")) + ylim(0, 100) + xlab("Clusters") + ylab("% Caucasian") + 
-  ggtitle("Hydra_k2 % Caucasian, p = 2.187e-14") + scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2")) + 
+  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3")) + ylim(0, 100) + xlab("Clusters") + ylab("% Caucasian") + 
+  ggtitle("Hydra_k3 % Caucasian, p = 2.187e-14") + scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2", "Cluster3")) + 
   guides(fill=guide_legend(title=NULL))
 
 #############################
 ######### Bar Graphs ########
 #############################
 
-dat <- data.frame(cluster=c(subset_with_clusters_AG_matched$Hydra_k2), age=c(subset_with_clusters_AG_matched$age_in_years), medu1=c(subset_with_clusters_AG_matched$medu1), race=c(subset_with_clusters_AG_matched$race_binarized), sex_males=c(subset_with_clusters_AG_matched$sex))
+dat <- data.frame(cluster=c(subset_with_clusters_AG_matched$Hydra_k3), age=c(subset_with_clusters_AG_matched$age_in_years), medu1=c(subset_with_clusters_AG_matched$medu1), race=c(subset_with_clusters_AG_matched$race_binarized), sex_males=c(subset_with_clusters_AG_matched$sex))
 
 #dat_age_sd_sem is the data frame that will be cluster(vertical), columns (age, medu), last rows are standard dec and sem
-dat_age_sd_sem <- data.frame(cl = c("TD", "Cluster1", "Cluster2"), 
-                             age = c(mean(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k2 ==-1)]), 
-                                     mean(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k2 ==1)]), 
-                                     mean(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k2 ==2)])), 
-                             age_sd = c(sd(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k2 ==-1)]),
-                                        sd(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k2 ==1)]), 
-                                        sd(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k2 ==2)])))
+dat_age_sd_sem <- data.frame(cl = c("TD", "Cluster1", "Cluster2", "Cluster3"), 
+                             age = c(mean(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k3 ==-1)]), 
+                                     mean(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k3 ==1)]), 
+                                     mean(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k3 ==2)]),
+                                     mean(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k3 ==3)])),
+                             age_sd = c(sd(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k3 ==-1)]),
+                                        sd(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k3 ==1)]), 
+                                        sd(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k3 ==2)]),
+                                        sd(subset_with_clusters_AG_matched$age_in_years[which(subset_with_clusters_AG_matched$Hydra_k3 ==3)])))
                                        
 dat_age_sd_sem$sem <- dat_age_sd_sem$age_sd/sqrt(nrow(dat)) 
-dat_medu_sd_sem <- data.frame(cl = c("TD", "Cluster1", "Cluster2"), 
-                              medu = c(mean(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k2 ==-1)]), 
-                                       mean(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k2 ==1)]), 
-                                       mean(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k2 ==2)])),
-                              medu_sd = c(sd(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k2 ==-1)]), 
-                                         sd(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k2 ==1)]), 
-                                         sd(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k2 ==2)])))
+dat_medu_sd_sem <- data.frame(cl = c("TD", "Cluster1", "Cluster2", "Cluster3"), 
+                              medu = c(mean(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k3 ==-1)]), 
+                                       mean(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k3 ==1)]), 
+                                       mean(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k3 ==2)]),
+                                       mean(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k3 ==3)])),
+                              medu_sd = c(sd(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k3 ==-1)]), 
+                                         sd(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k3 ==1)]), 
+                                         sd(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k3 ==2)]),
+                                         sd(subset_with_clusters_AG_matched$medu1[which(subset_with_clusters_AG_matched$Hydra_k3 ==3)])))
                                       
 dat_medu_sd_sem$sem <- dat_medu_sd_sem$medu_sd/sqrt(nrow(dat))
 
-#dat_cont <- data.frame(cluster=c(subset_with_clusters_AG_matched$Hydra_k2), age=c(subset_with_clusters_AG_matched$age_in_years), medu1=c(subset_with_clusters_AG_matched$medu1))
-#dat_cat <- data.frame(cluster=c(subset_with_clusters_AG_matched$Hydra_k2), race=c(subset_with_clusters_AG_matched$race_binarized), sex=c(subset_with_clusters_AG_matched$sex))
+#dat_cont <- data.frame(cluster=c(subset_with_clusters_AG_matched$Hydra_k3), age=c(subset_with_clusters_AG_matched$age_in_years), medu1=c(subset_with_clusters_AG_matched$medu1))
+#dat_cat <- data.frame(cluster=c(subset_with_clusters_AG_matched$Hydra_k3), race=c(subset_with_clusters_AG_matched$race_binarized), sex=c(subset_with_clusters_AG_matched$sex))
 dat.m <- melt(dat, id.vars='cluster')
 #dat_cont.m <- melt(dat_cont, id.vars='cluster')
 #dat_cat.m <- melt(dat_cat, id.vars='cluster')
 
 #ggplot(dat.m, aes(fill=cluster, x=cluster, y=value))+ geom_bar(stat="identity") + facet_grid(.~variable) + 
- # labs(x='Clusters_matched',y='') + scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3")) 
+ # labs(x='Clusters_matched',y='') + scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3", "Cluster3")) 
 
 ggplot(dat_age_sd_sem, aes(x = cl, y = age, fill = cl)) + geom_col() + 
   geom_errorbar(aes(ymin=age-sem, ymax=age+sem),width=.2,position=position_dodge(.9)) + 
-  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2")) + ylim(0, 18) + xlab("Clusters") + ylab("Age in Years") + 
-  ggtitle("Age by Cluster") + scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2")) +
+  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3")) + ylim(0, 18) + xlab("Clusters") + ylab("Age in Years") + 
+  ggtitle("Age by Cluster") + scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2", "Cluster3")) +
   guides(fill=guide_legend(title=NULL)) 
 
 ggplot(dat_medu_sd_sem, aes(x = cl, y = medu, fill = cl)) + geom_col() + 
   geom_errorbar(aes(ymin=medu-sem, ymax=medu+sem),width=.2,position=position_dodge(.9)) + 
-  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2")) + ylim(0, 18) + xlab("Clusters") + ylab("Maternal Ed in Years") + 
-  ggtitle("Maternal Edu by Cluster") + scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2")) +
+  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3")) + ylim(0, 18) + xlab("Clusters") + ylab("Maternal Ed in Years") + 
+  ggtitle("Maternal Edu by Cluster") + scale_fill_discrete(breaks=c("TD", "Cluster1", "Cluster2", "Cluster3")) +
   guides(fill=guide_legend(title=NULL)) 
 
 #ggplot(dat_cont.m, aes(fill=cluster, x=cluster, y=value)) + geom_bar(stat='identity') + 
  # facet_grid(.~variable) + labs(x='Clusters_matched',y='') + 
-  #scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2"))
+  #scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3"))
 
 #ggplot(dat_cat.m, aes(fill=cluster, x=cluster, y=value)) + geom_bar(stat='identity') + 
  # facet_grid(.~variable) + labs(x='Clusters_matched',y='') +
-#  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3"))
+#  scale_x_discrete(limits=c("TD", "Cluster1", "Cluster2", "Cluster3", "Cluster3"))
 
 
 ###################################################
 ## Extracting anovas with significant p values ####
 ###################################################
 
-#Looking at Hydra_k2, but can redo with nested list
+#Looking at Hydra_k3, but can redo with nested list
 #Look at model summaries
 models_anova <- lapply(clinical_cog_score_cluster_stats_anova_AG_matched, summary)
 
@@ -498,28 +523,28 @@ clinical_names_and_fdr_values_anova <- data.frame(cbind(clinical_fdr_anova, roun
 names(clinical_names_and_fdr_values_anova) <- c("clinical_measure", "p_FDR_corr")
 
 #write the results of the mass univariate stats to files
-write.csv(clinical_names_and_fdr_values_anova, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/Hydra_k2_clinical_20180315.csv")
+write.csv(clinical_names_and_fdr_values_anova, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/Hydra_k3_clinical_20180315.csv")
 
 print(clinical_names_and_fdr_values_anova)
 
 ##############################################
-####Pairwise tests between MDD groups ########
+####Pairwise tests between MDD groups with 2 groups--->  ########
 ##############################################
 
-t.mood <- t.test(subset_with_clusters_AG_matched$mood_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == 1)],
-                 (subset_with_clusters_AG_matched$mood_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == 2)]))
-print(t.mood$p.value)
-t.psychosis <- t.test(subset_with_clusters_AG_matched$psychosis_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == 1)],
-                       subset_with_clusters_AG_matched$psychosis_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == 2)])
+t.mood <- t.test(subset_with_clusters_AG_matched$mood_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == 1)],
+                 (subset_with_clusters_AG_matched$mood_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == 2)]))
 
-t.phobias <- t.test(subset_with_clusters_AG_matched$phobias_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == 1)],
-                    subset_with_clusters_AG_matched$phobias_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == 2)])
+t.psychosis <- t.test(subset_with_clusters_AG_matched$psychosis_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == 1)],
+                       subset_with_clusters_AG_matched$psychosis_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == 2)])
 
-t.externalizing <- t.test(subset_with_clusters_AG_matched$externalizing_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == 1)],
-                          subset_with_clusters_AG_matched$externalizing_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == 2)])
+t.phobias <- t.test(subset_with_clusters_AG_matched$phobias_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == 1)],
+                    subset_with_clusters_AG_matched$phobias_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == 2)])
 
-t.overall <- t.test(subset_with_clusters_AG_matched$overall_psychopathology_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == 1)],
-                     subset_with_clusters_AG_matched$overall_psychopathology_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k2 == 2)])
+t.externalizing <- t.test(subset_with_clusters_AG_matched$externalizing_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == 1)],
+                          subset_with_clusters_AG_matched$externalizing_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == 2)])
+
+t.overall <- t.test(subset_with_clusters_AG_matched$overall_psychopathology_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == 1)],
+                     subset_with_clusters_AG_matched$overall_psychopathology_4factorv2[which(subset_with_clusters_AG_matched$Hydra_k3 == 2)])
 
 pairwise_t_tests_clinical_results <- data.frame(clinical = c("mood", "psychosis", "phobias", "externalizing", "overall"), p_values = 
                                                 c(t.mood$p.value, t.psychosis$p.value,t.phobias$p.value, t.externalizing$p.value, t.overall$p.value))
@@ -533,52 +558,52 @@ pairwise_t_tests_clinical_results <- data.frame(clinical = c("mood", "psychosis"
 #######Matched group all clusters ##############
 #subset demographics
 listVars <- c("Race", "Sex", "Maternal Ed", "Age", "Depression", "Cluster") #Race 1 = caucasian, Maternal Ed = years, age = years, dep 1 = dep, 0 = non_dep
-demo_Hydra_k2_AG_matched <- data.frame(subset_with_clusters_AG_matched$race_binarized, subset_with_clusters_AG_matched$sex, subset_with_clusters_AG_matched$medu1, subset_with_clusters_AG_matched$age_in_years, subset_with_clusters_AG_matched$dep_binarized, subset_with_clusters_AG_matched$Hydra_k2)
-names(demo_Hydra_k2_AG_matched) <- c(listVars)
+demo_Hydra_k3_AG_matched <- data.frame(subset_with_clusters_AG_matched$race_binarized, subset_with_clusters_AG_matched$sex, subset_with_clusters_AG_matched$medu1, subset_with_clusters_AG_matched$age_in_years, subset_with_clusters_AG_matched$dep_binarized, subset_with_clusters_AG_matched$Hydra_k3)
+names(demo_Hydra_k3_AG_matched) <- c(listVars)
 
 #Change categorical values to have names
-demo_Hydra_k2_AG_matched$Depression <- ifelse(demo_Hydra_k2_AG_matched$Depression == 1, "Depressed", "Non-depressed")
-demo_Hydra_k2_AG_matched$Race <- ifelse(demo_Hydra_k2_AG_matched$Race == 1, "Caucasian", "Non-caucasian")
-demo_Hydra_k2_AG_matched$Sex <- ifelse(demo_Hydra_k2_AG_matched$Sex == 1, "Male", "Female")
+demo_Hydra_k3_AG_matched$Depression <- ifelse(demo_Hydra_k3_AG_matched$Depression == 1, "Depressed", "Non-depressed")
+demo_Hydra_k3_AG_matched$Race <- ifelse(demo_Hydra_k3_AG_matched$Race == 1, "Caucasian", "Non-caucasian")
+demo_Hydra_k3_AG_matched$Sex <- ifelse(demo_Hydra_k3_AG_matched$Sex == 1, "Male", "Female")
 
 #Define Categorical Variables
 cat_variables <- c("Race", "Depression", "Sex", "Cluster")
-title <- c("Hydra_k2 demographics")
+title <- c("Hydra_k3 demographics")
 
 #create demographics table
-demo_Hydra_k2_AG_matched_table <- CreateTableOne(vars = listVars, data = demo_Hydra_k2_AG_matched, factorVars = cat_variables, strata = c("Cluster"))
-print(demo_Hydra_k2_AG_matched_table, showAllLevels = TRUE)
+demo_Hydra_k3_AG_matched_table <- CreateTableOne(vars = listVars, data = demo_Hydra_k3_AG_matched, factorVars = cat_variables, strata = c("Cluster"))
+print(demo_Hydra_k3_AG_matched_table, showAllLevels = TRUE)
 
 #######Unmatched group ##############
 #subset demographics
 listVars <- c("Race", "Sex", "Maternal Ed", "Age", "Depression", "Cluster") #Race 1 = caucasian, Maternal Ed = years, age = years, dep 1 = dep, 0 = non_dep
-demo_Hydra_k2_AG_unmatched <- data.frame(subset_with_clusters_AG_unmatched$race_binarized, subset_with_clusters_AG_unmatched$sex, subset_with_clusters_AG_unmatched$medu1, subset_with_clusters_AG_unmatched$age_in_years, subset_with_clusters_AG_unmatched$dep_binarized, subset_with_clusters_AG_unmatched$Hydra_k2)
-names(demo_Hydra_k2_AG_unmatched) <- c(listVars)
+demo_Hydra_k3_AG_unmatched <- data.frame(subset_with_clusters_AG_unmatched$race_binarized, subset_with_clusters_AG_unmatched$sex, subset_with_clusters_AG_unmatched$medu1, subset_with_clusters_AG_unmatched$age_in_years, subset_with_clusters_AG_unmatched$dep_binarized, subset_with_clusters_AG_unmatched$Hydra_k3)
+names(demo_Hydra_k3_AG_unmatched) <- c(listVars)
 
 #Change categorical values to have names
-demo_Hydra_k2_AG_unmatched$Depression <- ifelse(demo_Hydra_k2_AG_unmatched$Depression == 1, "Depressed", "Non-depressed")
-demo_Hydra_k2_AG_unmatched$Race <- ifelse(demo_Hydra_k2_AG_unmatched$Race == 1, "Caucasian", "Non-caucasian")
-demo_Hydra_k2_AG_unmatched$Sex <- ifelse(demo_Hydra_k2_AG_unmatched$Sex == 1, "Male", "Female")
+demo_Hydra_k3_AG_unmatched$Depression <- ifelse(demo_Hydra_k3_AG_unmatched$Depression == 1, "Depressed", "Non-depressed")
+demo_Hydra_k3_AG_unmatched$Race <- ifelse(demo_Hydra_k3_AG_unmatched$Race == 1, "Caucasian", "Non-caucasian")
+demo_Hydra_k3_AG_unmatched$Sex <- ifelse(demo_Hydra_k3_AG_unmatched$Sex == 1, "Male", "Female")
 
 #Define Categorical Variables
 cat_variables <- c("Race", "Depression", "Sex", "Cluster")
 
-title <- c("Hydra_k2 demographics")
+title <- c("Hydra_k3 demographics")
 
 #create demographics table
-demo_Hydra_k2_AG_unmatched_table <- CreateTableOne(vars = listVars, data = demo_Hydra_k2_AG_unmatched, factorVars = cat_variables, strata = c("Cluster"))
-print(demo_Hydra_k2_AG_unmatched_table, showAllLevels = TRUE)
+demo_Hydra_k3_AG_unmatched_table <- CreateTableOne(vars = listVars, data = demo_Hydra_k3_AG_unmatched, factorVars = cat_variables, strata = c("Cluster"))
+print(demo_Hydra_k3_AG_unmatched_table, showAllLevels = TRUE)
 
 #######Ununmatched residuals group ##############
 #subset demographics
 listVars <- c("Race", "Sex", "Maternal Ed", "Age", "Depression", "Cluster") #Race 1 = caucasian, Maternal Ed = years, age = years, dep 1 = dep, 0 = non_dep
-demo_Hydra_k2_AG_resid <- data.frame(subset_with_clusters_AG_resid$race_binarized, subset_with_clusters_AG_resid$sex, subset_with_clusters_AG_resid$medu1, subset_with_clusters_AG_resid$age_in_years, subset_with_clusters_AG_resid$dep_binarized, subset_with_clusters_AG_resid$Hydra_k2)
-names(demo_Hydra_k2_AG_resid) <- c(listVars)
+demo_Hydra_k3_AG_resid <- data.frame(subset_with_clusters_AG_resid$race_binarized, subset_with_clusters_AG_resid$sex, subset_with_clusters_AG_resid$medu1, subset_with_clusters_AG_resid$age_in_years, subset_with_clusters_AG_resid$dep_binarized, subset_with_clusters_AG_resid$Hydra_k3)
+names(demo_Hydra_k3_AG_resid) <- c(listVars)
 
 #Change categorical values to have names
-demo_Hydra_k2_AG_resid$Depression <- ifelse(demo_Hydra_k2_AG_resid$Depression == 1, "Depressed", "Non-depressed")
-demo_Hydra_k2_AG_resid$Race <- ifelse(demo_Hydra_k2_AG_resid$Race == 1, "Caucasian", "Non-caucasian")
-demo_Hydra_k2_AG_resid$Sex <- ifelse(demo_Hydra_k2_AG_resid$Sex == 1, "Male", "Female")
+demo_Hydra_k3_AG_resid$Depression <- ifelse(demo_Hydra_k3_AG_resid$Depression == 1, "Depressed", "Non-depressed")
+demo_Hydra_k3_AG_resid$Race <- ifelse(demo_Hydra_k3_AG_resid$Race == 1, "Caucasian", "Non-caucasian")
+demo_Hydra_k3_AG_resid$Sex <- ifelse(demo_Hydra_k3_AG_resid$Sex == 1, "Male", "Female")
 
 #make variable list
 #table_titles <- c("Cluster 1", "Cluster 2")
@@ -587,9 +612,9 @@ demo_Hydra_k2_AG_resid$Sex <- ifelse(demo_Hydra_k2_AG_resid$Sex == 1, "Male", "F
 #Define Categorical Variables
 cat_variables <- c("Race", "Depression", "Sex", "Cluster")
 
-title <- c("Hydra_k2 demographics")
+title <- c("Hydra_k3 demographics")
 
 #create demographics table
-demo_Hydra_k2_AG_resid_table <- CreateTableOne(vars = listVars, data = demo_Hydra_k2_AG_resid, factorVars = cat_variables, strata = c("Cluster"))
-print(demo_Hydra_k2_AG_resid_table, showAllLevels = TRUE)
+demo_Hydra_k3_AG_resid_table <- CreateTableOne(vars = listVars, data = demo_Hydra_k3_AG_resid, factorVars = cat_variables, strata = c("Cluster"))
+print(demo_Hydra_k3_AG_resid_table, showAllLevels = TRUE)
 
