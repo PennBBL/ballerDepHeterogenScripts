@@ -1,14 +1,3 @@
----
-title: "Clinical data hydra results (primarily using Hydra_k2)"
-author: "Erica Baller"
-date: "3/16/2018"
-output:
-  pdf_document: default
-  html_document: default
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
 library(visreg)
 library(mgcv)
 library(tableone)
@@ -19,41 +8,39 @@ library(tidyr)
 library(ggplot2)
 library(reshape)
 theme_update(plot.title = element_text(hjust = 0.5))
-```
 
+#This script goes through demographics, clinical scores, health, and psych summaries, adds clustering information, runs statistics and makes graphs from results.
 
-This script goes through demographics, clinical scores, health, and psych summaries, adds clustering information, runs statistics and makes graphs from results.
+#Part 1 : Read in csv.s
+ # -This script reads in demographics, clinical_scores, health and psych summaries, merges them, removes NAs, codes and separates by depression.
 
-Part 1 : Read in csv.s
-  -This script reads in demographics, clinical_scores, health and psych summaries, merges them, removes NAs, codes and separates by depression.
+#Part 2 : merge with hydra
+ # -It then merges these documents with hydra output (made in cbica), adding Hydra_k1 through Hydra_k10 columns (which represent the number of clusters)
+#  -The script reads in 3 different types of groups (matched, unmatched, and residualized unmatched groups), and also does all gender together as well as separating them by gender.
 
-Part 2 : merge with hydra
-  -It then merges these documents with hydra output (made in cbica), adding Hydra_k1 through Hydra_k10 columns (which represent the number of clusters)
-  -The script reads in 3 different types of groups (matched, unmatched, and residualized unmatched groups), and also does all gender together as well as separating them by gender.
+#Part 3 : Demographics tables
+ # - Demographics tables for each group (matched, unmatched, resid) were produced
 
-Part 3 : Demographics tables
-  - Demographics tables for each group (matched, unmatched, resid) were produced
-
-Part 4 : Graphing
-  - Graphs were then made.  
-    *For continuous variables(age, medu1), the graphs represent means, with SEM as error bars
-    *For categorical variables (race, sex) the graphs are percentages (caucasian, male) per group, with chisq used to calculate significance
+#Part 4 : Graphing
+ # - Graphs were then made.  
+  #  *For continuous variables(age, medu1), the graphs represent means, with SEM as error bars
+   # *For categorical variables (race, sex) the graphs are percentages (caucasian, male) per group, with chisq used to calculate significance
     
-Part 5 : LM
-  -The script then runs LM on each cognitive score (clinical_measure ~ hydra_group).  
-  -There is a test option that does this for all clinical measures and all hydra groups, but for the remainder of the analysis, Hydra_k2 was the only classification more deeply explored.
+#Part 5 : LM
+ # -The script then runs LM on each cognitive score (clinical_measure ~ hydra_group).  
+#  -There is a test option that does this for all clinical measures and all hydra groups, but for the remainder of the analysis, Hydra_k2 was the only classification more deeply explored.
 
-Part 6: Visreg : Look at results of linear model graphically
-  -Allows you to visualize each cluster by cognitive measure
+#Part 6: Visreg : Look at results of linear model graphically
+ # -Allows you to visualize each cluster by cognitive measure
 
-Part 7 : Anova
-  -Anovas were also run on the results of the LM of each clinical value by cluster.
+#Part 7 : Anova
+ # -Anovas were also run on the results of the LM of each clinical value by cluster.
   
-Part 8 : FDR Correction
-  -FDR correction was calculated for each clinical measure ANOVA output
-  -A table of the results was extracted
+#Part 8 : FDR Correction
+ # -FDR correction was calculated for each clinical measure ANOVA output
+#  -A table of the results was extracted
 
-```{r Clinical, echo = FALSE}
+
 #######################################################
 ############ READ IN, MERGE AND SUBSET DATA############
 #######################################################
@@ -177,11 +164,6 @@ saveRDS(object = subset_with_clusters_M_unmatched, file = "/Users/eballer/BBL/fr
 saveRDS(object = subset_with_clusters_M_resid, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/subset_with_clusters_M_resid_clinical.rds")
 
 
-
-```
-
-Demographics for matched, unmatched and unmatched_resid group by cluster
-```{r Demographics, echo = FALSE}
 #############################
 ####### Demographics ########
 #############################
@@ -249,10 +231,6 @@ title <- c("Hydra_k2 demographics")
 demo_Hydra_k2_AG_resid_table <- CreateTableOne(vars = listVars, data = demo_Hydra_k2_AG_resid, factorVars = cat_variables, strata = c("Cluster"))
 print(demo_Hydra_k2_AG_resid_table, showAllLevels = TRUE)
 
-```
-
-Graphing
-```{r graphing, echo = FALSE}
 #######Chi-square for males/females and race########
 ##########By males, and by caucasians ##############
 
@@ -350,12 +328,7 @@ ggplot(dat_medu_sd_sem, aes(x = cl, y = medu, fill = cl)) + geom_col() +
   guides(fill=guide_legend(title=NULL)) 
 
 
-```
 
-## Stats
-
-
-```{r Stats, echo=FALSE}
 
 ###################################################
 ### Average Z-scores for accuracy and speed #######
@@ -599,5 +572,3 @@ print("UNMATCHED")
 invisible(lapply(clinical_cog_score_cluster_stats_lm_AG_unmatched, function(x) {visreg(x)}))
 print("RESIDUALIZED unmatched")
 invisible(lapply(clinical_cog_score_cluster_stats_lm_AG_resid, function(x) {visreg(x)}))
-
-```
