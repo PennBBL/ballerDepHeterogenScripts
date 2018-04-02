@@ -242,10 +242,6 @@ names(CNB_cog_score_cluster_stats_anova_AG_matched) <- cnb_measure_names
 names(CNB_cog_score_cluster_stats_anova_AG_unmatched) <- cnb_measure_names
 names(CNB_cog_score_cluster_stats_anova_AG_resid) <- cnb_measure_names
 
-#checkmodel with visreg, uncomment when want to check
-invisible(lapply(CNB_cog_score_cluster_stats_lm_AG_matched, function(x) {visreg(x)})) 
-invisible(lapply(CNB_cog_score_cluster_stats_lm_AG_unmatched, function(x) {visreg(x)})) 
-invisible(lapply(CNB_cog_score_cluster_stats_lm_AG_resid, function(x) {visreg(x)})) 
 
 #WILL HAVE TO DO THIS FOR MALES AND FEMALES#
 
@@ -555,3 +551,8 @@ title <- c("Hydra_k2 demographics")
 #create demographics table
 demo_Hydra_k2_AG_resid_table <- CreateTableOne(vars = listVars, data = demo_Hydra_k2_AG_resid, factorVars = cat_variables, strata = c("Cluster"))
 print(demo_Hydra_k2_AG_resid_table, showAllLevels = TRUE)
+
+#checkmodel with visreg, uncomment when want to check
+invisible(lapply(CNB_cog_score_cluster_stats_lm_AG_matched, function(x) {visreg(x)})) 
+invisible(lapply(CNB_cog_score_cluster_stats_lm_AG_unmatched, function(x) {visreg(x)})) 
+invisible(lapply(CNB_cog_score_cluster_stats_lm_AG_resid, function(x) {visreg(x)})) 
