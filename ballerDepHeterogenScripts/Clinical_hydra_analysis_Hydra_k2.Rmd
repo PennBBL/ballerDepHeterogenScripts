@@ -3,8 +3,8 @@ title: "Clinical data hydra results (primarily using Hydra_k2)"
 author: "Erica Baller"
 date: "3/16/2018"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
