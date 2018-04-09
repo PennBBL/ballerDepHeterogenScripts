@@ -3,8 +3,8 @@ title: "Cog_hydra_results_unmatched_resid_Hydra_k2"
 author: "Erica Baller"
 date: "4/3/2018"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}

@@ -3,8 +3,8 @@ title: "Cog hydra matched age, age regressed and z score regressed Hydra k3"
 author: "Erica Baller"
 date: "4/2/2018"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 This script goes through demographics, cnb scores, health, and psych summaries, adds clustering information, runs statistics and makes graphs from results.
 
