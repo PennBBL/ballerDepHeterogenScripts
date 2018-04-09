@@ -1,5 +1,5 @@
-cp ../../../ballerDepHeterogenScripts/*html ../../../results/.
-cp ../../../ballerDepHeterogenScripts/*pdf ../../../results/.
+mv ../../../ballerDepHeterogenScripts/*html ../../../results/.
+mv ../../../ballerDepHeterogenScripts/*pdf ../../../results/.
 cp ../../../ballerDepHeterogenScripts/* .
 rm *pdf *html
 git add *
