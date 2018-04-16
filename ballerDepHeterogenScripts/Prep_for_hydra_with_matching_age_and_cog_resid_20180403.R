@@ -9,6 +9,7 @@ library(MatchIt)
 ####Also preps for hydra, both using a typical GAM model and matching (we lose a lot of people) and also with residuals plotted so we don't have to match#########
 ########Also provides matched data sets and tests them, if we decide to use them.  It significantly reduces N to match (dataset from 3022 to 1424)
 
+########THIS IS MISNAMED!!! IT ACTUALLY NEVER USES RESIDS WHEN MATCHING!!!!##########
 
 #######################################################
 ############ READ IN, MERGE AND SUBSET DATA############

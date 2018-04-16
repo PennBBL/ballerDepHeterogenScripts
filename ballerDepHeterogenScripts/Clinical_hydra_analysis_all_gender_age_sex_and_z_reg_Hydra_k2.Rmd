@@ -3,8 +3,8 @@ title: "Clinical_hydra_ matched age, sex, and z regressed"
 author: "Erica Baller"
 date: "4/16/2018"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
