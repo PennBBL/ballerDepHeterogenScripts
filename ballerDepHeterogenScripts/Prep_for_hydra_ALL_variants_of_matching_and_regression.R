@@ -95,37 +95,126 @@ plot(dataset$age_in_years,jitter(dataset$medu1, factor=3), pch=c(15, 7, 18, 9), 
 
 legend("bottomright",c("Non-white, non-depressed", "Non-white, depressed", "White, non-depressed", "White, depressed"),pch=c(15, 7, 18, 9), col=c(1,2,3,4))
 
-#race binarized, age in years and sex covaried out, and taking it out from exact N=1542 (M=522, F = 1020)
-m.out <-matchit(dep_binarized ~ age_in_years, data=dataset, method="nearest", distance="mahalanobis")
+#Will do a variety of matchings, using all variables combined, then age, sex, medu and race separately, than combinging age and sex N=1542 (M=522, F = 1020)
+m_all.out <-matchit(dep_binarized ~ age_in_years + race_binarized + medu1 + sex, data=dataset, method="nearest", distance="mahalanobis")
+m_age.out <-matchit(dep_binarized ~ age_in_years, data=dataset, method="nearest", distance="mahalanobis")
+m_sex.out <-matchit(dep_binarized ~ sex, data=dataset, method="nearest", distance="mahalanobis")
+m_medu.out <-matchit(dep_binarized ~ medu1, data=dataset, method="nearest", distance="mahalanobis")
+m_race.out <-matchit(dep_binarized ~ race_binarized, data=dataset, method="nearest", distance="mahalanobis")
+m_age_and_sex.out <-matchit(dep_binarized ~ age_in_years + sex, data=dataset, method="nearest", distance="mahalanobis")
+
 
 #going back to old match
 #m.out <-matchit(dep_binarized ~ age_in_years + medu1, exact=c("race_binarized","sex"), data=dataset, method="nearest", distance="mahalanobis")
 
 
-plot(m.out)
+plot(m_all.out)
+plot(m_age.out)
+plot(m_sex.out)
+plot(m_medu.out)
+plot(m_race.out)
+plot(m_age_and_sex.out)
 
 #return the matched dataset 
 #(with race binarized, before binarized, N = 1518, males 518, females 1000). 
+#All 4 binarized, N = , males = , females = 
+#age:  males = , females = 
+#sex:  males = , females = 
+#medu:  males = , females = 
+#race :  males = , females = 
+#age and sex:  males = , females = 
+
 #WIth race binarized, N = 1530, males = 522, females = 1008 (both largest and random for m.order)
 #with medu1 in formula, and exact on race and sex, N = 1542 (male 522, female 1020)
-m.data <- match.data(m.out)
+m_all.data <- match.data(m_all.out)
+m_age.data <- match.data(m_age.out)
+m_sex.data <- match.data(m_sex.out)
+m_medu.data <- match.data(m_medu.out)
+m_race.data <- match.data(m_race.out)
+m_age_and_sex.data <- match.data(m_age_and_sex.out)
 
 # Test for significant difference in age between groups
 #results: Trend for race by depression, significant sex by depression, no diff age by depression
-t.test(age_in_years~dep_binarized, data=m.data)
-t.test(race_binarized~dep_binarized, data=m.data)
-t.test(sex~dep_binarized, data=m.data)
-t.test(medu1~dep_binarized, data=m.data)
+#t.test(age_in_years~dep_binarized, data=m.data)
+#t.test(race_binarized~dep_binarized, data=m.data)
+#t.test(sex~dep_binarized, data=m.data)
+#t.test(medu1~dep_binarized, data=m.data)
 
 # Re-plot
-plot(m.data$age_in_years,jitter(m.data$medu1, factor=3), pch=c(15, 7, 18, 9), col=c(1,2,3,4), ylab="Maternal Edu", xlab="Age")
-
+plot(m_all.data$age_in_years,jitter(m_all.data$medu1, factor=3), pch=c(15, 7, 18, 9), col=c(1,2,3,4), ylab="Maternal Edu", xlab="Age all matched")
 legend("bottomright",c("Non-white, non-depressed", "Non-white, depressed", "White, non-depressed", "White, depressed"),pch=c(15, 7, 18, 9), col=c(1,2,3,4))
 
+plot(m_age.data$age_in_years,jitter(m_age.data$medu1, factor=3), pch=c(15, 7, 18, 9), col=c(1,2,3,4), ylab="Maternal Edu", xlab="Age age matched")
+legend("bottomright",c("Non-white, non-depressed", "Non-white, depressed", "White, non-depressed", "White, depressed"),pch=c(15, 7, 18, 9), col=c(1,2,3,4))
+
+plot(m_sex.data$age_in_years,jitter(m_sex.data$medu1, factor=3), pch=c(15, 7, 18, 9), col=c(1,2,3,4), ylab="Maternal Edu", xlab="Age sex matched")
+legend("bottomright",c("Non-white, non-depressed", "Non-white, depressed", "White, non-depressed", "White, depressed"),pch=c(15, 7, 18, 9), col=c(1,2,3,4))
+
+plot(m_medu.data$age_in_years,jitter(m_medu.data$medu1, factor=3), pch=c(15, 7, 18, 9), col=c(1,2,3,4), ylab="Maternal Edu", xlab="Age medu matched")
+legend("bottomright",c("Non-white, non-depressed", "Non-white, depressed", "White, non-depressed", "White, depressed"),pch=c(15, 7, 18, 9), col=c(1,2,3,4))
+
+plot(m_race.data$age_in_years,jitter(m_race.data$medu1, factor=3), pch=c(15, 7, 18, 9), col=c(1,2,3,4), ylab="Maternal Edu", xlab="Age race matched ")
+legend("bottomright",c("Non-white, non-depressed", "Non-white, depressed", "White, non-depressed", "White, depressed"),pch=c(15, 7, 18, 9), col=c(1,2,3,4))
+
+plot(m_age_and_sex.data$age_in_years,jitter(m_age_and_sex.data$medu1, factor=3), pch=c(15, 7, 18, 9), col=c(1,2,3,4), ylab="Maternal Edu", xlab="Age age and sex matched")
+legend("bottomright",c("Non-white, non-depressed", "Non-white, depressed", "White, non-depressed", "White, depressed"),pch=c(15, 7, 18, 9), col=c(1,2,3,4))
+
+
 # Make the final matched data set
-data.matched = data.unmatched[data.unmatched$unmatchedRows%in%m.data$unmatchedRows,]
-data.matched$unmatchedRows = NULL
-saveRDS(data.matched, file='/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched//Matched_age.rds')
+data_all.matched = data.unmatched[data.unmatched$unmatchedRows%in%m_all.data$unmatchedRows,]
+data_all.matched$unmatchedRows = NULL
+saveRDS(data_all.matched, file='/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched/no_covariance/Matched_all.rds')
+
+data_age.matched = data.unmatched[data.unmatched$unmatchedRows%in%m_age.data$unmatchedRows,]
+data_age.matched$unmatchedRows = NULL
+saveRDS(data_age.matched, file='/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched/no_covariance/Matched_age.rds')
+
+data_sex.matched = data.unmatched[data.unmatched$unmatchedRows%in%m_sex.data$unmatchedRows,]
+data_sex.matched$unmatchedRows = NULL
+saveRDS(data_sex.matched, file='/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched/no_covariance/Matched_sex.rds')
+
+data_medu.matched = data.unmatched[data.unmatched$unmatchedRows%in%m_medu.data$unmatchedRows,]
+data_medu.matched$unmatchedRows = NULL
+saveRDS(data_medu.matched, file='/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched/no_covariance/Matched_medu.rds')
+
+data_race.matched = data.unmatched[data.unmatched$unmatchedRows%in%m_race.data$unmatchedRows,]
+data_race.matched$unmatchedRows = NULL
+saveRDS(data_race.matched, file='/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched/no_covariance/Matched_race.rds')
+
+data_age_and_sex.matched = data.unmatched[data.unmatched$unmatchedRows%in%m_age_and_sex.data$unmatchedRows,]
+data_age_and_sex.matched$unmatchedRows = NULL
+saveRDS(data_age_and_sex.matched, file='/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched/no_covariance/matched_age_and_sex.rds')
+
+##############
+#Demo Tablets#
+##############
+#Make table 1 (demographics) for matched data
+#subset demographics
+listVars <- c("Race_binarized", "Sex", "Maternal Ed", "Age", "Depression") #Race 1 = caucasian, Maternal Ed = years, age = years, dep 1 = dep, 0 = non_dep
+matched_versions <- c("data_all", "data_age", "data_sex", "data_medu", "data_race", "data_age_and_sex")
+
+for(vers in matched_versions) {
+  demo_string_to_eval <- paste("data.frame(", vers , ".matched$race_binarized, ", vers, ".matched$sex, ", vers, ".matched$medu1, ", vers, ".matched$age_in_years, ", vers, ".matched$dep_binarized)", sep ="")
+  demo_data.matched <- eval(parse(text=as.name(demo_string_to_eval)))
+  names(demo_data.matched) <- c(listVars)
+  
+  #Change categorical values to have names
+  demo_data.matched$Depression <- ifelse(demo_data.matched$Depression == 1, "Depressed", "Non-depressed")
+  demo_data.matched$Race <- ifelse(demo_data.matched$Race == 1, "Caucasian", "Non-caucasian")
+  demo_data.matched$Sex <- ifelse(demo_data.matched$Sex == 1, "Male", "Female")
+  
+  #make variable list
+  table_titles <- c("Non-depressed", "Depressed", "P-value")
+  
+  #Define Categorical Variables
+  cat_variables <- c("Race", "Depression", "Sex")
+  
+  #create demographics table
+  demo_data.matched_table <- CreateTableOne(vars = listVars, data = demo_data.matched, factorVars = cat_variables, strata = c("Depression"))
+  print(paste("Version matching on ", vers))
+  print(demo_data.matched_table, showAllLevels = TRUE)
+  
+})
 
 
 ##############################################
@@ -133,60 +222,55 @@ saveRDS(data.matched, file='/Users/eballer/BBL/from_chead/ballerDepHeterogen/res
 ##############################################
 
 #GAM to get residuals for hydra since too hard to match on age and race
-cnb_measure_names <- names(data.matched)[grep("_z", names(data.matched))] #get the names of all the columns with _z in the name
+#cnb_measure_names <- names(data.matched)[grep("_z", names(data.matched))] #get the names of all the columns with _z in the name
 
-CNB_cog_score_stats_gam_age_and_sex <- lapply(cnb_measure_names, function(measure) 
-{
-  gam(substitute(i ~ s(age_in_years) + sex, list(i = as.name(measure))), data = data.matched)
+#CNB_cog_score_stats_gam_age_and_sex <- lapply(cnb_measure_names, function(measure) 
+#{
+ # gam(substitute(i ~ s(age_in_years) + sex, list(i = as.name(measure))), data = data.matched)
   #lapply(CNB_cog_score_stats_gam_age_and_sex, function(x) {visreg(x)})
-}) 
+#}) 
 
-CNB_cog_score_stats_gam_age <- lapply(cnb_measure_names, function(measure) 
-{
+#CNB_cog_score_stats_gam_age <- lapply(cnb_measure_names, function(measure) 
+#{
   #gam(substitute(i ~ s(age_in_years) + race_binarized, list(i = as.name(x))), data = data.matched)
-  gam(substitute(i ~ s(age_in_years), list(i = as.name(measure))), data = data.matched)
+ # gam(substitute(i ~ s(age_in_years), list(i = as.name(measure))), data = data.matched)
   #lapply(CNB_cog_score_stats_gam_age, function(x) {visreg(x)})
-}) 
+#}) 
 
-names(CNB_cog_score_stats_gam_age_and_sex) <- cnb_measure_names
-names(CNB_cog_score_stats_gam_age) <- cnb_measure_names
+#names(CNB_cog_score_stats_gam_age_and_sex) <- cnb_measure_names
+#names(CNB_cog_score_stats_gam_age) <- cnb_measure_names
 
 #set CNB_cog_score_residuals_age_and_sex, and CNB_cog_score_residuals_age to original data frame and remove NAs
-CNB_cog_scores_residuals_age_and_sex <- data.matched[complete.cases(data.matched[14:39]),]
-CNB_cog_scores_residuals_age <- data.matched[complete.cases(data.matched[14:39]),]
+#CNB_cog_scores_residuals_age_and_sex <- data.matched[complete.cases(data.matched[14:39]),]
+#CNB_cog_scores_residuals_age <- data.matched[complete.cases(data.matched[14:39]),]
 
 #substitute residuals_age_and_sex from CNB_cog_score_stats_gam for results.  Did not work with for loop when indexing by cog score, did work with while loop and using numbers 'cnt'
 
-cnt = 14
-cnt_gam = 1
+#cnt = 14
+#cnt_gam = 1
 #for(cog_score in cnb_measure_names) did not work as for loop
 
 #get residuals_age_and_sex, put these in to hydra instead of main #s
-while(cnt < 40)
-{
-  CNB_cog_scores_residuals_age_and_sex[[cnt]] <- as.vector(residuals(CNB_cog_score_stats_gam_age_and_sex[[cnt_gam]]))
-  CNB_cog_scores_residuals_age[[cnt]] <- as.vector(residuals(CNB_cog_score_stats_gam_age[[cnt_gam]]))
+#while(cnt < 40)
+#{
+ # CNB_cog_scores_residuals_age_and_sex[[cnt]] <- as.vector(residuals(CNB_cog_score_stats_gam_age_and_sex[[cnt_gam]]))
+  #CNB_cog_scores_residuals_age[[cnt]] <- as.vector(residuals(CNB_cog_score_stats_gam_age[[cnt_gam]]))
   
-  cnt = cnt + 1
-  cnt_gam = cnt_gam + 1
+  #cnt = cnt + 1
+  #cnt_gam = cnt_gam + 1
   
+#}
+
+
+############################
+####make csvs for hydra#####
+############################
+
+#Subset only variables needed for hydra analysis
+for(vers in matched_versions) {
+  print(vers)
+  string_to_eval <- paste("data.frame(", vers, ".matched[1], ", vers, ".matched[14:39], ", vers, ".matched[77])", sep = "")
+  subset_bblidAndCog_features <- eval(parse(text = as.name(string_to_eval)))
+  string_for_csv <- paste("write.csv(subset_bblidAndCog_features, file=\"/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched/no_covariance/", vers, ".csv\" , row.names = FALSE, quote = FALSE)", sep = "")
+  eval(parse(text = as.name(string_for_csv)))
 }
-
-#Subset only variables needed for hydra analysis, use _r to make sure it is clear that these are residuals_age_and_sex we are looking at
-#(BBLID, cognitive variables, depression), also do by males(1555)/females(1729) separately(use only age regressed residuals, not sex + age)
-subset_bblidAndCog_features <- data.frame(data.matched[1], data.matched[14:39], data.matched[77])
-subset_bblidAndCog_features_age_and_sex_r <- data.frame(cbind(CNB_cog_scores_residuals_age_and_sex[1], CNB_cog_scores_residuals_age_and_sex[14:39], CNB_cog_scores_residuals_age_and_sex[77]))
-subset_bblidAndCog_features_age_r <- data.frame(cbind(CNB_cog_scores_residuals_age[1], CNB_cog_scores_residuals_age[14:39], CNB_cog_scores_residuals_age[77]))
-
-#remove NAs from hydra - n(3022), male (1434)/ female (1588); IF WE want to keep these people, comment out these lines
-subset_bblidAndCog_features <- subset_bblidAndCog_features[complete.cases(subset_bblidAndCog_features[2:27]),]
-subset_bblidAndCog_features_age_and_sex_r <- subset_bblidAndCog_features_age_and_sex_r[complete.cases(subset_bblidAndCog_features_age_and_sex_r[2:27]),]
-subset_bblidAndCog_features_age_r <- subset_bblidAndCog_features_age_r[complete.cases(subset_bblidAndCog_features_age_r[2:27]),]
-
-#covariates, age
-subset_bblidAndCovariates_age <- data.frame(cbind(data.matched[78]))
-
-#save files for hydra
-write.csv(subset_bblidAndCog_features, file="/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched/Features.csv", row.names = FALSE, quote = FALSE)
-write.csv(subset_bblidAndCog_features_age_and_sex_r, file="/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched_age_sex_and_z_resid_AFTER_matching/Features.csv", row.names = FALSE, quote = FALSE)
-write.csv(subset_bblidAndCog_features_age_r, file="/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched_age_and_z_resid_AFTER_matching/Features.csv", row.names = FALSE, quote = FALSE)
