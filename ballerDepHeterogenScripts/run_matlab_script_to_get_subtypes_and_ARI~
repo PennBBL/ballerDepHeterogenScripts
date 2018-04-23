@@ -1,0 +1,20 @@
+if ($#argv < 3) then
+   echo "This script takes a list of different submit scripts you want to make, makes them and does the string replace with sed.  It also makes a directory in results."
+   echo "as of 4/21/2018, it will also copy SaveHydraOutput and command to run this to the directories, and change names as appropriate with sed"
+   echo "Please enter a list, number (0 for no resids, 1 for resids BEFORE match, 2 for resids AFTER matching), and number of subjects"
+else
+	set list = $1
+	if ($2 == 0) then
+	   set analysis = "no_resid"
+	   else if ($2 == 1) then
+	      set analysis = "pre_match_resid"
+	      else
+	         set analysis = "post_match_resid"
+        endif
+	set num_subs = $3
+
+        foreach x (`cat $list`)	 
+		cp matlab_script_to_get_subtypes_and_ARI 
+		source matlab_script_to_get_subtypes_and_ARI
+	end
+endif
