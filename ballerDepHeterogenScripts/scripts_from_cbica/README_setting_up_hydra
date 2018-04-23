@@ -1,0 +1,16 @@
+This file will tell you the 3 steps for automatically setting up Hydra scripts, making qsub command, and running qsub
+Before this script, each of these steps would be done manually
+Work flow is to take names of files that have been copied from home computer to chead to here in subject Data, make your specific script with paths to these files, as well as make results directories where your hydra output will go, run the scripts with appropriate input/output and get a qsub command list, and the source the qsub command list
+
+*** in the future, may just weave directly running qsub command list into run_hydra_MATCHED script.  When debugging, it was nice to pull this out alone
+
+*** the scripting may change when I add pre and post residualized stuff to it
+
+*** GOOD NEWS, NOW, ONCE I GET MY FILES UPLOADED, I CANT MESS UP!!!!******
+
+Step 1: make a list with all the file names in subject data (no full path) that you'd like to do hydras for
+Step 2: csh copy_submit_script_and_run_sed_command_MATCHED.csh <list name> <0 for no_resid, 1 for pre_match_resid, 2 for post_match_resid> <num subjects>
+Step 3: csh run_hydra_MATCHED.csh <list name> <0 for no_resid, 1 for pre_match_resid, 2 for post_match_resid> <num_subjects>
+Step 4: more qsub_commands_to_run_<subject #>_<type of analysis>
+Step 5: source qsub_commands_to_run_<subject #>_<type of analysis>
+Step 6: csh run_matlab_script_to_get_subtypes_and_ARI.csh

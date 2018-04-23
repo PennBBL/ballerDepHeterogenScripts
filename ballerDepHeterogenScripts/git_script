@@ -3,7 +3,7 @@ find . -name '*.html' -exec mv {} /Users/eballer/BBL/from_chead/ballerDepHeterog
 find . -name '*.pdf' -exec mv {} /Users/eballer/BBL/from_chead/ballerDepHeterogen/results/pdfs/ \;
 find . -name '*.R*' -exec cp {} /Users/eballer/BBL/from_chead/ballerDepHeterogen/git/ballerDepHeterogenScripts/ballerDepHeterogenScripts \;
 cd /Users/eballer/BBL/from_chead/ballerDepHeterogen/git/ballerDepHeterogenScripts/ballerDepHeterogenScripts/.
-cp -r ../../../hydra_output_from_cbica/scripts .
+cp -r ../../../hydra_output_from_cbica/scripts scripts_from_cbica
 rm *html
 rm *pdf
 git add *
