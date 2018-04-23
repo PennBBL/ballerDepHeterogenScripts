@@ -1,11 +1,11 @@
 ---
-title: "Cognitive data hydra results matched all (age, sex, medu, race) n1424, no covariance"
+title: "Cognitive data hydra results matched age n1424, no covariance"
 author: "Erica Baller"
 date: "4/23/2018"
 output:
-  html_document: default
-  word_document: default
   pdf_document: default
+  word_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -65,7 +65,7 @@ psych_summary <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data
 cnb_factor_scores <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_cnb_factor_scores_fr_20170202.csv", header = TRUE, sep = ",")
 
 #read in Hydra cluster data -> AG (all_gender), M(males), F(females) 
-hydra_AG_matched_clusters <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/hydra_output_from_cbica/hydra_matched/no_covariance/CogData_matched_all_n1424_no_resid_HydraSubtypes.csv", header = TRUE, sep = ",")
+hydra_AG_matched_clusters <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/hydra_output_from_cbica/hydra_matched/no_covariance/CogData_matched_age_n1424_no_resid_HydraSubtypes.csv", header = TRUE, sep = ",")
 
 #Coerce hydra values into factor format
 hydra_names <- names(hydra_AG_matched_clusters[2:11])
@@ -448,7 +448,7 @@ ggplot(data = all_mean_sd_sem, aes(x = cnb, y = mean, group = cl)) +  ylab("Mean
   geom_line(aes(color=cl)) +
   geom_point(aes(color=cl)) + 
   geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1) +
-  ggtitle("Hydra_k2, matched all (age, sex, medu, race), no residualizing, by CNB Measures")
+  ggtitle("Hydra_k2 by CNB Measures")
 
 ```
 
