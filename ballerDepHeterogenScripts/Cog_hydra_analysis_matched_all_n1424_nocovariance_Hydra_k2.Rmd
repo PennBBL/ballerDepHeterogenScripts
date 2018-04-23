@@ -3,9 +3,9 @@ title: "Cognitive data hydra results matched all (age, sex, medu, race) n1424, n
 author: "Erica Baller"
 date: "4/23/2018"
 output:
-  pdf_document: default
-  word_document: default
   html_document: default
+  word_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}

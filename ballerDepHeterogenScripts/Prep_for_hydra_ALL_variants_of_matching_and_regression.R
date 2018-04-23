@@ -62,7 +62,6 @@ subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$race_binarized <
 subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED <- subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED[complete.cases(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED[14:39]),]
 
 
-
 ################################
 ######## MATCHING ##############
 ################################
@@ -70,6 +69,8 @@ subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED <- subset_dep_or
 ############################
 ## Standard, no residuals ##
 ############################
+
+#####WHY DOES THIS GIVE ME DIFFERENT OUTPUT THAN WHEN I RAN IT ON SATURDAY 4/21!!!!####
 
 #match with matchit n(3022), male (1434)/ female (1588), this is NOT residuals
 data.unmatched = subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED[complete.cases(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED[14:39]),]
@@ -216,6 +217,108 @@ for(vers in matched_versions) {
   
 }
 
+############################
+####make csvs for hydra#####
+############################
+
+#Subset only variables needed for hydra analysis
+for(vers in matched_versions) {
+  print(vers)
+  string_to_eval <- paste("data.frame(", vers, ".matched[1], ", vers, ".matched[14:39], ", vers, ".matched[77])", sep = "")
+  subset_bblidAndCog_features <- eval(parse(text = as.name(string_to_eval)))
+  string_for_csv <- paste("write.csv(subset_bblidAndCog_features, file=\"/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched/no_covariance/", vers, ".csv\" , row.names = FALSE, quote = FALSE)", sep = "")
+  eval(parse(text = as.name(string_for_csv)))
+}
+
+
+######################################################################
+### Residualize on whole dataset before matching                 #####
+######################################################################
+
+#### A lot of people don't have medu1.  This was handled in match, but when pre-residualizing, needed to handle it here. Should not affect
+### Previous hydra results 
+#GAM to get residuals for hydra 
+cnb_measure_names <- names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED)[grep("_z", names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED))] #get the names of all the columns with _z in the name
+dataframe_with_complete_medu1 <- subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED[!is.na(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$medu1),] #180 don't have medu1, N = 2998
+
+matching_options <- c("all", "age", "sex", "medu", "race", "age_and_sex")
+
+CNB_cog_score_stats_gam_all <- lapply(cnb_measure_names, function(measure) 
+{
+  gam(substitute(i ~ s(age_in_years) + sex + race_binarized + medu1, list(i = as.name(measure))), data = dataframe_with_complete_medu1)
+}) 
+
+CNB_cog_score_stats_gam_age <- lapply(cnb_measure_names, function(measure) 
+{
+  gam(substitute(i ~ s(age_in_years), list(i = as.name(measure))), data = dataframe_with_complete_medu1)
+}) 
+
+CNB_cog_score_stats_gam_sex <- lapply(cnb_measure_names, function(measure) 
+{
+  gam(substitute(i ~ sex, list(i = as.name(measure))), data = dataframe_with_complete_medu1)
+}) 
+
+CNB_cog_score_stats_gam_medu <- lapply(cnb_measure_names, function(measure) 
+{
+  gam(substitute(i ~ medu1, list(i = as.name(measure))), data = dataframe_with_complete_medu1)
+}) 
+
+CNB_cog_score_stats_gam_race <- lapply(cnb_measure_names, function(measure) 
+{
+  gam(substitute(i ~ race_binarized, list(i = as.name(measure))), data = dataframe_with_complete_medu1)
+}) 
+
+CNB_cog_score_stats_gam_age_and_sex <- lapply(cnb_measure_names, function(measure) 
+{
+  gam(substitute(i ~ s(age_in_years) + sex, list(i = as.name(measure))), data = dataframe_with_complete_medu1)
+}) 
+
+#rename all the CNB scores in the GAM analysis appropriately
+#Then loop through and make data structures to store the residuals from complete cases in original dataset
+
+for(matching_option in matching_options) {
+  
+  #renaming
+  to_eval_rename <- paste("names(CNB_cog_score_stats_gam_", matching_option, ") <- cnb_measure_names", sep="") 
+  eval(parse(text=as.name(to_eval_rename)))
+  
+  #getting complete cases and making new data frame
+  to_eval_complete_cases <- paste("CNB_cog_scores_residuals_", matching_option, "<- dataframe_with_complete_medu1", sep="")
+  eval(parse(text=as.name(to_eval_complete_cases)))
+  
+  #cycle through each CNB score in each data structure, and reassign residuals value from gam
+  cnt = 14
+  cnt_gam = 1
+  while(cnt < 40)
+  {
+    to_eval_assign_resid <- paste("CNB_cog_scores_residuals_", matching_option, "[cnt] <- as.vector(residuals(CNB_cog_score_stats_gam_", matching_option, "[[cnt_gam]]))", sep = "")
+    print(to_eval_assign_resid)
+    eval(parse(text=as.name(to_eval_assign_resid)))
+    cnt = cnt + 1
+    cnt_gam = cnt_gam + 1
+    
+  }
+  
+}
+
+
+#################################################
+#####Merge resid values with match output #######
+#################################################
+
+#Make data frame that merges the match with the pre-match residuals, Subset only variables needed for hydra analysis
+for(vers in matching_options) {
+  to_eval_bblid_from_match <- paste("bblid_from_match <- data.frame(data_", vers, ".matched$bblid)", sep = "")
+  eval(parse(text=as.name(to_eval_bblid_from_match)))
+  to_eval_rename <- paste("names(bblid_from_match) <- c(\"bblid\")")
+  eval(parse(text=as.name(to_eval_rename)))
+  to_eval_resid_values <- paste("resid_values <- data.frame(cbind(CNB_cog_scores_residuals_", vers, "[1],", "CNB_cog_scores_residuals_", vers, "[14:39],", "CNB_cog_scores_residuals_", vers, "[77]))", sep = "")
+  eval(parse(text=as.name(to_eval_resid_values)))
+  to_eval_combined <- paste("data.pre_resid_combined_match <- merge(resid_values, bblid_from_match, by = \"bblid\")", sep ="") 
+  eval(parse(text=as.name(to_eval_combined)))
+  to_eval_write_csv <- paste("write.csv(data.pre_resid_combined_match, file=\"/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched/covaried_before_match/data_", vers, ".csv\" , row.names = FALSE, quote = FALSE)", sep = "")
+  eval(parse(text = as.name(to_eval_write_csv))) 
+}
 
 ##############################################
 ###### Post match age and sex residualizing###
@@ -262,15 +365,3 @@ for(vers in matched_versions) {
 #}
 
 
-############################
-####make csvs for hydra#####
-############################
-
-#Subset only variables needed for hydra analysis
-for(vers in matched_versions) {
-  print(vers)
-  string_to_eval <- paste("data.frame(", vers, ".matched[1], ", vers, ".matched[14:39], ", vers, ".matched[77])", sep = "")
-  subset_bblidAndCog_features <- eval(parse(text = as.name(string_to_eval)))
-  string_for_csv <- paste("write.csv(subset_bblidAndCog_features, file=\"/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched/no_covariance/", vers, ".csv\" , row.names = FALSE, quote = FALSE)", sep = "")
-  eval(parse(text = as.name(string_for_csv)))
-}
