@@ -3,8 +3,8 @@ title: "Cognitive Data, hydra results K2"
 author: "Erica Baller"
 date: "3/21/2018"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
