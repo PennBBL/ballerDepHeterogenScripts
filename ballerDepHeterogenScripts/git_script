@@ -1,7 +1,10 @@
-mv ../../../ballerDepHeterogenScripts/*html ../../../results/htmls/.
-mv ../../../ballerDepHeterogenScripts/*pdf ../../../results/pdfs/.
-cp ../../../ballerDepHeterogenScripts/* .
-rm *pdf *html
+cd /Users/eballer/BBL/from_chead/ballerDepHeterogen/ballerDepHeterogenScripts/
+find . -name '*.html' -exec mv {} /Users/eballer/BBL/from_chead/ballerDepHeterogen/results/htmls/ \;
+find . -name '*.pdf' -exec mv {} /Users/eballer/BBL/from_chead/ballerDepHeterogen/results/pdfs/ \;
+find . -name '*.R*' -exec cp {} /Users/eballer/BBL/from_chead/ballerDepHeterogen/git/ballerDepHeterogenScripts/ballerDepHeterogenScripts \;
+cd /Users/eballer/BBL/from_chead/ballerDepHeterogen/git/ballerDepHeterogenScripts/ballerDepHeterogenScripts/.
+rm *html
+rm *pdf
 git add *
 git commit -m "update"
 git push origin master

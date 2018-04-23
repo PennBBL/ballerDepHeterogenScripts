@@ -214,7 +214,7 @@ for(vers in matched_versions) {
   print(paste("Version matching on ", vers))
   print(demo_data.matched_table, showAllLevels = TRUE)
   
-})
+}
 
 
 ##############################################
