@@ -14,6 +14,9 @@ library(MatchIt)
 ############ READ IN, MERGE AND SUBSET DATA############
 #######################################################
 
+#to get a reproducible result from matchit
+set.seed(1)
+
 #read in csvs
 demographics <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_demographics_go1_20161212.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_demographics_go1_20161212.csv
 cnb_scores <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_cnb_zscores_fr_20170202.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_cnb_zscores_fr_20170202.csv
@@ -302,9 +305,9 @@ for(matching_option in matching_options) {
 }
 
 
-#################################################
-#####Merge resid values with match output #######
-#################################################
+###########################################################
+#####Merge pre-match resid values with match output #######
+###########################################################
 
 #Make data frame that merges the match with the pre-match residuals, Subset only variables needed for hydra analysis
 for(vers in matching_options) {
