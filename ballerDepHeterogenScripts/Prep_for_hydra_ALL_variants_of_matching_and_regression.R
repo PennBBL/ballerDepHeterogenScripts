@@ -295,8 +295,10 @@ for(matching_option in matching_options) {
   while(cnt < 40)
   {
     to_eval_assign_resid <- paste("CNB_cog_scores_residuals_", matching_option, "[cnt] <- as.vector(residuals(CNB_cog_score_stats_gam_", matching_option, "[[cnt_gam]]))", sep = "")
-    print(to_eval_assign_resid)
+    #print(to_eval_assign_resid)
     eval(parse(text=as.name(to_eval_assign_resid)))
+    #to_eval_write_csv_resid_no_match <- paste("write.csv(CNB_cog_scores_residuals_", matching_option, "file=\"/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched/covaried_before_match/data_", vers, ".csv\" , row.names = FALSE, quote = FALSE)", sep = "")
+#    eval(parse(text = as.name(to_eval_write_csv)))
     cnt = cnt + 1
     cnt_gam = cnt_gam + 1
     
@@ -304,6 +306,34 @@ for(matching_option in matching_options) {
   
 }
 
+#####################################################
+##### For doing this with AGE, resid, unmatched #####
+#####################################################
+
+
+CNB_cog_score_stats_gam_age_FOR_2x2 <- lapply(cnb_measure_names, function(measure) 
+{
+  gam(substitute(i ~ s(age_in_years), list(i = as.name(measure))), data = subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED)
+}) 
+
+  #renaming
+  names(CNB_cog_score_stats_gam_age_FOR_2x2) <-  cnb_measure_names
+  
+  #Make new data fram
+  CNB_cog_scores_residuals_age_FOR_2x2 <- subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED
+  
+  #cycle through each CNB score in each data structure, and reassign residuals value from gam
+  cnt = 14
+  cnt_gam = 1
+  while(cnt < 40)
+  {
+    CNB_cog_scores_residuals_age_FOR_2x2[cnt] <- as.vector(residuals(CNB_cog_score_stats_gam_age_FOR_2x2[[cnt_gam]]))
+    cnt = cnt + 1
+    cnt_gam = cnt_gam + 1
+    
+  }
+for_csv <- data.frame(cbind(CNB_cog_scores_residuals_age_FOR_2x2[1], CNB_cog_scores_residuals_age_FOR_2x2[14:39], CNB_cog_scores_residuals_age_FOR_2x2[77])) 
+write.csv(for_csv, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_all_gender/residuals/age_FOR_2x2/data_age.csv", row.names = FALSE, quote = FALSE)
 
 ###########################################################
 #####Merge pre-match resid values with match output #######
