@@ -3,9 +3,9 @@ title: "Cognitive data hydra results matched age and sex n1424, covariance befor
 author: "Erica Baller"
 date: "4/23/2018"
 output:
-  html_document: default
-  word_document: default
   pdf_document: default
+  word_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
