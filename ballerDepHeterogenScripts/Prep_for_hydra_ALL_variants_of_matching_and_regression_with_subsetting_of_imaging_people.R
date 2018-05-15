@@ -42,33 +42,36 @@ imaging_include <- subset.data.frame(imaging_summary, (t1Exclude == 0))
 dem_cnb <- merge(demographics_noNA_race_age_andCNBage_sex, cnb_scores, by = "bblid") #merge demographics and cnb, N = 9406
 psych_health <- merge(psych_summary_no_NA_dep_and_smry_psych_overall, health, by = "bblid") #merge psych and health, N = 9411
 dem_cnb_psych_health_merged <- merge(dem_cnb, psych_health, by = "bblid") #merge all 4 csvs, lost 1 person [134716] (had demographics, but no psych ratings): N = 9405
-dem_merged_with_imaging_as_well <- merge(dem_cnb_psych_health_factor_scores_merged, imaging_include, by = "bblid")
+dem_merged_with_imaging_as_well <- merge(dem_cnb_psych_health_merged, imaging_include, by = "bblid")
 
-#make subsets
-subset_just_dep_and_no_medicalratingExclude <- subset.data.frame(dem_cnb_psych_health_merged, (medicalratingExclude == 0) & (smry_dep == 4), select = "bblid") #subset people who were not medically excluded and who are depressed, N = 776
-subset_no_psych_no_medicalratingExclude <- subset.data.frame(dem_cnb_psych_health_merged, (medicalratingExclude == 0) & (smry_psych_overall_rtg < 4), select = "bblid") #subset people who are psychiatrically healthy, N = 2508
+#make subsets, 
+subset_just_dep_and_no_medicalratingExclude <- subset.data.frame(dem_cnb_psych_health_merged, ((medicalratingExclude == 0) & (smry_dep == 4))) #subset people who were not medically excluded and who are depressed, N = 776
+subset_no_psych_no_medicalratingExclude <- subset.data.frame(dem_cnb_psych_health_merged, ((medicalratingExclude == 0) & (smry_psych_overall_rtg < 4))) #subset people who are psychiatrically healthy, N = 2508
+subset_nondep_imaging <-  subset.data.frame(dem_merged_with_imaging_as_well, ((medicalratingExclude == 0) & (smry_dep < 4))) #n = 1266
+subset_dep_imaging <-  subset.data.frame(dem_merged_with_imaging_as_well, ((medicalratingExclude == 0) & (smry_dep == 4)))#n = 200
+
+#original version is commented out, this is done with the imaging data merged ahead of time.  Can put it next line and comment out one right after to revert to post-match merging, n total = 703
 #subset_dep_or_no_psych_and_no_medicalratingExclude <- subset.data.frame(dem_cnb_psych_health_merged, (medicalratingExclude == 0) & ((smry_dep == 4) | (smry_psych_overall_rtg <4))) #subset including both depressed and healthies, good for regressions, N = 3284
 subset_dep_or_no_psych_and_no_medicalratingExclude <- subset.data.frame(dem_merged_with_imaging_as_well, (medicalratingExclude == 0) & ((smry_dep == 4) | (smry_psych_overall_rtg <4))) #subset including both depressed and healthies, good for regressions, N = 3284
 
-
-#would binarize depression smry score to -1 (less than 4, not depressed) and 1 (score 4 , depressed)
+#would binarize depression smry score to -1 (less than 4, not depressed) and 1 (score 4 , depressed), n total = 703
 dep_binarized <- ifelse(subset_dep_or_no_psych_and_no_medicalratingExclude$smry_dep == 4, 1, -1)
 subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED <- cbind(subset_dep_or_no_psych_and_no_medicalratingExclude, dep_binarized) #N = 3284
 
-#make depression and gender into factor scores
+#make depression and gender into factor scores n total = 703
 subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$dep_binarized <- as.factor(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$dep_binarized)
 subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$sex <- as.factor(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$sex)
 
-#divide ageAtCNB by 12 for age
+#divide ageAtCNB by 12 for age n total = 703
 subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$age_in_years <- subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$ageAtCnb1/12
 
-#age demeaned and squared, from Toni
+#age demeaned and squared, from Toni, n total = 703
 subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$ageSq <- as.numeric(I(scale(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$age_in_years, scale = FALSE, center = TRUE)^2))
 
-#race binarized for plotting purposes, caucasian 1, non-caucasion 0
+#race binarized for plotting purposes, caucasian 1, non-caucasion 0, n total = 703
 subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$race_binarized <- ifelse(as.factor(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$race) == 1, 1, 0)
 
-#remove people with NA in their cognitive measures
+#remove people with NA in their cognitive measures, we lose 57 at this stage, new n 646, dep = 187, non-dep = 459
 subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED <- subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED[complete.cases(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED[14:39]),]
 
 
@@ -80,8 +83,14 @@ subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED <- subset_dep_or
 ## Standard, no residuals ##
 ############################
 
-#####WHY DOES THIS GIVE ME DIFFERENT OUTPUT THAN WHEN I RAN IT ON SATURDAY 4/21!!!!####
+#Steps for this section
+####1. Match depress w/ imaging to controls w/imaging
+####2. Removed these from full group
+####3. Match remaining depressed without imaging to controls who weren't previously matched
+####4. Combine depressed w/imaging to depressed w/out imaging and controls w/imaging to controls w/out imaging
+####5. Check distribution of these groups
 
+#########Let's start by matching only depressed people with imaging to controls with imaging###
 #match with matchit n(3022), male (1434)/ female (1588), this is NOT residuals
 data.unmatched = subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED[complete.cases(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED[14:39]),]
 data.unmatched$unmatchedRows =rownames(data.unmatched)
