@@ -224,15 +224,32 @@ for(vers in matched_versions) {
 ####make csvs for hydra#####
 ############################
 
-#Subset only variables needed for hydra analysis
+#Subset only variables needed for hydra analysis.  Will copy the file both into the no_covariance directory as well as the directory which will do hydra with covariance in the model
 for(vers in matched_versions) {
   print(vers)
   string_to_eval <- paste("data.frame(", vers, ".matched[1], ", vers, ".matched[14:39], ", vers, ".matched[77])", sep = "")
   subset_bblidAndCog_features <- eval(parse(text = as.name(string_to_eval)))
   string_for_csv <- paste("write.csv(subset_bblidAndCog_features, file=\"/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched/no_covariance/", vers, ".csv\" , row.names = FALSE, quote = FALSE)", sep = "")
   eval(parse(text = as.name(string_for_csv)))
+  string_for_csv <- paste("write.csv(subset_bblidAndCog_features, file=\"/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched/matched_all_variants_with_COV_for_hydra/", vers, ".csv\" , row.names = FALSE, quote = FALSE)", sep = "") #copy same file into direc for doing covariance with hydra
+  eval(parse(text = as.name(string_for_csv)))
 }
 
+#Make covariates files 
+#[1] BBLID, [78] age in years, [2] sex, [10] medu, [80 ]race
+subset_bblidCov_all <- data.frame(data_all.matched[1], data_all.matched[78], data_all.matched[2], data_all.matched[10], data_all.matched[80])
+subset_bblidCov_age <- data.frame(data_all.matched[1], data_all.matched[78])
+subset_bblidCov_sex <- data.frame(data_all.matched[1], data_all.matched[2])
+subset_bblidCov_medu <- data.frame(data_all.matched[1], data_all.matched[10])
+subset_bblidCov_race <- data.frame(data_all.matched[1], data_all.matched[80])
+subset_bblidCov_age_and_sex <- data.frame(data_all.matched[1], data_all.matched[78], data_all.matched[2])
+
+write.csv(subset_bblidCov_all, file="/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched/matched_all_variants_with_COV_for_hydra/cov_all.csv", row.names = FALSE, quote = FALSE)
+write.csv(subset_bblidCov_age, file="/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched/matched_all_variants_with_COV_for_hydra/cov_age.csv", row.names = FALSE, quote = FALSE)
+write.csv(subset_bblidCov_sex, file="/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched/matched_all_variants_with_COV_for_hydra/cov_sex.csv", row.names = FALSE, quote = FALSE)
+write.csv(subset_bblidCov_medu, file="/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched/matched_all_variants_with_COV_for_hydra/cov_medu.csv", row.names = FALSE, quote = FALSE)
+write.csv(subset_bblidCov_race, file="/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched/matched_all_variants_with_COV_for_hydra/cov_race.csv", row.names = FALSE, quote = FALSE)
+write.csv(subset_bblidCov_age_and_sex, file="/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched/matched_all_variants_with_COV_for_hydra/cov_age_and_sex.csv", row.names = FALSE, quote = FALSE)
 
 ######################################################################
 ### Residualize on whole dataset before matching                 #####
