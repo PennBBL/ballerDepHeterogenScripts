@@ -1,17 +1,27 @@
+---
+title: "Prep_for_hydra_double_matching"
+author: "Erica Baller"
+date: "6/11/2018"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
 library(visreg)
 library(mgcv)
 library(tableone)
 library(dplyr)
 library(plm)
 library(MatchIt)
+```
 
-####on 6/11, now look at R markdown for updates
+## R Markdown
 
+Prepping for hydra, preferentially including people who have imaging, requiring a double match
 
-###### This script reads in demographics, cnb_scores, health, psych summaries, and imaging, merges them, removes NAs, codes and separates by depression#####
-########Also provides matched data sets and tests them, if we decide to use them.  It significantly reduces N to match (dataset from 3022 to 1424)
-######## Uses double match to preferentially keep people who have imaging
-
+```{r read_in, echo = TRUE}
 #######################################################
 ############ READ IN, MERGE AND SUBSET DATA############
 #######################################################
@@ -86,10 +96,12 @@ subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED <- subset_dep_or
 subset_dep_or_no_psych_and_no_medicalratingExclude_with_imaging_DEPBINARIZED <- subset_dep_or_no_psych_and_no_medicalratingExclude_with_imaging_DEPBINARIZED[complete.cases(subset_dep_or_no_psych_and_no_medicalratingExclude_with_imaging_DEPBINARIZED[14:39]),] # n = 646
 
 
-################################
-######## MATCHING ##############
-################################
+```
 
+## Matching
+
+Do first round of match in imaging group
+```{r matching_round_1, echo = TRUE}
 ############################
 ## Standard, no residuals ##
 ############################
@@ -224,6 +236,10 @@ data_age_and_sex.matched$unmatchedRows = NULL
 saveRDS(data_age_and_sex.matched, file='/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched/matched_imaging_plus_non_imaging/matched_age_and_sex_imaging.rds')
 
 
+```
+
+## Demographic tables for matched imaging group
+```{r demo_imaging, echo = TRUE}
 ##############
 #Demo Tablets#
 ##############
@@ -258,6 +274,15 @@ for(vers in matched_versions) {
   eval(parse(text = as.name(rename_string_to_eval)))
 }
 
+```
+
+## Match remainder
+
+REmoves people who were matched in imaging round, and matches on the remainder group
+
+
+
+```{r remove_and_rematch, echo=TRUE}
 ############Remove people from main group who have imaging ##############
 #number remaining  =3022(before match) - 374 (num people matched through imaging match) = 2648
 people_from_imaging_match_all <- data_all.matched$bblid
@@ -384,7 +409,11 @@ data_age_and_sex.matched = data.unmatched[data.unmatched$unmatchedRows%in%m_age_
 data_age_and_sex.matched$unmatchedRows = NULL
 saveRDS(data_age_and_sex.matched, file='/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched/matched_imaging_plus_non_imaging/matched_age_and_sex_after_imaging_match.rds')
 
+```
 
+
+##Demographics table of non-imaging people
+```{r demo_non_imaging, echo = TRUE}
 ##############
 #Demo Tablets#
 ##############
@@ -428,6 +457,12 @@ for(vers in matched_versions) {
   
 }
 
+```
+
+
+##Combine imaging and non_imaging matched groups
+
+```{r combine_and_demo, echo = TRUE}
 ###############Combine imaging matched and imaging non-matched groups ####################
 
 #first remove imaging info from the imaging group
@@ -479,6 +514,11 @@ for(vers in matched_versions) {
   
 }
 
+```
+
+
+##Write CSVs
+```{r write_csvs, echo = TRUE}
 ############################
 ####make csvs for hydra#####
 ############################
@@ -528,4 +568,7 @@ write.csv(subset_bblidAndCog_cov, file="/Users/eballer/BBL/from_chead/ballerDepH
 string_to_eval_cov <- paste("data.frame(", short, "data_age_and_sex[1], ", short, "data_age_and_sex[78], ", short, "data_age_and_sex[2])", sep = "")
 subset_bblidAndCog_cov <- eval(parse(text = as.name(string_to_eval_cov)))
 write.csv(subset_bblidAndCog_cov, file="/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/hydra_matched/matched_imaging_plus_non_imaging/cov_age_and_sex.csv", row.names = FALSE, quote = FALSE)
+
+
+```
 
