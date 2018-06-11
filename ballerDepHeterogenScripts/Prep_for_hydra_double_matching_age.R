@@ -278,7 +278,7 @@ subset_people_who_were_not_included_in_imaging_match_age_and_sex <- subset_dep_o
 #match with matchit n(3022), male (1434)/ female (1588), this is NOT residuals  -> just do for age right now
 
 ######## Ted, is this right???? #####
-data.unmatched = subset_people_who_were_not_included_in_imaging_match_age[complete.cases(subset_people_who_were_not_included_in_imaging_match_age[14:39]),]
+data.unmatched = subset_people_who_were_not_included_in_imaging_match_age_and_sex[complete.cases(subset_people_who_were_not_included_in_imaging_match_age_and_sex[14:39]),]
 data.unmatched$unmatchedRows =rownames(data.unmatched)
 dataset = data.unmatched
 
