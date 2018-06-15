@@ -1,5 +1,5 @@
 ---
-title: "Clinical_hydra_analysis_matched_imaging_and_non_imaging_n1424_k3, regressed_on_age, BIFACTOR SCORES"
+title: "Clinical_bifactor_hydra_analysis_matched_imaging_and_non_imaging_n1424_k3, regressed_on_age, BIFACTOR SCORES"
 author: "Erica Baller"
 date: "6/11/2018"
 output:
@@ -63,7 +63,7 @@ health <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_
 psych_summary <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_goassess_psych_summary_vars_20131014.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_goassess_psych_summary_vars_20131014.csv
 
 #read in Hydra cluster data -> AG (all_gender), M(males), F(females) 
-hydra_AG_matched_clusters <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/hydra_output_from_cbica/hydra_matched/matched_imaging_plus_non_imaging/CogData_matched_age_n1424_matched_imaging_plus_non_imaging_HydraSubtypes.csv", header = TRUE, sep = ",")
+hydra_AG_matched_clusters <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/hydra_output_from_cbica/hydra_matched/matched_imaging_plus_non_imaging/CogData_matched_age_and_sex_n1424_matched_imaging_plus_non_imaging_HydraSubtypes.csv", header = TRUE, sep = ",")
 
 #Coerce hydra values into factor format
 hydra_names <- names(hydra_AG_matched_clusters[2:11])

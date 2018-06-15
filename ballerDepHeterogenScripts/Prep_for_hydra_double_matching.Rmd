@@ -3,8 +3,8 @@ title: "Prep_for_hydra_double_matching"
 author: "Erica Baller"
 date: "6/11/2018"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
