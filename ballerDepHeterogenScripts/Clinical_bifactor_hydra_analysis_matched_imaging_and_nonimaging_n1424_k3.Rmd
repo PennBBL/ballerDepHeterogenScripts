@@ -1,7 +1,7 @@
 ---
-title: "Clinical_bifactor_hydra_analysis_matched_imaging_and_non_imaging_n1424_k3, regressed_on_age, BIFACTOR SCORES"
+title: "Clinical_bifactor_hydra_analysis_matched_imaging_and_non_imaging_n1424_k3, regressed_on_age_and_sex, BIFACTOR SCORES"
 author: "Erica Baller"
-date: "6/11/2018"
+date: "6/22/2018"
 output:
   pdf_document: default
   html_document: default

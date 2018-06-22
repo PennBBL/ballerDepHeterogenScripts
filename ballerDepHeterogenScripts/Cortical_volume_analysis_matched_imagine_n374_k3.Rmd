@@ -1,7 +1,7 @@
 ---
-title: "Cortical_volume_analysis_matched_imaging_k3"
+title: "Cortical_volume_analysis_matched_age_and_sex_imaging_k3"
 author: "Erica Baller"
-date: "6/12/2018"
+date: "6/22/2018"
 output:
   pdf_document: default
   html_document: default
