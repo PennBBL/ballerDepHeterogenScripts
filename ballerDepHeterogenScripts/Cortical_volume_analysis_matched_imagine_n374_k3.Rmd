@@ -3,8 +3,8 @@ title: "Cortical_volume_analysis_matched_age_and_sex_imaging_k3"
 author: "Erica Baller"
 date: "6/22/2018"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -119,6 +119,9 @@ subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$age_in_years <- 
 
 #race binarized for plotting purposes, caucasian 1, non-caucasion 0
 subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$race_binarized <- ifelse(as.factor(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$race) == 1, 1, 0)
+
+#add age squared mean-centered term for use in LM
+subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$ageSq <- as.numeric(I(scale(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$age_in_years, scale = FALSE, center = TRUE)^2))
 
 #remove people with NA in their cognitive measures
 subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED <- subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED[complete.cases(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED[14:39]),]
