@@ -1,10 +1,10 @@
 ---
 title: "Cortical_CT_analysis_matched_age_and_sex_imaging_k3"
 author: "Erica Baller"
-date: "6/22/2018"
+date: "6/29/2018"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -33,24 +33,29 @@ Part 2 : merge with hydra
   -It then merges these documents with hydra output (made in cbica), adding Hydra_k1 through Hydra_k10 columns (which represent the number of clusters)
   -The script reads in 3 different types of groups (matched)
 
-Part 3 : LM
-  -The script then runs LM on each cognitive score (CT_measure ~ hydra_group).  
-  -There is a test option that does this for all CT measures and all hydra groups, but for the remainder of the analysis, Hydra_k3 was the only classification more deeply explored.
-
-Part 4 : Anova
-  -Anovas were also run on the results of the LM of each CT value by cluster.
-
-Part 5 : Graphing
+Part 3 : Demographics tables
+  - Demographics tables matched
+  
+Part 4 : Graphing
   - Graphs were then made.  
     *For continuous variables(age, medu1), the graphs represent means, with SEM as error bars
     *For categorical variables (race, sex) the graphs are percentages (caucasian, male) per group, with chisq used to calculate significance
-  
-Part 6 : FDR Correction
+
+Part 5 : LM/GAM/LM with Agesq
+  -The script then runs LM on each cognitive score (CT_measure ~ hydra_group). 
+   - Does gam (CT_measure ~ hydra_group + s(age) + sex + averageManualRating)
+   - Does LM with ageSq (CT_measure ~ hydra_group + ageSq + sex + averageManualRating)
+  -There is a test option that does this for all CT measures and all hydra groups, but for the remainder of the analysis, Hydra_k3 was the only classification more deeply explored.
+
+Part 6 : Anovas
+  -Anovas were also run on the results of the LM of each CT value by cluster.
+
+
+Part 7 : FDR Correction
   -FDR correction was calculated for each CT measure ANOVA output
   -A table of the results was extracted
   
-Part 7 : Demographics tables
-  - Demographics tables matched
+
 
 ```{r CT, echo = FALSE}
 #######################################################
@@ -304,7 +309,7 @@ ggplot(dat_medu_sd_sem, aes(x = cl, y = medu, fill = cl)) + geom_col() +
 
 ```
 
-```{r stats, echo = TRUE}
+```{r stats, echo = FALSE}
 #################################
 # Linear Model for each measure #
 ##### Results stored in list ####
@@ -620,7 +625,7 @@ sapply(CT_emmpairs_lm_agesq_AG_matched_FDR_corrected, function(x) {print(x)})
 #########################################################
 #checkmodel with visreg, uncomment when want to check####
 #########################################################
-invisible(lapply(CT_score_cluster_stats_lm_AG_matched, function(x) {visreg(x)}))
+invisible(lapply(CT_score_cluster_stats_lm_agesq_AG_matched, function(x) {visreg(x)}))
 
 ```
 
