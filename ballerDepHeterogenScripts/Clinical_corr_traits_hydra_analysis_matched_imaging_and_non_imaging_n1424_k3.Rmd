@@ -18,6 +18,7 @@ library(MatchIt)
 library(tidyr)
 library(ggplot2)
 library(reshape)
+library(emmeans)
 theme_update(plot.title = element_text(hjust = 0.5))
 ```
 

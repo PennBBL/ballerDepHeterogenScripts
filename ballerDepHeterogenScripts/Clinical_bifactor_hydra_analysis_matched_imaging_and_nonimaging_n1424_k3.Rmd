@@ -18,6 +18,7 @@ library(MatchIt)
 library(tidyr)
 library(ggplot2)
 library(reshape)
+library(emmeans)
 theme_update(plot.title = element_text(hjust = 0.5))
 ```
 
@@ -184,11 +185,55 @@ clinical_score_cluster_stats_lm_AG_matched_by_cluster_1through10 <- lapply(clust
 
 names(clinical_score_cluster_stats_lm_AG_matched_by_cluster_1through10) <- cluster_names_list
 
+
+#gam
+clinical_score_cluster_stats_gam_AG_matched_by_cluster_1through10 <- lapply(cluster_names_list, function(cluster_name)
+{
+ clinical_score_cluster_stats_gam_AG_matched_withincluster<- lapply(clinical_measure_names_list, cluster=as.name(cluster_name),   function(clinical_measure_name, cluster) 
+ {
+    clinical_measure <- as.name(clinical_measure_name)
+    gam(substitute(clinical_measure ~ cluster + sex + s(age_in_years), list(clinical_measure = clinical_measure, cluster = cluster)), data = subset_with_clusters_AG_matched)
+  })
+ setNames(clinical_score_cluster_stats_gam_AG_matched_withincluster, clinical_measure_names_list)
+})
+names(clinical_score_cluster_stats_gam_AG_matched_by_cluster_1through10) <- cluster_names_list
+
+#LM with mean-centered, squared age- quadratic term#
+
+clinical_score_cluster_stats_lm_agesq_AG_matched_by_cluster_1through10 <- lapply(cluster_names_list, function(cluster_name)
+{
+  clinical_score_cluster_stats_lm_agesq_AG_matched_withincluster<- lapply(clinical_measure_names_list, cluster=as.name(cluster_name), function(clinical_measure_name, cluster) 
+  {
+    clinical_measure <- as.name(clinical_measure_name)
+    lm(substitute(clinical_measure ~ cluster + sex + ageSq , list(clinical_measure = clinical_measure, cluster = cluster)), data = subset_with_clusters_AG_matched)
+  })
+  setNames(clinical_score_cluster_stats_lm_agesq_AG_matched_withincluster, clinical_measure_names_list)
+})
+names(clinical_score_cluster_stats_lm_agesq_AG_matched_by_cluster_1through10) <- cluster_names_list
+
+
 ##### Just Hydra_3 clusters ######
+#lm
 clinical_score_cluster_stats_lm_AG_matched <- lapply(clinical_measure_names, function(x) 
 {
   lm(substitute(i ~ Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_AG_matched)
 })
+names(clinical_score_cluster_stats_lm_AG_matched) <- clinical_measure_names
+
+#gam
+clinical_score_cluster_stats_gam_AG_matched <- lapply(clinical_measure_names, function(x) 
+{
+  clinical_measure = as.name(x)
+  gam(substitute(clinical_measure ~ Hydra_k3 + sex + s(age_in_years) , list(clinical_measure = clinical_measure)), data = subset_with_clusters_AG_matched)
+})
+names(clinical_score_cluster_stats_gam_AG_matched) <- clinical_measure_names
+
+#lm ageSq and mean centered
+clinical_score_cluster_stats_lm_agesq_AG_matched <- lapply(clinical_measure_names, function(x) 
+{
+  lm(substitute(i ~ Hydra_k3 + sex + ageSq , list(i = as.name(x))), data = subset_with_clusters_AG_matched)
+})
+names(clinical_score_cluster_stats_lm_agesq_AG_matched) <- clinical_measure_names
 
 
 
@@ -197,6 +242,8 @@ clinical_score_cluster_stats_lm_AG_matched <- lapply(clinical_measure_names, fun
 ##############################
 
 ######## All hydra clusters, Anova results ########
+
+#lm
 clinical_score_cluster_stats_anova_AG_matched_by_cluster_1through10 <- lapply(cluster_names_list, function(cluster_name)
 {
   clinical_score_cluster_stats_anova_AG_withincluster <- lapply(clinical_measure_names_list, cluster=as.name(cluster_name), function(clinical_measure_name, cluster) 
@@ -208,17 +255,45 @@ clinical_score_cluster_stats_anova_AG_matched_by_cluster_1through10 <- lapply(cl
 })
 names(clinical_score_cluster_stats_anova_AG_matched_by_cluster_1through10) <- cluster_names_list
 
-
-#####Just Hydra 2 clusters ANOVA ########
-clinical_score_cluster_stats_anova_AG_matched <- lapply(clinical_measure_names, function(x) 
+#gam anova all clusters
+clinical_score_cluster_stats_anova_gam_AG_matched_by_cluster_1through10 <- lapply(cluster_names_list, function(cluster_name)
 {
-  anova(lm(substitute(i ~ Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_AG_matched))
+  clinical_score_cluster_stats_anova_gam_AG_withincluster <- lapply(clinical_measure_names_list, cluster=as.name(cluster_name), function(clinical_measure_name, cluster) 
+  {
+     clinical_measure <- as.name(clinical_measure_name)
+     anova(gam(substitute(clinical_measure ~ cluster + sex + s(age_in_years) , list(clinical_measure = clinical_measure, cluster = cluster)), data = subset_with_clusters_AG_matched))
+  })
+  setNames(clinical_score_cluster_stats_anova_gam_AG_withincluster, clinical_measure_names_list)
 })
+names(clinical_score_cluster_stats_anova_gam_AG_matched_by_cluster_1through10) <- cluster_names_list
+
+#lm agesq anova all clusters
+clinical_score_cluster_stats_anova_lm_agesq_AG_matched_by_cluster_1through10 <- lapply(cluster_names_list, function(cluster_name)
+{
+  clinical_score_cluster_stats_anova_lm_agesq_AG_withincluster <- lapply(clinical_measure_names_list, cluster=as.name(cluster_name), function(clinical_measure_name, cluster) 
+  {
+     clinical_measure <- as.name(clinical_measure_name)
+     anova(lm(substitute(clinical_measure ~ cluster + sex + ageSq , list(clinical_measure = clinical_measure, cluster = cluster)), data = subset_with_clusters_AG_matched))
+  })
+  setNames(clinical_score_cluster_stats_anova_lm_agesq_AG_withincluster, clinical_measure_names_list)
+})
+names(clinical_score_cluster_stats_anova_lm_agesq_AG_matched_by_cluster_1through10) <- cluster_names_list
 
 
+#####Just Hydra 3 clusters ANOVA ########
+#lm Hydra K3 Anova
+clinical_score_cluster_stats_anova_lm_AG_matched <- lapply(clinical_score_cluster_stats_lm_AG_matched, anova) 
+names(clinical_score_cluster_stats_anova_lm_AG_matched) <- clinical_measure_names
 
-names(clinical_score_cluster_stats_lm_AG_matched) <- clinical_measure_names
-names(clinical_score_cluster_stats_anova_AG_matched) <- clinical_measure_names
+#gam Hydra K3 ANOVA
+clinical_score_cluster_stats_anova_gam_AG_matched <- lapply(clinical_score_cluster_stats_gam_AG_matched, anova)
+names(clinical_score_cluster_stats_anova_gam_AG_matched) <- clinical_measure_names
+
+#lm Hydra K3 Anova
+clinical_score_cluster_stats_anova_lm_agesq_AG_matched <- lapply(clinical_score_cluster_stats_lm_agesq_AG_matched, anova) 
+names(clinical_score_cluster_stats_anova_lm_agesq_AG_matched) <- clinical_measure_names
+
+
 
 
 #######Chi-square for males/females and race########
@@ -390,3 +465,147 @@ ggplot(data = all_mean_sd_sem, aes(x = clinical, y = mean, group = cl)) +  ylab(
   ggtitle("Hydra_k3, clinical Measures")
 
 ```
+
+##FDR Correction
+```{r FDR Correction, echo = FALSE}
+
+###################################################
+## Extracting anovas with significant p values ####
+###################################################
+#lm
+#Looking at Hydra_k3, but can redo with nested list
+#Look at model summaries
+models_anova <- lapply(clinical_score_cluster_stats_anova_lm_AG_matched, summary)
+
+#Pull p-values
+p_anova <- sapply(clinical_score_cluster_stats_anova_lm_AG_matched, function(v) v$"Pr(>F)"[1]) #$coef[,"Pr(>F)"][2]) #get the p value for dep binarized
+
+#Convert to data frame
+p_anova <- as.data.frame(p_anova)
+
+#Print original p-values to three decimal places
+p_round_anova <- round(p_anova,3)
+
+#FDR correct p-values
+pfdr_anova <- p.adjust(p_anova[,1],method="fdr")
+
+#Convert to data frame
+pfdr_anova <- as.data.frame(pfdr_anova)
+row.names(pfdr_anova) <- clinical_measure_names
+
+#To print fdr-corrected p-values to three decimal places
+pfdr_round_anova <- round(pfdr_anova,3)
+
+#List the NMF components that survive FDR correction
+clinical_fdr_anova <- row.names(pfdr_anova)[pfdr_anova<0.05]
+
+#make a data frame with names and fdr values (rounded to 3 decimals)
+clinical_names_and_fdr_values_anova <- data.frame(cbind(clinical_fdr_anova, round(pfdr_anova[pfdr_anova<0.05],3)))
+
+#add titles to names_and_fdr tables
+names(clinical_names_and_fdr_values_anova) <- c("clinical_measure", "p_FDR_corr")
+
+print("LM")
+print(clinical_names_and_fdr_values_anova)
+
+#gam
+
+#Looking at Hydra_k3, but can redo with nested list
+#Look at model summaries
+#models_anova <- lapply(clinical_score_cluster_stats_anova_gam_AG_matched, summary)
+
+#Pull p-values
+p_anova <- sapply(clinical_score_cluster_stats_anova_gam_AG_matched, function(v) v$pTerms.table[1,3])
+                    #"Pr(>F)"[1]) #$coef[,"Pr(>F)"][2]) #get the p value for dep binarized
+
+#Convert to data frame
+p_anova <- as.data.frame(p_anova)
+
+#Print original p-values to three decimal places
+p_round_anova <- round(p_anova,3)
+
+#FDR correct p-values
+pfdr_anova <- p.adjust(p_anova[,1],method="fdr")
+
+#Convert to data frame
+pfdr_anova <- as.data.frame(pfdr_anova)
+row.names(pfdr_anova) <- clinical_measure_names
+
+#To print fdr-corrected p-values to three decimal places
+pfdr_round_anova <- round(pfdr_anova,3)
+
+#List the NMF components that survive FDR correction
+clinical_fdr_anova <- row.names(pfdr_anova)[pfdr_anova<0.05]
+
+#make a data frame with names and fdr values (rounded to 3 decimals)
+clinical_names_and_fdr_values_anova <- data.frame(cbind(clinical_fdr_anova, round(pfdr_anova[pfdr_anova<0.05],3)))
+
+#add titles to names_and_fdr tables
+names(clinical_names_and_fdr_values_anova) <- c("clinical_measure", "p_FDR_corr_GAM")
+
+print("GAM")
+print(clinical_names_and_fdr_values_anova)
+
+#lm agesq
+#Looking at Hydra_k3
+#Look at model summaries
+models_anova_lm_agesq <- lapply(clinical_score_cluster_stats_anova_lm_agesq_AG_matched, summary)
+
+#Pull p-values
+p_anova_lm_agesq <- sapply(clinical_score_cluster_stats_anova_lm_agesq_AG_matched, function(v) v$"Pr(>F)"[1]) #$coef[,"Pr(>F)"][2]) #get the p value for dep binarized
+
+#Convert to data frame
+p_anova_lm_agesq <- as.data.frame(p_anova_lm_agesq)
+
+#Print original p-values to three decimal places
+p_round_anova_lm_agesq <- round(p_anova_lm_agesq,3)
+
+#FDR correct p-values
+pfdr_anova_lm_agesq <- p.adjust(p_anova_lm_agesq[,1],method="fdr")
+
+#Convert to data frame
+pfdr_anova_lm_agesq <- as.data.frame(pfdr_anova_lm_agesq)
+row.names(pfdr_anova_lm_agesq) <- clinical_measure_names
+
+#To print fdr-corrected p-values to three decimal places
+pfdr_round_anova_lm_agesq <- round(pfdr_anova_lm_agesq,3)
+
+#List the NMF components that survive FDR correction
+clinical_fdr_anova_lm_agesq <- row.names(pfdr_anova_lm_agesq)[pfdr_anova_lm_agesq<0.05]
+
+#make a data frame with names and fdr values (rounded to 3 decimals)
+clinical_names_and_fdr_values_anova_lm_agesq <- data.frame(cbind(clinical_fdr_anova_lm_agesq, round(pfdr_anova_lm_agesq[pfdr_anova_lm_agesq<0.05],3)))
+
+#add titles to names_and_fdr tables
+names(clinical_names_and_fdr_values_anova_lm_agesq) <- c("clinical_measure", "p_FDR_corr")
+
+print("LM Agesq- Mean centered age that was then squared")
+print(clinical_names_and_fdr_values_anova_lm_agesq)
+
+######################################################
+####Pairwise t-tests for anova-corrected lm means ####
+######################################################
+
+#put lm model into emmeans format
+clinical_emmodel_lm_agesq_AG_matched <- lapply(clinical_score_cluster_stats_lm_agesq_AG_matched, function(x) {as.list(ref_grid(x))})
+clinical_emmgrid_lm_agesq_AG_matched <- lapply(clinical_emmodel_lm_agesq_AG_matched, function(x) {as.emmGrid(x)})
+
+#run emmeans, do not include values that were not FDR corrected
+clinical_emmeans_lm_agesq_AG_matched <- lapply(clinical_emmgrid_lm_agesq_AG_matched, function(x) {emmeans(x, "Hydra_k3")})
+
+#run pairwise contrasts
+clinical_emmpairs_lm_agesq_AG_matched <- lapply(clinical_emmeans_lm_agesq_AG_matched, function(x) {pairs(x)})
+
+#Only include stuff that was fdr corrected (i.e., only keep parts of the model (or only display) ones that are corrected)
+clinical_emmpairs_lm_agesq_AG_matched_FDR_corrected <- clinical_emmpairs_lm_agesq_AG_matched[c(clinical_fdr_anova_lm_agesq)]
+
+#print values
+print("LM Agesq pairwise contrasts for FDR corrected values")
+###stil working on this
+sapply(clinical_emmpairs_lm_agesq_AG_matched_FDR_corrected, function(x) {print(x)})
+
+#########################################################
+#checkmodel with visreg, uncomment when want to check####
+#########################################################
+invisible(lapply(clinical_score_cluster_stats_lm_AG_matched, function(x) {visreg(x)}))
+
