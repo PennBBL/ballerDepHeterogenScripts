@@ -638,8 +638,12 @@ for (region in fdr_corrected_brain_regions)
   pairwise_table[region,] <- pair_pval
 }
 
+#get the mprage out of the name
+fdr_corrected_brain_regions_gsub <- gsub("mprage_jlf_ct_", "", fdr_corrected_brain_regions)
+rownames(pairwise_table) <- fdr_corrected_brain_regions_gsub
+
 #print values
-print("LM Agesq pairwise contrasts for FDR corrected values")
+print("LM Agesq pairwise contrasts for FDR corrected values, CORTICAL THICKNESS, (MPRAGE_JLF)")
 print(pairwise_table)
 sapply(CT_emmpairs_lm_agesq_AG_matched_FDR_corrected, function(x) {print(x)})
 

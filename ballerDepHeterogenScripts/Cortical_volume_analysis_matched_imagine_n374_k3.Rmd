@@ -3,8 +3,8 @@ title: "Cortical_volume_analysis_matched_age_and_sex_imaging_k3"
 author: "Erica Baller"
 date: "6/29/2018"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -626,7 +626,7 @@ volume_emmpairs_lm_agesq_AG_matched_FDR_corrected <- volume_emmpairs_lm_agesq_AG
 #contrast names, -1 = controls, 1-3 are clusters
 contrast_names <- c("-1 - 1", "-1 - 2", "-1 - 3", "1 - 2", "1 - 3", "2 - 3")
 #go through each fdr corrected brain region, and extract p values
-contrast_table <- lapply(volume_emmpairs_lm_agesq_AG_matched_FDR_corrected, function(x) {summary(x)$p.value})
+contrast_table <- lapply(volume_emmpairs_lm_agesq_AG_matched_FDR_corrected, function(x) {round(summary(x)$p.value,3)})
 #get the names of the brain regions that were fdr corrected
 fdr_corrected_brain_regions <- names(contrast_table)
 #build table that will hold the name of the brain region and the p values
@@ -642,10 +642,14 @@ for (region in fdr_corrected_brain_regions)
   pairwise_table[region,] <- pair_pval
 }
 
+#get the mprage out of the name
+fdr_corrected_brain_regions_gsub <- gsub("mprage_jlf_vol_", "", fdr_corrected_brain_regions)
+rownames(pairwise_table) <- fdr_corrected_brain_regions_gsub
+
 #print values
-print("LM Agesq pairwise contrasts for FDR corrected values")
+print("LM Agesq pairwise contrasts for FDR corrected values Cortical Volume (MPRAGE JLF)")
 print(pairwise_table)
-#sapply(volume_emmpairs_lm_agesq_AG_matched_FDR_corrected, function(x) {print(x)})
+sapply(volume_emmpairs_lm_agesq_AG_matched_FDR_corrected, function(x) {print(x)})
 
 #########################################################
 #checkmodel with visreg, uncomment when want to check####
