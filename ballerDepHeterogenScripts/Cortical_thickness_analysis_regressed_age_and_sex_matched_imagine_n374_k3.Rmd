@@ -3,8 +3,8 @@ title: "Cortical_CT_analysis_matched_age_and_sex_imaging_k3"
 author: "Erica Baller"
 date: "6/29/2018"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -617,15 +617,37 @@ CT_emmpairs_lm_agesq_AG_matched <- lapply(CT_emmeans_lm_agesq_AG_matched, functi
 #Only include stuff that was fdr corrected (i.e., only keep parts of the model (or only display) ones that are corrected)
 CT_emmpairs_lm_agesq_AG_matched_FDR_corrected <- CT_emmpairs_lm_agesq_AG_matched[c(CT_fdr_anova_lm_agesq)]
 
+######Make table of contrasts, rows are names of brain regions that are fdr corrected, columns are contrasts, values are pvalues
+
+#contrast names, -1 = controls, 1-3 are clusters
+contrast_names <- c("-1 - 1", "-1 - 2", "-1 - 3", "1 - 2", "1 - 3", "2 - 3")
+#go through each fdr corrected brain region, and extract p values
+contrast_table <- lapply(CT_emmpairs_lm_agesq_AG_matched_FDR_corrected, function(x) {round(summary(x)$p.value,3)})
+#get the names of the brain regions that were fdr corrected
+fdr_corrected_brain_regions <- names(contrast_table)
+#build table that will hold the name of the brain region and the p values
+pairwise_table <- data.frame(matrix(nrow = length(fdr_corrected_brain_regions), ncol = 6))
+#give the appropriate names
+rownames(pairwise_table) <- fdr_corrected_brain_regions
+colnames(pairwise_table) <- contrast_names
+
+#loop through each brain region, and manually assign the columns to be the p values
+for (region in fdr_corrected_brain_regions)
+{
+  pair_pval <- contrast_table[[region]]
+  pairwise_table[region,] <- pair_pval
+}
+
 #print values
 print("LM Agesq pairwise contrasts for FDR corrected values")
-###stil working on this
+print(pairwise_table)
 sapply(CT_emmpairs_lm_agesq_AG_matched_FDR_corrected, function(x) {print(x)})
+
 
 #########################################################
 #checkmodel with visreg, uncomment when want to check####
 #########################################################
-invisible(lapply(CT_score_cluster_stats_lm_agesq_AG_matched, function(x) {visreg(x)}))
+invisible(lapply(CT_score_cluster_stats_lm_AG_matched, function(x) {visreg(x)}))
 
 ```
 
