@@ -3,12 +3,12 @@ title: "Clinical_bifactor_hydra_analysis_matched_imaging_and_non_imaging_n1424_k
 author: "Erica Baller"
 date: "6/29/2018"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE, fig.width = 9)
 library(visreg)
 library(mgcv)
 library(tableone)
@@ -627,9 +627,21 @@ for (measure in fdr_corrected_clinical)
   pairwise_table[measure,] <- pair_pval
 }
 
+#get the 4factor2 out of the name
+fdr_corrected_clinical_gsub <- gsub("_4factorv2", "", fdr_corrected_clinical)
+rownames(pairwise_table) <- fdr_corrected_clinical_gsub
+
+#add FDR correction
+pairwise_table_with_fdr <- pairwise_table
+pairwise_table_with_fdr$p_FDR_corr <- clinical_names_and_fdr_values_anova_lm_agesq$p_FDR_corr
+
 #print values
-print("LM Agesq pairwise contrasts for FDR corrected values")
+print("LM Agesq pairwise contrasts for FDR corrected values, Bifactor scores")
 print(pairwise_table)
+
+print("LM Agesq pairwise contrasts with FDR corrected values, Bifactor scores")
+print(pairwise_table_with_fdr)
+
 sapply(clinical_emmpairs_lm_agesq_AG_matched_FDR_corrected, function(x) {print(x)})
 
 

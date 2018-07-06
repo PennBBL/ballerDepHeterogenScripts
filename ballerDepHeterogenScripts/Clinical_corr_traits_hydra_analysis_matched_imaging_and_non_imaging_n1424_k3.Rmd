@@ -8,7 +8,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, fig.width = 9)
 library(visreg)
 library(mgcv)
 library(tableone)
@@ -67,7 +67,8 @@ Part 7 : FDR Correction
 #clinical scores are Corr traits
 demographics <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_demographics_go1_20161212.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_demographics_go1_20161212.csv
 #clinical_scores <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_goassess_itemwise_bifactor_scores_20161219.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_goassess_itemwise_bifactor_scores_20161219.csv
-clinical_scores <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_goassess_itemwise_corrtraits_scores_age_regressed_20161219.csv", header = TRUE, sep = ",") 
+#clinical_scores <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_goassess_itemwise_corrtraits_scores_age_regressed_20161219.csv", header = TRUE, sep = ",") 
+clinical_scores <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_goassess_itemwise_corrtraits_scores_20161219.csv", header = TRUE, sep = ",") 
 health <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_health_20170405.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_health_20170405.csv
 psych_summary <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_goassess_psych_summary_vars_20131014.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_goassess_psych_summary_vars_20131014.csv
 
@@ -614,9 +615,27 @@ for (measure in fdr_corrected_clinical)
   pair_pval <- contrast_table[[measure]]
   pairwise_table[measure,] <- pair_pval
 }
+
+#get the corrtraits out of the name
+fdr_corrected_clinical_gsub <- gsub("_corrtraitsv2", "", fdr_corrected_clinical)
+rownames(pairwise_table) <- fdr_corrected_clinical_gsub
+
+
+#add FDR correction
+pairwise_table_with_fdr <- pairwise_table
+pairwise_table_with_fdr$p_FDR_corr <- clinical_names_and_fdr_values_anova_lm_agesq$p_FDR_corr
+
 #print values
-print("LM Agesq pairwise contrasts for FDR corrected values")
+
+
+print("LM Agesq pairwise contrasts for FDR corrected values, corr traits")
 print(pairwise_table)
+
+print("LM Agesq pairwise contrasts with FDR corrected values, corr traits")
+print(pairwise_table_with_fdr)
+
+
+
 sapply(clinical_emmpairs_lm_agesq_AG_matched_FDR_corrected, function(x) {print(x)})
 
 

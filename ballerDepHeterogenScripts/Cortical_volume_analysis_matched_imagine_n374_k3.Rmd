@@ -8,7 +8,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE, fig.width = 9)
 library(visreg)
 library(mgcv)
 library(tableone)
@@ -489,7 +489,7 @@ ggplot(data = all_mean_sd_sem, aes(x = volume, y = mean, group = cl)) +  ylab("M
 ```
 
 FDR correction 
-```{r FDR Correction, echo = FALSE}
+```{r FDR Correction, echo = FALSE, fig.width=10}
 
 ###################################################
 ## Extracting anovas with significant p values ####
@@ -644,11 +644,22 @@ for (region in fdr_corrected_brain_regions)
 
 #get the mprage out of the name
 fdr_corrected_brain_regions_gsub <- gsub("mprage_jlf_vol_", "", fdr_corrected_brain_regions)
+fdr_corrected_brain_regions_gsub <- gsub("Cerebell", "Crbl", fdr_corrected_brain_regions_gsub)
+fdr_corrected_brain_regions_gsub <- gsub("White_Matter", "WM", fdr_corrected_brain_regions_gsub)
+fdr_corrected_brain_regions_gsub <- gsub("Vermal_Lobules", "Verm_lob", fdr_corrected_brain_regions_gsub)
 rownames(pairwise_table) <- fdr_corrected_brain_regions_gsub
+
+#Add FDR correction
+pairwise_table_with_fdr <- pairwise_table
+pairwise_table_with_fdr$p_FDR_corr <- volume_names_and_fdr_values_anova_lm_agesq$p_FDR_corr
 
 #print values
 print("LM Agesq pairwise contrasts for FDR corrected values Cortical Volume (MPRAGE JLF)")
 print(pairwise_table)
+
+print ("LM Agesq pairwise contrasts and FDR corr Cortical Volume (MPRAGE JLF)")
+print(pairwise_table_with_fdr)
+
 sapply(volume_emmpairs_lm_agesq_AG_matched_FDR_corrected, function(x) {print(x)})
 
 #########################################################
