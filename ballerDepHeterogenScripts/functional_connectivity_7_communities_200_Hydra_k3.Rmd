@@ -3,8 +3,8 @@ title: "Functional Connectivity, 7 communities, resolution 200, n 325"
 author: "Erica Baller"
 date: "7/9/10`8"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -432,7 +432,7 @@ p_anova <- sapply(network_cluster_stats_anova_lm_AG_matched, function(v) v$"Pr(>
 p_anova <- as.data.frame(p_anova)
 
 #print BEFORE FDR correction 
-print("LM anova scores, uncorrected")
+print("LM anova scores, BEFORE FDR correction, i.e. uncorrected")
 print(p_anova)
 
 #Print original p-values to three decimal places
@@ -457,7 +457,7 @@ network_names_and_fdr_values_anova <- data.frame(cbind(network_fdr_anova, round(
 #add titles to names_and_fdr tables
 names(network_names_and_fdr_values_anova) <- c("network", "p_FDR_corr")
 
-print("LM")
+print("LM with FDR values from ANOVA")
 print(network_names_and_fdr_values_anova)
 
 #gam
@@ -474,7 +474,7 @@ p_anova <- sapply(network_cluster_stats_anova_gam_AG_matched, function(v) v$pTer
 p_anova <- as.data.frame(p_anova)
 
 #print BEFORE FDR correction 
-print("GAM anova scores, uncorrected")
+print("GAM anova scores, BEFORE FDR correction, i.e.- uncorrected")
 print(p_anova)
 
 #Print original p-values to three decimal places
@@ -499,7 +499,7 @@ network_names_and_fdr_values_anova <- data.frame(cbind(network_fdr_anova, round(
 #add titles to names_and_fdr tables
 names(network_names_and_fdr_values_anova) <- c("network", "p_FDR_corr_GAM")
 
-print("GAM")
+print("GAM with FDR values from anova")
 print(network_names_and_fdr_values_anova)
 
 #lm agesq
@@ -514,7 +514,7 @@ p_anova_lm_agesq <- sapply(network_cluster_stats_anova_lm_agesq_AG_matched, func
 p_anova_lm_agesq <- as.data.frame(p_anova_lm_agesq)
 
 #print BEFORE FDR correction 
-print("LM Agesq anova scores, uncorrected")
+print("LM Agesq anova scores, BEFORE FDR correction: i.e., uncorrected")
 print(p_anova)
 
 #Print original p-values to three decimal places
@@ -539,7 +539,7 @@ network_names_and_fdr_values_anova_lm_agesq <- data.frame(cbind(network_fdr_anov
 #add titles to names_and_fdr tables
 names(network_names_and_fdr_values_anova_lm_agesq) <- c("network", "p_FDR_corr")
 
-print("LM Agesq- Mean centered age that was then squared")
+print("LM Agesq- Mean centered age that was then squared, FDR corrected")
 print(network_names_and_fdr_values_anova_lm_agesq)
 
 ######################################################
