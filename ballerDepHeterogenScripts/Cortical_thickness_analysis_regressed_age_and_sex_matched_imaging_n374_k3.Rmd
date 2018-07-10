@@ -329,7 +329,7 @@ CT_score_cluster_stats_lm_AG_matched_by_cluster_1through10 <- lapply(cluster_nam
   CT_score_cluster_stats_lm_AG_matched_withincluster<- lapply(CT_measure_names_list, cluster=as.name(cluster_name), function(CT_measure_name, cluster) 
   {
     CT_measure <- as.name(CT_measure_name)
-    lm(substitute(CT_measure ~ cluster, list(CT_measure = CT_measure, cluster = cluster)), data = subset_with_clusters_AG_matched)
+    lm(substitute(CT_measure ~ cluster + averageManualRating, list(CT_measure = CT_measure, cluster = cluster)), data = subset_with_clusters_AG_matched)
   })
   setNames(CT_score_cluster_stats_lm_AG_matched_withincluster, CT_measure_names_list)
 })
@@ -394,7 +394,7 @@ CT_score_cluster_stats_anova_lm_AG_matched_by_cluster_1through10 <- lapply(clust
   CT_score_cluster_stats_anova_AG_withincluster <- lapply(CT_measure_names_list, cluster=as.name(cluster_name), function(CT_measure_name, cluster) 
   {
      CT_measure <- as.name(CT_measure_name)
-     anova(lm(substitute(CT_measure ~ cluster, list(CT_measure = CT_measure, cluster = cluster)), data = subset_with_clusters_AG_matched))
+     anova(lm(substitute(CT_measure ~ cluster + averageManualRating, list(CT_measure = CT_measure, cluster = cluster)), data = subset_with_clusters_AG_matched))
   })
   setNames(CT_score_cluster_stats_anova_AG_withincluster, CT_measure_names_list)
 })
