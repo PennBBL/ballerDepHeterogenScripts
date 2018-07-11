@@ -3,8 +3,8 @@ title: "Functional Connectivity, 7 communities, resolution 200, n 325"
 author: "Erica Baller"
 date: "7/9/10`8"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -20,6 +20,7 @@ library(ggplot2)
 library(reshape)
 library(emmeans)
 theme_update(plot.title = element_text(hjust = 0.5))
+source("~/BBL/from_chead/ballerDepHeterogen/ballerDepHeterogenScripts/Hydra_functions.R")
 ```
 
 ## R Markdown
@@ -38,8 +39,8 @@ Part 3 : Graphing
 
 Part 4 : LM/GAM/LM with Agesq
   -The script then runs LM on each cognitive score (network ~ hydra_group). 
-   - Does gam (network ~ hydra_group + s(age) + sex + averageManualRating + restRelMeanRMSMotion)
-   - Does LM with ageSq (network ~ hydra_group + ageSq + sex + averageManualRating + restRelMeanRMSMotion)
+   - Does gam (network ~ hydra_group + s(age) + sex + restRelMeanRMSMotion)
+   - Does LM with ageSq (network ~ hydra_group + ageSq + sex + restRelMeanRMSMotion)
   -There is a test option that does this for all network measures and all hydra groups, but for the remainder of the analysis, Hydra_k3 was the only classification more deeply explored.
 
 Part 5 : Anovas
@@ -82,26 +83,7 @@ num_measures <- length(networks)
 #############################
 ####### Demographics ########
 #############################
-
-#######Matched group all clusters ##############
-#subset demographics
-listVars <- c("Race", "Sex", "Maternal Ed", "Age", "Depression", "Cluster") #Race 1 = caucasian, Maternal Ed = years, age = years, dep 1 = dep, 0 = non_dep
-demo_Hydra_k3_AG_matched <- data.frame(subset_with_clusters_AG_matched$race_binarized, subset_with_clusters_AG_matched$sex, subset_with_clusters_AG_matched$medu1, subset_with_clusters_AG_matched$age_in_years, subset_with_clusters_AG_matched$dep_binarized, subset_with_clusters_AG_matched$Hydra_k3)
-names(demo_Hydra_k3_AG_matched) <- c(listVars)
-
-#Change categorical values to have names
-demo_Hydra_k3_AG_matched$Depression <- ifelse(demo_Hydra_k3_AG_matched$Depression == 1, "Depressed", "Non-depressed")
-demo_Hydra_k3_AG_matched$Race <- ifelse(demo_Hydra_k3_AG_matched$Race == 1, "Caucasian", "Non-caucasian")
-demo_Hydra_k3_AG_matched$Sex <- ifelse(demo_Hydra_k3_AG_matched$Sex == 1, "Male", "Female")
-
-#Define Categorical Variables
-cat_variables <- c("Race", "Depression", "Sex", "Cluster")
-title <- c("Hydra_k3 demographics")
-
-#create demographics table
-demo_Hydra_k3_AG_matched_table <- CreateTableOne(vars = listVars, data = demo_Hydra_k3_AG_matched, factorVars = cat_variables, strata = c("Cluster"))
-print(demo_Hydra_k3_AG_matched_table, showAllLevels = TRUE)
-
+make_demographics_table(data_frame = subset_with_clusters_AG_matched, hydra_cluster = 3)
 
 
 ```
@@ -112,38 +94,26 @@ print(demo_Hydra_k3_AG_matched_table, showAllLevels = TRUE)
 #######Chi-square for males/females and race########
 ##########By males, and by caucasians ##############
 
-#Chi squared sex - significance p = ***
-#if just want to look at clusters, not TD, look at commented line below, otherwise keep as is
-###chisq_matched_sex <- chisq.test(subset_with_clusters_AG_matched$sex, (subset_with_clusters_AG_matched$Hydra_k3 != -1))
-chisq_matched_sex <- chisq.test(subset_with_clusters_AG_matched$sex, subset_with_clusters_AG_matched$Hydra_k3)
-chisq_matched_sex_pvalue <- chisq_matched_sex$p.value
-total_people_Hydra_k3 <- c(length(subset_with_clusters_AG_matched$sex[which(subset_with_clusters_AG_matched$Hydra_k3 == -1)]), 
-                           length(subset_with_clusters_AG_matched$sex[which(subset_with_clusters_AG_matched$Hydra_k3 == 1)]), 
-                           length(subset_with_clusters_AG_matched$sex[which(subset_with_clusters_AG_matched$Hydra_k3 == 2)]), 
-                           length(subset_with_clusters_AG_matched$sex[which(subset_with_clusters_AG_matched$Hydra_k3 == 3)]))
+#Chi squared 
+chisq_matched_sex <- chi_sq(data_frame = subset_with_clusters_AG_matched, "sex", 3)
+chisq_matched_race <- chi_sq(data_frame = subset_with_clusters_AG_matched, "race_binarized", 3)
 
-num_men_all_clusters <- c(length(subset_with_clusters_AG_matched$sex[which(subset_with_clusters_AG_matched$Hydra_k3 == -1 & subset_with_clusters_AG_matched$sex == 1)]), 
-                          length(subset_with_clusters_AG_matched$sex[which(subset_with_clusters_AG_matched$Hydra_k3 == 1 & subset_with_clusters_AG_matched$sex == 1)]), 
-                          length(subset_with_clusters_AG_matched$sex[which(subset_with_clusters_AG_matched$Hydra_k3 == 2 & subset_with_clusters_AG_matched$sex == 1)]),
-                          length(subset_with_clusters_AG_matched$sex[which(subset_with_clusters_AG_matched$Hydra_k3 == 3 & subset_with_clusters_AG_matched$sex == 1)]))
+#get means/stds
+total_people_Hydra_k3 <- total_people_per_cluster(data_frame = subset_with_clusters_AG_matched, hydra_cluster = 3)
+
+num_men_all_clusters <- total_people_per_cluster_by_group(data_frame = subset_with_clusters_AG_matched, variable = "sex", hydra_cluster = 3, group_val = 1)
+num_caucasian_all_clusters <- total_people_per_cluster_by_group(data_frame = subset_with_clusters_AG_matched, variable = "race_binarized", hydra_cluster = 3, group_val = 1)
+
 percent_men_all_clusters <- (num_men_all_clusters/total_people_Hydra_k3) * 100
-
-
-#Chi square race - p-value = 4.85 x 10-13
-chisq_matched_race <- chisq.test(subset_with_clusters_AG_matched$race_binarized, subset_with_clusters_AG_matched$Hydra_k3)
-chisq_matched_race_pvalue <- chisq_matched_race$p.value
-num_caucasian_all_clusters <- c(length(subset_with_clusters_AG_matched$race_binarized[which(subset_with_clusters_AG_matched$Hydra_k3 == -1 & subset_with_clusters_AG_matched$race_binarized == 1)]), 
-                                length(subset_with_clusters_AG_matched$race_binarized[which(subset_with_clusters_AG_matched$Hydra_k3 == 1 & subset_with_clusters_AG_matched$race_binarized == 1)]), 
-                                length(subset_with_clusters_AG_matched$race_binarized[which(subset_with_clusters_AG_matched$Hydra_k3 == 2 & subset_with_clusters_AG_matched$race_binarized == 1)]),
-                                length(subset_with_clusters_AG_matched$race_binarized[which(subset_with_clusters_AG_matched$Hydra_k3 == 3 & subset_with_clusters_AG_matched$race_binarized == 1)]))
 percent_caucasian_all_clusters <- (num_caucasian_all_clusters/total_people_Hydra_k3)*100
 
-p_values <- c("", chisq_matched_sex_pvalue, "", chisq_matched_race_pvalue)
+p_values <- c("", chisq_matched_sex$p.value, "", chisq_matched_race$p.value)
+
 dat_sex_race <- data.frame(cl = c("TD", "Cluster1", "Cluster2", "Cluster3", "Significance"), 
                            num_males = c(num_men_all_clusters, "---"),
-                           percent_males = round(c(percent_men_all_clusters, chisq_matched_sex_pvalue), 2), 
+                           percent_males = round(c(percent_men_all_clusters, chisq_matched_sex$p.value), 2), 
                            num_caucasians = c(num_caucasian_all_clusters, "---"),
-                           percent_caucasian = round(c(percent_caucasian_all_clusters, chisq_matched_race_pvalue),2))
+                           percent_caucasian = round(c(percent_caucasian_all_clusters, chisq_matched_race$p.value),2))
 dat_sex_race_no_significance <-  data.frame(cl = c("TD", "Cluster1", "Cluster2", "Cluster3"), 
                                             num_males = (num_men_all_clusters),
                                             percent_males = percent_men_all_clusters, 
@@ -515,7 +485,7 @@ p_anova_lm_agesq <- as.data.frame(p_anova_lm_agesq)
 
 #print BEFORE FDR correction 
 print("LM Agesq anova scores, BEFORE FDR correction: i.e., uncorrected")
-print(p_anova)
+print(p_anova_lm_agesq)
 
 #Print original p-values to three decimal places
 p_round_anova_lm_agesq <- round(p_anova_lm_agesq,3)
