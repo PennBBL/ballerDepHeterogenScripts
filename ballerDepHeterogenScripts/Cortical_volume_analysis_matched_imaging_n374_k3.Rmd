@@ -355,7 +355,7 @@ volume_score_cluster_stats_lm_agesq_AG_matched_by_cluster_1through10 <- lapply(c
   volume_score_cluster_stats_lm_agesq_AG_matched_withincluster<- lapply(volume_measure_names_list, cluster=as.name(cluster_name), function(volume_measure_name, cluster) 
   {
     volume_measure <- as.name(volume_measure_name)
-    lm(substitute(volume_measure ~ cluster + sex + ageSq + averageManualRating, list(volume_measure = volume_measure, cluster = cluster)), data = subset_with_clusters_AG_matched)
+    lm(substitute(volume_measure ~ cluster + sex + age_in_years + ageSq + averageManualRating, list(volume_measure = volume_measure, cluster = cluster)), data = subset_with_clusters_AG_matched)
   })
   setNames(volume_score_cluster_stats_lm_agesq_AG_matched_withincluster, volume_measure_names_list)
 })
@@ -381,7 +381,7 @@ names(volume_score_cluster_stats_gam_AG_matched) <- volume_measure_names
 #lm ageSq and mean centered
 volume_score_cluster_stats_lm_agesq_AG_matched <- lapply(volume_measure_names, function(x) 
 {
-  lm(substitute(i ~ Hydra_k3 + sex + ageSq + averageManualRating, list(i = as.name(x))), data = subset_with_clusters_AG_matched)
+  lm(substitute(i ~ Hydra_k3 + sex + age_in_years + ageSq + averageManualRating, list(i = as.name(x))), data = subset_with_clusters_AG_matched)
 })
 names(volume_score_cluster_stats_lm_agesq_AG_matched) <- volume_measure_names
 
@@ -423,7 +423,7 @@ volume_score_cluster_stats_anova_lm_agesq_AG_matched_by_cluster_1through10 <- la
   volume_score_cluster_stats_anova_lm_agesq_AG_withincluster <- lapply(volume_measure_names_list, cluster=as.name(cluster_name), function(volume_measure_name, cluster) 
   {
      volume_measure <- as.name(volume_measure_name)
-     anova(lm(substitute(volume_measure ~ cluster + sex + ageSq + averageManualRating, list(volume_measure = volume_measure, cluster = cluster)), data = subset_with_clusters_AG_matched))
+     anova(lm(substitute(volume_measure ~ cluster + sex + age_in_years + ageSq + averageManualRating, list(volume_measure = volume_measure, cluster = cluster)), data = subset_with_clusters_AG_matched))
   })
   setNames(volume_score_cluster_stats_anova_lm_agesq_AG_withincluster, volume_measure_names_list)
 })
