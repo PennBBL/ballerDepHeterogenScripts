@@ -1,0 +1,566 @@
+---
+title: "Functional Connectivity, r200, com17 communities, n 325, Hydra_k3"
+author: "Erica Baller"
+date: "7/17/18"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, fig.width = 9)
+library(visreg)
+library(mgcv)
+library(tableone)
+library(dplyr)
+library(plm)
+library(MatchIt)
+library(tidyr)
+library(ggplot2)
+library(reshape)
+library(emmeans)
+theme_update(plot.title = element_text(hjust = 0.5))
+source("~/BBL/from_chead/ballerDepHeterogen/ballerDepHeterogenScripts/Hydra_functions.R")
+```
+
+## R Markdown
+
+This script goes through demographics, network scores, health, and psych summaries, adds clustering information, runs statistics and makes graphs from results.
+
+When changing things- change the file path, the network range to grab names from, and the number of clusters
+
+Part 1 : Read in csv with network data, demographics, health and psych summaries, and depression scores (this file was made from PrepForNetworks 20180706.csv and sent to chead, where network data was calculated with cedric's scripts)
+
+Part 2 : Demographics tables
+  - Demographics tables matched
+  
+Part 3 : Graphing
+  - Graphs were then made.  
+    *For continuous variables(age, medu1), the graphs represent means, with SEM as error bars
+    *For categorical variables (race, sex) the graphs are percentages (caucasian, male) per group, with chisq used to calculate significance
+
+Part 4 : LM/GAM/LM with Agesq
+  -The script then runs LM on each cognitive score (network ~ hydra_group). 
+   - Does gam (network ~ hydra_group + s(age) + sex + restRelMeanRMSMotion)
+   - Does LM with ageSq (network ~ hydra_group + ageSq + sex + restRelMeanRMSMotion)
+  -There is a test option that does this for all network measures and all hydra groups, but for the remainder of the analysis, Hydra_k3 was the only classification more deeply explored.
+
+Part 5 : Anovas
+  -Anovas were also run on the results of the LM of each network value by cluster.
+
+
+Part 6 : FDR Correction
+  -FDR correction was calculated for each network measure ANOVA output
+  -A table of the results was extracted
+  
+
+
+```{r connectivity, echo = FALSE}
+#######################################################
+############ READ IN, MERGE AND SUBSET DATA############
+#######################################################
+
+#read in csvs, CHANGE THINGS HERE
+fc_networks_and_dem_clinical_psych_data <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/output_of_fc/fc_r200_com17/fc_r200_com17.csv")
+num_communities <- 17
+num_clusters = 3
+
+#subset_with_clusters_AG_matched - rename because this is what will be used for the rest of the script
+subset_with_clusters_AG_matched <- fc_networks_and_dem_clinical_psych_data
+
+#Get cluster and network names
+clusters <- names(fc_networks_and_dem_clinical_psych_data[grep ("Hydra", names(fc_networks_and_dem_clinical_psych_data))])
+num_fc_pairs <- (num_communities * (num_communities -1))/2 + num_communities
+networks <- names(subset_with_clusters_AG_matched[2:(num_fc_pairs+1)])
+
+#Coerce hydra values into factor format
+fc_networks_and_dem_clinical_psych_data[clusters] <- lapply(fc_networks_and_dem_clinical_psych_data[clusters], factor)
+
+#get number of measures (to be used later on when trying to make graphs), for every different modality WILL HAVE TO CHANGE THIS
+num_measures <- length(networks)
+
+#get cluster titles 
+
+cluster_titles <- get_cluster_titles(hydra_cluster = num_clusters)
+```
+
+##Demographics
+
+```{r Demographics, echo = FALSE}
+#############################
+####### Demographics ########
+#############################
+make_demographics_table(data_frame = subset_with_clusters_AG_matched, hydra_cluster = num_clusters)
+
+
+```
+
+
+```{r Graphs by cluster, echo=FALSE}
+
+#######Chi-square for males/females and race########
+##########By males, and by caucasians ##############
+
+
+
+#Chi squared 
+chisq_matched_sex <- chi_sq(data_frame = subset_with_clusters_AG_matched, "sex", num_clusters)
+chisq_matched_race <- chi_sq(data_frame = subset_with_clusters_AG_matched, "race_binarized", num_clusters)
+
+#get means/stds
+total_people_Hydra_k3 <- total_people_per_cluster(data_frame = subset_with_clusters_AG_matched, hydra_cluster = num_clusters)
+
+num_men_all_clusters <- total_people_per_cluster_by_group(data_frame = subset_with_clusters_AG_matched, variable = "sex", hydra_cluster = num_clusters, group_val = 1)
+num_caucasian_all_clusters <- total_people_per_cluster_by_group(data_frame = subset_with_clusters_AG_matched, variable = "race_binarized", hydra_cluster = num_clusters, group_val = 1)
+
+percent_men_all_clusters <- (num_men_all_clusters/total_people_Hydra_k3) * 100
+percent_caucasian_all_clusters <- (num_caucasian_all_clusters/total_people_Hydra_k3)*100
+
+p_values <- c("", chisq_matched_sex$p.value, "", chisq_matched_race$p.value)
+
+dat_sex_race <- data.frame(cl = c(cluster_titles, "Significance"), 
+                           num_males = c(num_men_all_clusters, "---"),
+                           percent_males = round(c(percent_men_all_clusters, chisq_matched_sex$p.value), 2), 
+                           num_caucasians = c(num_caucasian_all_clusters, "---"),
+                           percent_caucasian = round(c(percent_caucasian_all_clusters, chisq_matched_race$p.value),2))
+dat_sex_race_no_significance <-  data.frame(cl = cluster_titles, 
+                                            num_males = (num_men_all_clusters),
+                                            percent_males = percent_men_all_clusters, 
+                                            num_caucasians = num_caucasian_all_clusters,
+                                            percent_caucasian = percent_caucasian_all_clusters)                 
+percentages <- data.frame(cl=cluster_titles, percent_males = percent_men_all_clusters, percent_caucasians = percent_caucasian_all_clusters)
+percentages_for_plot <- melt(percentages, id.vars = "cl")
+names(percentages_for_plot) <- c("cluster", "group", "percent")
+
+ggplot(data = percentages_for_plot, aes(x = group, y = percent, group = cluster)) + 
+  geom_line(aes(color=cluster)) +
+  geom_point(aes(color=cluster)) + 
+  ggtitle("Hydra_k3 Percentages")
+
+ggplot(dat_sex_race_no_significance, aes(x = cl, y = percent_males, fill=cl)) + geom_col() +
+  scale_x_discrete(limits=cluster_titles) + ylim(0, 100) + xlab("Clusters") + ylab("% Male") + 
+  ggtitle("Hydra_k3 % Male, p = ***") + scale_fill_discrete(breaks=cluster_titles) +
+  guides(fill=guide_legend(title=NULL))
+ggplot(dat_sex_race_no_significance, aes(x = cl, y = percent_caucasian, fill=cl)) + geom_col() + 
+  scale_x_discrete(limits=cluster_titles) + ylim(0, 100) + xlab("Clusters") + ylab("% Caucasian") + 
+  ggtitle("Hydra_k3 % Caucasian, p = ***") + scale_fill_discrete(breaks=cluster_titles) + 
+  guides(fill=guide_legend(title=NULL))
+
+
+
+
+#############################
+######### Bar Graphs ########
+#############################
+
+variable_name_string <- c("age", "medu") #this allows you to specify the actual titles, if different from the data frame titles
+plot_list <- plot_continuous_variables(data_frame = subset_with_clusters_AG_matched, var1 = "age_in_years", var2 = "medu1", hydra_cluster = num_clusters, optional_variable_name_string = variable_name_string)
+for(x in 1:length(plot_list)){
+  print(plot_list[[x]])
+}
+
+```
+
+```{r stats, echo = FALSE}
+#################################
+# Linear Model for each measure #
+##### Results stored in list ####
+#################################
+
+
+
+#### All Hydra clusters in embedded lis t######
+network_cluster_stats_lm_AG_matched_by_cluster_1through10 <- lapply(clusters, function(cluster)
+{
+  network_cluster_stats_lm_AG_matched_withincluster<- lapply(networks, cluster=as.name(cluster), function(network, cluster) 
+  {
+    network <- as.name(network)
+    lm(substitute(network ~ cluster + restRelMeanRMSMotion, list(network = network, cluster = cluster)), data = subset_with_clusters_AG_matched)
+  })
+  setNames(network_cluster_stats_lm_AG_matched_withincluster, networks)
+})
+
+names(network_cluster_stats_lm_AG_matched_by_cluster_1through10) <- clusters
+
+
+#gam
+network_cluster_stats_gam_AG_matched_by_cluster_1through10 <- lapply(clusters, function(cluster)
+{
+ network_cluster_stats_gam_AG_matched_withincluster<- lapply(networks, cluster=as.name(cluster), function(network, cluster) 
+ {
+    network <- as.name(network)
+    gam(substitute(network ~ cluster + sex + s(age_in_years) + restRelMeanRMSMotion, list(network = network, cluster = cluster)), data = subset_with_clusters_AG_matched)
+  })
+ setNames(network_cluster_stats_gam_AG_matched_withincluster, networks)
+})
+names(network_cluster_stats_gam_AG_matched_by_cluster_1through10) <- clusters
+
+#LM with mean-centered, squared age- quadratic term#
+
+network_cluster_stats_lm_agesq_AG_matched_by_cluster_1through10 <- lapply(clusters, function(cluster)
+{
+  network_cluster_stats_lm_agesq_AG_matched_withincluster<- lapply(networks, cluster=as.name(cluster), function(network, cluster) 
+  {
+    network <- as.name(network)
+    lm(substitute(network ~ cluster + sex + age_in_years + ageSq + restRelMeanRMSMotion, list(network = network, cluster = cluster)), data = subset_with_clusters_AG_matched)
+  })
+  setNames(network_cluster_stats_lm_agesq_AG_matched_withincluster, networks)
+})
+names(network_cluster_stats_lm_agesq_AG_matched_by_cluster_1through10) <- clusters
+
+
+##### Just Hydra_3 clusters ######
+#lm
+network_cluster_stats_lm_AG_matched <- lapply(networks, function(network) 
+{
+  lm(substitute(i ~ Hydra_k3 + restRelMeanRMSMotion, list(i = as.name(network))), data = subset_with_clusters_AG_matched)
+})
+names(network_cluster_stats_lm_AG_matched) <- networks
+
+#gam
+network_cluster_stats_gam_AG_matched <- lapply(networks, function(network) 
+{
+  network = as.name(network)
+  gam(substitute(network ~ Hydra_k3 + sex + s(age_in_years) + restRelMeanRMSMotion, list(network = network)), data = subset_with_clusters_AG_matched)
+})
+names(network_cluster_stats_gam_AG_matched) <- networks
+
+#lm ageSq and mean centered
+network_cluster_stats_lm_agesq_AG_matched <- lapply(networks, function(network) 
+{
+  lm(substitute(i ~ Hydra_k3 + sex + age_in_years + ageSq + restRelMeanRMSMotion, list(i = as.name(network))), data = subset_with_clusters_AG_matched)
+})
+names(network_cluster_stats_lm_agesq_AG_matched) <- networks
+
+
+
+##############################
+####### Statistics ###########
+##############################
+
+######## All hydra clusters, Anova results ########
+
+#lm
+network_cluster_stats_anova_AG_matched_by_cluster_1through10 <- lapply(clusters, function(cluster)
+{
+  network_cluster_stats_anova_AG_withincluster <- lapply(networks, cluster=as.name(cluster), function(network, cluster) 
+  {
+     network <- as.name(network)
+     anova(lm(substitute(network ~ cluster + restRelMeanRMSMotion, list(network = network, cluster = cluster)), data = subset_with_clusters_AG_matched))
+  })
+  setNames(network_cluster_stats_anova_AG_withincluster, networks)
+})
+names(network_cluster_stats_anova_AG_matched_by_cluster_1through10) <- clusters
+
+#gam anova all clusters
+network_cluster_stats_anova_gam_AG_matched_by_cluster_1through10 <- lapply(clusters, function(cluster)
+{
+  network_cluster_stats_anova_gam_AG_withincluster <- lapply(networks, cluster=as.name(cluster), function(network, cluster) 
+  {
+     network <- as.name(network)
+     anova(gam(substitute(network ~ cluster + sex + s(age_in_years) + restRelMeanRMSMotion, list(network = network, cluster = cluster)), data = subset_with_clusters_AG_matched))
+  })
+  setNames(network_cluster_stats_anova_gam_AG_withincluster, networks)
+})
+names(network_cluster_stats_anova_gam_AG_matched_by_cluster_1through10) <- clusters
+
+#lm agesq anova all clusters
+network_cluster_stats_anova_lm_agesq_AG_matched_by_cluster_1through10 <- lapply(clusters, function(cluster)
+{
+  network_cluster_stats_anova_lm_agesq_AG_withincluster <- lapply(networks, cluster=as.name(cluster), function(network, cluster) 
+  {
+     network <- as.name(network)
+     anova(lm(substitute(network ~ cluster + sex + age_in_years + ageSq + restRelMeanRMSMotion, list(network = network, cluster = cluster)), data = subset_with_clusters_AG_matched))
+  })
+  setNames(network_cluster_stats_anova_lm_agesq_AG_withincluster, networks)
+})
+names(network_cluster_stats_anova_lm_agesq_AG_matched_by_cluster_1through10) <- clusters
+
+
+#####Just Hydra 3 clusters ANOVA ########
+#lm Hydra K3 Anova
+network_cluster_stats_anova_lm_AG_matched <- lapply(network_cluster_stats_lm_AG_matched, anova) 
+names(network_cluster_stats_anova_lm_AG_matched) <- networks
+
+#gam Hydra K3 ANOVA
+network_cluster_stats_anova_gam_AG_matched <- lapply(network_cluster_stats_gam_AG_matched, anova)
+names(network_cluster_stats_anova_gam_AG_matched) <- networks
+
+#lm Hydra K3 Anova
+network_cluster_stats_anova_lm_agesq_AG_matched <- lapply(network_cluster_stats_lm_agesq_AG_matched, anova) 
+names(network_cluster_stats_anova_lm_agesq_AG_matched) <- networks
+
+```
+
+##Results graphically presented
+```{r Results graphically presented, echo = FALSE}
+
+
+#####################################
+###### By FC Connectivity Measure ###############
+#####################################
+#can do with all gender as well, as well as matched/unmatched, etc
+#loop through each cluster and each network measure, make text and evaluate the following: mean of each cluster by measure, and sd of each cluster by measure
+#SEM calculated by taking SD, and dividing by the square root of the number of people in the analysis... Should this be by # people in cluster?
+
+
+groups <- data.frame(cbind(c("TD", "Cluster1", "Cluster2", "Cluster3"), c("-1", "1", "2", "3")))
+names(groups) <- c("cl", "numeric")
+all_mean_sd_sem <- data.frame(rep(groups$cl, num_measures), rep(networks, each = 4), rep(0, 1), rep(0, 1), rep(0,1))
+names(all_mean_sd_sem) <- c("cl", "network", "mean", "sd", "sem")
+for(network in networks){
+  for(num in 1:4) {
+    clst <- groups[num,1]
+    meas <- groups[num,2]
+    mean_for_eval <- paste("mean(subset_with_clusters_AG_matched$", network, "[which(subset_with_clusters_AG_matched$Hydra_k3 == ", groups[num,2], ")])", sep="")
+    mean_grp <- eval(parse(text=as.name(mean_for_eval)))
+    all_mean_sd_sem$mean[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$network == network)] <- mean_grp
+    
+    sd_for_eval <- paste("sd(subset_with_clusters_AG_matched$", network, "[which(subset_with_clusters_AG_matched$Hydra_k3 == ", groups[num,2], ")])", sep="")
+    sd_grp <- eval(parse(text=as.name(sd_for_eval)))
+    all_mean_sd_sem$sd[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$network == network)] <- sd_grp
+    all_mean_sd_sem$sem[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$network == network)] <- all_mean_sd_sem$sd[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$network == network)]/sqrt(nrow(subset_with_clusters_AG_matched))
+  }
+}
+
+
+#add sems to networks_for_plot
+#networks_for_plot$sem <- all_sem_one_col
+#names(networks_for_plot) <- c("cluster", "network", "z_score", "sem")
+ggplot(data = all_mean_sd_sem, aes(x = network, y = mean, group = cl)) +  ylab("Community Connectivity") +
+  geom_line(aes(color=cl)) +
+  geom_point(aes(color=cl)) + 
+  geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1) +
+  ggtitle("Hydra cluster by Network Connectivity")
+```
+
+FDR correction 
+```{r FDR Correction, echo = FALSE, fig.width=10}
+
+###################################################
+## Extracting anovas with significant p values ####
+###################################################
+#lm
+#Looking at Hydra_k3, but can redo with nested list
+#Look at model summaries
+models_anova <- lapply(network_cluster_stats_anova_lm_AG_matched, summary)
+
+#Pull p-values
+p_anova <- sapply(network_cluster_stats_anova_lm_AG_matched, function(v) v$"Pr(>F)"[1]) #$coef[,"Pr(>F)"][2]) #get the p value for dep binarized
+
+#Convert to data frame
+p_anova <- as.data.frame(p_anova)
+
+#print BEFORE FDR correction 
+print("LM anova scores, BEFORE FDR correction, i.e. uncorrected")
+print(p_anova)
+
+#Print original p-values to three decimal places
+p_round_anova <- round(p_anova,3)
+
+#FDR correct p-values
+pfdr_anova <- p.adjust(p_anova[,1],method="fdr")
+
+#Convert to data frame
+pfdr_anova <- as.data.frame(pfdr_anova)
+row.names(pfdr_anova) <- networks
+
+#To print fdr-corrected p-values to three decimal places
+pfdr_round_anova <- round(pfdr_anova,3)
+
+#List the NMF components that survive FDR correction
+network_fdr_anova <- row.names(pfdr_anova)[pfdr_anova<0.05]
+
+#make a data frame with names and fdr values (rounded to 3 decimals)
+network_names_and_fdr_values_anova <- data.frame(cbind(network_fdr_anova, round(pfdr_anova[pfdr_anova<0.05],3)))
+
+#add titles to names_and_fdr tables
+names(network_names_and_fdr_values_anova) <- c("network", "p_FDR_corr")
+
+print("LM with FDR values from ANOVA")
+print(network_names_and_fdr_values_anova)
+
+#gam
+
+#Looking at Hydra_k3, but can redo with nested list
+#Look at model summaries
+#models_anova <- lapply(network_cluster_stats_anova_gam_AG_matched, summary)
+
+#Pull p-values
+p_anova <- sapply(network_cluster_stats_anova_gam_AG_matched, function(v) v$pTerms.table[1,3])
+                    #"Pr(>F)"[1]) #$coef[,"Pr(>F)"][2]) #get the p value for dep binarized
+
+#Convert to data frame
+p_anova <- as.data.frame(p_anova)
+
+#print BEFORE FDR correction 
+print("GAM anova scores, BEFORE FDR correction, i.e.- uncorrected")
+print(p_anova)
+
+#Print original p-values to three decimal places
+p_round_anova <- round(p_anova,3)
+
+#FDR correct p-values
+pfdr_anova <- p.adjust(p_anova[,1],method="fdr")
+
+#Convert to data frame
+pfdr_anova <- as.data.frame(pfdr_anova)
+row.names(pfdr_anova) <- networks
+
+#To print fdr-corrected p-values to three decimal places
+pfdr_round_anova <- round(pfdr_anova,3)
+
+#List the NMF components that survive FDR correction
+network_fdr_anova <- row.names(pfdr_anova)[pfdr_anova<0.05]
+
+#make a data frame with names and fdr values (rounded to 3 decimals)
+network_names_and_fdr_values_anova <- data.frame(cbind(network_fdr_anova, round(pfdr_anova[pfdr_anova<0.05],3)))
+
+#add titles to names_and_fdr tables
+names(network_names_and_fdr_values_anova) <- c("network", "p_FDR_corr_GAM")
+
+print("GAM with FDR values from anova")
+print(network_names_and_fdr_values_anova)
+
+#lm agesq
+#Looking at Hydra_k3
+#Look at model summaries
+models_anova_lm_agesq <- lapply(network_cluster_stats_anova_lm_agesq_AG_matched, summary)
+
+#Pull p-values
+p_anova_lm_agesq <- sapply(network_cluster_stats_anova_lm_agesq_AG_matched, function(v) v$"Pr(>F)"[1]) #$coef[,"Pr(>F)"][2]) #get the p value for dep binarized
+
+#Convert to data frame
+p_anova_lm_agesq <- as.data.frame(p_anova_lm_agesq)
+
+#print BEFORE FDR correction 
+print("LM Agesq anova scores, BEFORE FDR correction: i.e., uncorrected")
+print(p_anova_lm_agesq)
+
+#Print original p-values to three decimal places
+p_round_anova_lm_agesq <- round(p_anova_lm_agesq,3)
+
+#FDR correct p-values
+pfdr_anova_lm_agesq <- p.adjust(p_anova_lm_agesq[,1],method="fdr")
+
+#Convert to data frame
+pfdr_anova_lm_agesq <- as.data.frame(pfdr_anova_lm_agesq)
+row.names(pfdr_anova_lm_agesq) <- networks
+
+#To print fdr-corrected p-values to three decimal places
+pfdr_round_anova_lm_agesq <- round(pfdr_anova_lm_agesq,3)
+
+#List the components that survive FDR correction
+network_fdr_anova_lm_agesq <- row.names(pfdr_anova_lm_agesq)[pfdr_anova_lm_agesq<0.05]
+
+#make a data frame with names and fdr values (rounded to 3 decimals)
+network_names_and_fdr_values_anova_lm_agesq <- data.frame(cbind(network_fdr_anova_lm_agesq, round(pfdr_anova_lm_agesq[pfdr_anova_lm_agesq<0.05],3)))
+
+#add titles to names_and_fdr tables
+names(network_names_and_fdr_values_anova_lm_agesq) <- c("network", "p_FDR_corr")
+
+print("LM Agesq- Mean centered age that was then squared, FDR corrected")
+print(network_names_and_fdr_values_anova_lm_agesq)
+
+######################################################
+####Pairwise t-tests for anova-corrected lm means ####
+######################################################
+
+#put lm model into emmeans format
+network_emmodel_lm_agesq_AG_matched <- lapply(network_cluster_stats_lm_agesq_AG_matched, function(x) {as.list(ref_grid(x))})
+network_emmgrid_lm_agesq_AG_matched <- lapply(network_emmodel_lm_agesq_AG_matched, function(x) {as.emmGrid(x)})
+
+#run emmeans
+network_emmeans_lm_agesq_AG_matched <- lapply(network_emmgrid_lm_agesq_AG_matched, function(x) {emmeans(x, "Hydra_k3")})
+
+#run pairwise contrasts
+network_emmpairs_lm_agesq_AG_matched <- lapply(network_emmeans_lm_agesq_AG_matched, function(x) {pairs(x)})
+
+#Only include stuff that was fdr corrected (i.e., only keep parts of the model (or only display) ones that are corrected),this will be null if nothing was corrected
+network_emmpairs_lm_agesq_AG_matched_FDR_corrected <- network_emmpairs_lm_agesq_AG_matched[c(network_fdr_anova_lm_agesq)]
+
+
+################
+  ####Corrected #######
+######Make table of contrasts, rows are names of brain regions that are fdr corrected, columns are contrasts, values are pvalues
+
+#contrast names, -1 = controls, 1-3 are clusters
+contrast_names <- c("-1 - 1", "-1 - 2", "-1 - 3", "1 - 2", "1 - 3", "2 - 3")
+#go through each fdr corrected brain region, and extract p values
+contrast_table <- lapply(network_emmpairs_lm_agesq_AG_matched_FDR_corrected, function(x) {round(summary(x)$p.value,3)})
+#get the names of the brain regions that were fdr corrected
+fdr_corrected_brain_regions <- names(contrast_table)
+#build table that will hold the name of the brain region and the p values
+pairwise_table <- data.frame(matrix(nrow = length(fdr_corrected_brain_regions), ncol = 6))
+#give the appropriate names
+rownames(pairwise_table) <- fdr_corrected_brain_regions
+colnames(pairwise_table) <- contrast_names
+
+#loop through each brain region, and manually assign the columns to be the p values
+for (region in fdr_corrected_brain_regions)
+{
+  pair_pval <- contrast_table[[region]]
+  pairwise_table[region,] <- pair_pval
+}
+
+#get the mprage out of the name
+
+#Add FDR correction
+pairwise_table_with_fdr <- pairwise_table
+pairwise_table_with_fdr$p_FDR_corr <- network_names_and_fdr_values_anova_lm_agesq$p_FDR_corr
+
+#print values
+print("LM Agesq pairwise contrasts for FDR corrected values Cortical network (MPRAGE JLF)")
+print(pairwise_table)
+
+print ("LM Agesq pairwise contrasts and FDR corr Cortical network (MPRAGE JLF)")
+print(pairwise_table_with_fdr)
+
+sapply(network_emmpairs_lm_agesq_AG_matched_FDR_corrected, function(x) {print(x)})
+
+######------------------------
+  ####Uncorrected######
+######Make table of contrasts, rows are names of brain regions that are fdr corrected, columns are contrasts, values are pvalues
+
+#contrast names, -1 = controls, 1-3 are clusters
+contrast_names <- c("-1 - 1", "-1 - 2", "-1 - 3", "1 - 2", "1 - 3", "2 - 3")
+#go through each fdr corrected brain region, and extract p values
+contrast_table <- lapply(network_emmpairs_lm_agesq_AG_matched, function(x) {round(summary(x)$p.value,3)})
+#get the names of the brain regions that were fdr corrected
+brain_regions <- names(contrast_table)
+#build table that will hold the name of the brain region and the p values
+pairwise_table <- data.frame(matrix(nrow = length(brain_regions), ncol = 6))
+#give the appropriate names
+rownames(pairwise_table) <- brain_regions
+colnames(pairwise_table) <- contrast_names
+
+#loop through each brain region, and manually assign the columns to be the p values
+for (region in brain_regions)
+{
+  pair_pval <- contrast_table[[region]]
+  pairwise_table[region,] <- pair_pval
+}
+
+#Add FDR correction
+#pairwise_table_with_fdr <- pairwise_table
+#pairwise_table_with_fdr$p_FDR_corr <- network_names_and_fdr_values_anova_lm_agesq$p_FDR_corr
+
+#print values
+print("LM Agesq pairwise contrasts UNCORRECTED values Cortical network ")
+print(pairwise_table)
+
+
+sapply(network_emmpairs_lm_agesq_AG_matched, function(x) {print(x)})
+
+
+
+#####------------------------
+
+#########################################################
+#checkmodel with visreg, uncomment when want to check####
+#########################################################
+invisible(lapply(network_cluster_stats_lm_AG_matched, function(x) {visreg(x)}))
+
+```
+
+
