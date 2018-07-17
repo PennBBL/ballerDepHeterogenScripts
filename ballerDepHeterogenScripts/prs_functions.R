@@ -2,11 +2,12 @@ require('stringr')
 require('R.matlab')
 require('mgcv')
 require('visreg')
+require('rasterVis')
 
 ## set directories ##
-local_wkdir <- '~/Google Drive/TDSlab/SCZ_gene_imaging/'
-remote_wkdir <- '~/Desktop/BBL/data/joy/BBL/studies/pnc/'
-
+local_wkdir <- '/home/eballer/from_cedric/'
+#remote_wkdir <- '/data/joy/BBL/studies/pnc/'
+remote_wkdir <- '/home/eballer/from_cedric/imaging/'
 
 ##############################
 ####                      ####
@@ -216,12 +217,12 @@ get_net_from_sample <- function(sample,parcellation,resolution,modality) {
   }
   
   if (parcellation == 'power'){
-  save_file_path <- paste0(remote_wkdir,'../../projects/prsConnectivity/result/',deparse(substitute(sample)),'_power_network.RData')
+  #save_file_path <- paste0(remote_wkdir,'../../projects/prsConnectivity/result/',deparse(substitute(sample)),'_power_network.RData')
   }
   else if (parcellation == 'schaefer'){
-  save_file_path <- paste0(remote_wkdir,'../../projects/prsConnectivity/result/',deparse(substitute(sample)),'_',modality,'_',resolution,'_schaefer_network.RData')
+  #save_file_path <- paste0(remote_wkdir,'../../projects/prsConnectivity/result/',deparse(substitute(sample)),'_',modality,'_',resolution,'_schaefer_network.RData')
   } else if (parcellation == 'gordon'){
-    save_file_path <- paste0(remote_wkdir,'../../projects/prsConnectivity/result/',deparse(substitute(sample)),'_gordon_network.RData')
+    #save_file_path <- paste0(remote_wkdir,'../../projects/prsConnectivity/result/',deparse(substitute(sample)),'_gordon_network.RData')
   }
   #save(sample_net,sample,file = save_file_path)
   sample_net
