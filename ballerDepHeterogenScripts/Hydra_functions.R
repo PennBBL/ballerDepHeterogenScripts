@@ -110,6 +110,16 @@ get_cluster_titles <- function(hydra_cluster){
   }
   return(cluster_titles)
 }
+
+get_cluster_numerical_vector <- function(hydra_cluster){
+  # build vector of titles
+  cluster_vector <- c("-1")
+  for (cluster_counter in 1:hydra_cluster){
+    title_to_add <- paste0(cluster_counter)
+    cluster_vector <- c(cluster_vector, title_to_add)
+  }
+  return(cluster_vector)
+}
  
 get_variable_mean_vector <- function(data_frame, variable, hydra_cluster){
   #returns a vector of means, depends on # hydra clusters
@@ -131,11 +141,22 @@ get_variable_sd_vector <- function(data_frame, variable, hydra_cluster){
   return(sds)
 }
 
+get_num_subj_per_cluster <- function(data_frame, hydra_cluster)
+{
+  nums <- eval(parse(text = paste0("c(length(which(data_frame$Hydra_k", hydra_cluster, " == -1)))")))
+  for (cluster_counter in 1:hydra_cluster){
+    num_to_add <- eval(parse(text = paste0("c(length(which(data_frame$Hydra_k", hydra_cluster, " == ", cluster_counter, ")))")))
+    nums <- c(nums, num_to_add)
+  }
+  return(nums)
+}
+
 data_frame_mean_sd_sem <- function(data_frame, variable, hydra_cluster){
   cluster_titles <- get_cluster_titles(hydra_cluster = hydra_cluster)
   variable_mean <- get_variable_mean_vector(data_frame = data_frame, variable = variable, hydra_cluster = hydra_cluster)
   variable_sd <- get_variable_sd_vector(data_frame = data_frame, variable = variable, hydra_cluster = hydra_cluster)
-  variable_sem <- variable_sd/sqrt(nrow(data_frame))
+  num_per_cluster <- get_num_subj_per_cluster(data_frame = data_frame, hydra_cluster = hydra_cluster)
+  variable_sem <- variable_sd/sqrt(num_per_cluster)
   
   #put all together in one data frame
   df_mean_sd_sem <- data.frame(cl = cluster_titles, mean = variable_mean, sd = variable_sd, sem = variable_sem)
@@ -181,6 +202,8 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
 plot_continuous_variables <- function(data_frame, var1, var2, hydra_cluster, optional_variable_name_string){
 #makes bar plots and line plot with error bars, specifically for plotting numerical things like age and medu. 
   #NOT for categorical variables like sex/race 
+  
+  num_total_groups <- hydra_cluster + 1
   cluster_titles <- get_cluster_titles(hydra_cluster = hydra_cluster)
   dat_var1_sd_sem <- data_frame_mean_sd_sem(data_frame = data_frame, variable = var1, hydra_cluster = hydra_cluster)
   dat_var2_sd_sem <- data_frame_mean_sd_sem(data_frame = data_frame, variable = var2, hydra_cluster = hydra_cluster)
@@ -199,7 +222,9 @@ plot_continuous_variables <- function(data_frame, var1, var2, hydra_cluster, opt
     var1 = optional_variable_name_string[1]
     var2 = optional_variable_name_string[2]
   }
-  replace_group_names <- c(rep(var1, 4), rep(var2, 4))
+  
+  replace_group_names <- c(rep(var1, num_total_groups), rep(var2, num_total_groups))
+  #replace_group_names <- c(rep(var1, 4), rep(var2, 4))
   var1_and_var2_for_plot$group <- replace_group_names
 
   #plot
