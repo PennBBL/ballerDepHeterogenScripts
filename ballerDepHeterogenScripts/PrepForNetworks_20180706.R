@@ -99,3 +99,4 @@ subset_with_clusters_AG_matched <- merge(subset_dep_or_no_psych_and_no_medicalra
 
 #save to rds so it can be transfered to the cluster
 saveRDS(object = subset_with_clusters_AG_matched, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/ballerDepHeterogenScripts/PrepForFunctionalNetworks/subset_with_T1_FC_and_dem_with_clusters.rds")
+write.csv(x = subset_with_clusters_AG_matched, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/ballerDepHeterogenScripts/PrepForFunctionalNetworks/subset_with_T1_FC_and_dem_with_clusters.csv")
