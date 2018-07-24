@@ -1,7 +1,7 @@
 cd /Users/eballer/BBL/from_chead/ballerDepHeterogen/ballerDepHeterogenScripts/
 find . -name '*.html' -exec mv {} /Users/eballer/BBL/from_chead/ballerDepHeterogen/results/htmls/ \;
 find . -name '*.pdf' -exec mv {} /Users/eballer/BBL/from_chead/ballerDepHeterogen/results/pdfs/ \;
-find . -name '*.RDS' -exec mv {} /Users/eballer/BBL/from_chead/ballerDepHeterogen/results/rds/ \;
+find . -name '*.rds' -exec mv {} /Users/eballer/BBL/from_chead/ballerDepHeterogen/results/rds/ \;
 find . -name '*.R*' -exec cp {} /Users/eballer/BBL/from_chead/ballerDepHeterogen/git/ballerDepHeterogenScripts/ballerDepHeterogenScripts \;
 cd /Users/eballer/BBL/from_chead/ballerDepHeterogen/git/ballerDepHeterogenScripts/ballerDepHeterogenScripts/.
 cp -r ../../../hydra_output_from_cbica/scripts scripts_from_cbica
