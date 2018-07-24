@@ -101,5 +101,5 @@ subset_with_clusters_AG_matched <- merge(subset_dep_or_no_psych_and_no_medicalra
 saveRDS(object = subset_with_clusters_AG_matched, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/ballerDepHeterogenScripts/PrepForFunctionalNetworks/subset_with_T1_FC_and_dem_with_clusters.rds")
 
 #save as csv, both the whole thing and JUST BBLID and SCANID
-write.table(x = subset_with_clusters_AG_matched, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/ballerDepHeterogenScripts/PrepForFunctionalNetworks/subset_with_T1_FC_and_dem_with_clusters.csv", quote = FALSE, sep = " ", col.names = FALSE)
-write.table(x = cbind(subset_with_clusters_AG_matched$bblid, subset_with_clusters_AG_matched$scanid), file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/ballerDepHeterogenScripts/PrepForFunctionalNetworks/subset_with_T1_FC_and_dem_with_clusters_justBBLID_and_SCANID.csv", quote = FALSE, sep = " ", col.names = FALSE)
+write.table(x = subset_with_clusters_AG_matched, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/ballerDepHeterogenScripts/PrepForFunctionalNetworks/subset_with_T1_FC_and_dem_with_clusters.csv", quote = FALSE, sep = " ")
+write.table(x = cbind(subset_with_clusters_AG_matched$bblid, subset_with_clusters_AG_matched$scanid), file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/ballerDepHeterogenScripts/PrepForFunctionalNetworks/subset_with_T1_FC_and_dem_with_clusters_justBBLID_and_SCANID.csv", quote = FALSE, sep = " ", col.names = FALSE, row.names = FALSE)
