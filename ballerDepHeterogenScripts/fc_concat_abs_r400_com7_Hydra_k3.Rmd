@@ -3,8 +3,8 @@ title: "Functional Connectivity, Absolute removal, concatenated files(rest+nback
 author: "Erica Baller"
 date: "7/31/18"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
