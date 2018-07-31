@@ -1,7 +1,7 @@
 ---
-title: "Functional Connectivity, r400, com7 communities, n 325, Hydra_k3"
+title: "Functional Connectivity, Absolute removal, concatenated files(rest+nback+idemo), r400, com17 communities, n 325, Hydra_k3"
 author: "Erica Baller"
-date: "7/17/18"
+date: "7/31/18"
 output:
   html_document: default
   pdf_document: default
@@ -62,10 +62,13 @@ Part 6 : FDR Correction
 
 #read in csvs, CHANGE THINGS HERE
 
-num_communities <- 7
+num_communities <- 17
 num_clusters <- 3
 res <- 400
-filename <- Sys.glob(paste0("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/output_of_fc/fc_r", res, "_com", num_communities, "/fc_r", res, "_com", num_communities, ".csv"))
+exclusion <- "abs"
+
+filename <- Sys.glob(paste0("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/output_of_fc/concatenate_rest_nback_idemo/fc_concat_", exclusion, "_r", res, "_com", num_communities, "/fc_concat_", exclusion, "_r", res, "_com", num_communities, ".csv"))
+
 fc_networks_and_dem_clinical_psych_data <- read.csv(filename)
 #fc_networks_and_dem_clinical_psych_data <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/output_of_fc/fc_r400_com17/fc_r400_com17.csv")
 
