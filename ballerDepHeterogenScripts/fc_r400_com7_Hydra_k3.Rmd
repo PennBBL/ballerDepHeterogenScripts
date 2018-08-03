@@ -3,8 +3,8 @@ title: "Functional Connectivity, r400, com7 communities, n 325, Hydra_k3"
 author: "Erica Baller"
 date: "7/17/18"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -61,15 +61,9 @@ Part 6 : FDR Correction
 #######################################################
 
 #read in csvs, CHANGE THINGS HERE
-
+fc_networks_and_dem_clinical_psych_data <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/output_of_fc/fc_r400_com7/fc_r400_com7.csv")
 num_communities <- 7
-num_clusters <- 3
-res <- 400
-filename <- Sys.glob(paste0("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/output_of_fc/fc_r", res, "_com", num_communities, "/fc_r", res, "_com", num_communities, ".csv"))
-fc_networks_and_dem_clinical_psych_data <- read.csv(filename)
-#fc_networks_and_dem_clinical_psych_data <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/output_of_fc/fc_r400_com17/fc_r400_com17.csv")
-
-
+num_clusters = 3
 
 #subset_with_clusters_AG_matched - rename because this is what will be used for the rest of the script
 subset_with_clusters_AG_matched <- fc_networks_and_dem_clinical_psych_data
@@ -114,13 +108,13 @@ chisq_matched_sex <- chi_sq(data_frame = subset_with_clusters_AG_matched, "sex",
 chisq_matched_race <- chi_sq(data_frame = subset_with_clusters_AG_matched, "race_binarized", num_clusters)
 
 #get means/stds
-total_people_Hydra <- total_people_per_cluster(data_frame = subset_with_clusters_AG_matched, hydra_cluster = num_clusters)
+total_people_Hydra_k3 <- total_people_per_cluster(data_frame = subset_with_clusters_AG_matched, hydra_cluster = num_clusters)
 
 num_men_all_clusters <- total_people_per_cluster_by_group(data_frame = subset_with_clusters_AG_matched, variable = "sex", hydra_cluster = num_clusters, group_val = 1)
 num_caucasian_all_clusters <- total_people_per_cluster_by_group(data_frame = subset_with_clusters_AG_matched, variable = "race_binarized", hydra_cluster = num_clusters, group_val = 1)
 
-percent_men_all_clusters <- (num_men_all_clusters/total_people_Hydra) * 100
-percent_caucasian_all_clusters <- (num_caucasian_all_clusters/total_people_Hydra)*100
+percent_men_all_clusters <- (num_men_all_clusters/total_people_Hydra_k3) * 100
+percent_caucasian_all_clusters <- (num_caucasian_all_clusters/total_people_Hydra_k3)*100
 
 p_values <- c("", chisq_matched_sex$p.value, "", chisq_matched_race$p.value)
 
@@ -138,36 +132,22 @@ percentages <- data.frame(cl=cluster_titles, percent_males = percent_men_all_clu
 percentages_for_plot <- melt(percentages, id.vars = "cl")
 names(percentages_for_plot) <- c("cluster", "group", "percent")
 
-#Set Titles for plots
-title1 <- paste0("Hydra_k", num_clusters, " Percentages")
-
-if(chisq_matched_sex$p.value < 0.05) {
-  title2 <- paste0("Hydra_k", num_clusters, "% Male, p < 0.05")
-} else {
-  title2 <- paste0("Hydra_k", num_clusters, "% Male, p = ", round(chisq_matched_sex$p.value, 2))
-}
-
-if(chisq_matched_race$p.value < 0.05) {
-  title3 <- paste0("Hydra_k", num_clusters, "% Caucasian, p < 0.05")
-} else {
-  title3 <- paste0("Hydra_k", num_clusters, "% Caucasian, p = ", round(chisq_matched_race$p.value, 2))
-}
-
-#plot
 ggplot(data = percentages_for_plot, aes(x = group, y = percent, group = cluster)) + 
   geom_line(aes(color=cluster)) +
   geom_point(aes(color=cluster)) + 
-  ggtitle(title1)
+  ggtitle("Hydra_k3 Percentages")
 
 ggplot(dat_sex_race_no_significance, aes(x = cl, y = percent_males, fill=cl)) + geom_col() +
   scale_x_discrete(limits=cluster_titles) + ylim(0, 100) + xlab("Clusters") + ylab("% Male") + 
-  ggtitle(title2) + scale_fill_discrete(breaks=cluster_titles) +
+  ggtitle("Hydra_k3 % Male, p = ***") + scale_fill_discrete(breaks=cluster_titles) +
   guides(fill=guide_legend(title=NULL))
-
 ggplot(dat_sex_race_no_significance, aes(x = cl, y = percent_caucasian, fill=cl)) + geom_col() + 
   scale_x_discrete(limits=cluster_titles) + ylim(0, 100) + xlab("Clusters") + ylab("% Caucasian") + 
-  ggtitle(title3) + scale_fill_discrete(breaks=cluster_titles) + 
+  ggtitle("Hydra_k3 % Caucasian, p = ***") + scale_fill_discrete(breaks=cluster_titles) + 
   guides(fill=guide_legend(title=NULL))
+
+
+
 
 #############################
 ######### Bar Graphs ########
@@ -321,30 +301,15 @@ names(network_cluster_stats_anova_lm_agesq_AG_matched) <- networks
 #####################################
 #can do with all gender as well, as well as matched/unmatched, etc
 #loop through each cluster and each network measure, make text and evaluate the following: mean of each cluster by measure, and sd of each cluster by measure
+#SEM calculated by taking SD, and dividing by the square root of the number of people in the analysis... Should this be by # people in cluster?
 
-cluster_titles <- get_cluster_titles(hydra_cluster = num_clusters)
-cluster_vector <- get_cluster_numerical_vector(hydra_cluster = num_clusters)
-groups <- data.frame(cbind(cluster_titles, cluster_vector))
+
+groups <- data.frame(cbind(c("TD", "Cluster1", "Cluster2", "Cluster3"), c("-1", "1", "2", "3")))
 names(groups) <- c("cl", "numeric")
-total_num_groups <- num_clusters + 1
-
-#construct data frame of names of connectivity groups
-df_names <- data.frame(rep(groups$cl, num_measures), rep(networks, each = total_num_groups))
-names(df_names) <- c("cl", "network")
-
-#construct mean_sd_sem data frame
-df_mean_sd_sem <- NULL
-for(network in networks) {
-  mean_sd_sem <- data_frame_mean_sd_sem(data_frame = subset_with_clusters_AG_matched, variable = network, hydra_cluster = num_clusters)
-  df_mean_sd_sem <- rbind(df_mean_sd_sem, mean_sd_sem)
-}
-
-#combine data frames and remove the extra cluster names
-all_mean_sd_sem <- data.frame(df_names, df_mean_sd_sem)
-all_mean_sd_sem <- subset(all_mean_sd_sem, select = -c(cl.1))
-                          
+all_mean_sd_sem <- data.frame(rep(groups$cl, num_measures), rep(networks, each = 4), rep(0, 1), rep(0, 1), rep(0,1))
+names(all_mean_sd_sem) <- c("cl", "network", "mean", "sd", "sem")
 for(network in networks){
-  for(num in 1:total_num_groups) {
+  for(num in 1:4) {
     clst <- groups[num,1]
     meas <- groups[num,2]
     mean_for_eval <- paste("mean(subset_with_clusters_AG_matched$", network, "[which(subset_with_clusters_AG_matched$Hydra_k3 == ", groups[num,2], ")])", sep="")
@@ -367,6 +332,7 @@ ggplot(data = all_mean_sd_sem, aes(x = network, y = mean, group = cl)) +  ylab("
   geom_point(aes(color=cl)) + 
   geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1) +
   ggtitle("Hydra cluster by Network Connectivity")
+
 ```
 
 FDR correction 
@@ -500,7 +466,6 @@ print(network_names_and_fdr_values_anova_lm_agesq)
 ######################################################
 ####Pairwise t-tests for anova-corrected lm means ####
 ######################################################
-#######THIS ONLY WORKS FOR 3 CLUSTERS
 
 #put lm model into emmeans format
 network_emmodel_lm_agesq_AG_matched <- lapply(network_cluster_stats_lm_agesq_AG_matched, function(x) {as.list(ref_grid(x))})

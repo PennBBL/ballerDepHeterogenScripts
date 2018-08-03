@@ -14,26 +14,42 @@ if (( "$#" < 4)); then
 	echo "If using option 2, make sure you give FULL PATHS FOR EVERYTHING!!!"
 	echo "default subject list dir: /data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/subject_lists Please enter the following:"
 	echo "default outdir: /data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/for_cwasmdmr_concat_4mm"
-	
+	echo "check /home/eballer for the logfile"
 else
 	if (($1 == 1)); then
 		bblid=$(cat $default_subj_list_dir/$2)
 		scanid=$(cat $default_subj_list_dir/$3)
 		if ((`ls -d $default_outdir/$4 | wc -l` == 0)); then
-			mkdir $default_outdir/$4
+			mkdir $defaut_outdir/$4
+		else
+			rm -f $default_outdir/$4/*
 		fi
-		outputdir=$(ls -d $default_outdir/$4)	
+		
+		outputdir=$(ls -d $default_outdir/$4)
+		output_image_list=`echo $2 | perl -pe 's/(.*)_BBLID_(.*).csv$/$1_IMAGELIST_$2.txt/'`
+		
 	else
 		bblid=$(cat $2)
 		scanid=$(cat $3)
 		if ((`ls -d $4 | wc -l` == 0)); then
 			mkdir $4
+		else
+			rm -f $4/*
 		fi
 		outputdir=$(ls -d $4)
+		output_image_list=`echo $2 | perl -pe 's/.*\/(.*)_BBLID_(.*).csv$/$1_IMAGELIST_$2.txt/'`
 	fi
 
-	#output image list is the name of the BBLID file, grabs the last part, removes BBLID and puts in image list
-	output_image_list= echo $bblid | perl -pe 's/.*\/(.*)_BBLID(.*)\..*$/$1_IMAGELIST_$2.txt/'
+	#output image list is the name of the BBLID file, grabs the last part, removes BBLID and puts in image list, from PERL command above
+	
+	echo "Output text file of images: $default_subj_list_dir/$output_image_list"
+
+	#remove textfile if it already exists
+	if ((`ls $default_subj_list_dir/$output_image_list | wc -l` > 0)); then
+		rm $default_subj_list_dir/$output_image_list
+	fi 
+
+	touch $default_subj_list_dir/$output_image_list
 
 	#set imaging directories
 	restdir=$(ls -d /data/joy/BBL/studies/pnc/processedData/restbold/restbold_201607151621)
@@ -81,7 +97,7 @@ else
      		echo "    "
      		echo "downsample to 4mm and remove to 2mm "
      
-     		fslmaths $outputdir/${s}_rest_nback_idemo.nii.gz  -subsamp2 $outputdir/${s}_rest_nback_idemo_4mm.nii.gz
+     		3dresample -inset $outputdir/${s}_rest_nback_idemo.nii.gz -dxyz 4 4 4 -prefix  $outputdir/${s}_rest_nback_idemo_4mm.nii.gz
 
     		rm -rf  $outputdir/${s}_rest_nback_idemo.nii.gz 
 
@@ -89,7 +105,7 @@ else
 
      		c=$(($c+1));
 
-     		echo "$imagelist" >> $default_subj_list_directory/$output_image_list
+     		echo "$imagelist" >> $default_subj_list_dir/$output_image_list
 	done
 fi	
 exit 
