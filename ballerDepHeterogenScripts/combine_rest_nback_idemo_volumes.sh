@@ -57,7 +57,7 @@ else
 	idemodir=$(ls -d /data/joy/BBL/studies/pnc/processedData/idemo/idemoConnect_201707)
 
 #from azeez's stuff below here
-	nsubj=$(echo $bblid | wc | awk '{print $2}')
+ 	nsubj=$(echo $bblid | wc | awk '{print $2}')
 	
 	echo "$nsubj subjects"
 
@@ -101,7 +101,7 @@ else
 
     		rm -rf  $outputdir/${s}_rest_nback_idemo.nii.gz 
 
-     		imagelist=$(ls -d $outputdir/${s}_rest_nback_idemo_4mm.nii.gz)
+ q    		imagelist=$(ls -d $outputdir/${s}_rest_nback_idemo_4mm.nii.gz)
 
      		c=$(($c+1));
 

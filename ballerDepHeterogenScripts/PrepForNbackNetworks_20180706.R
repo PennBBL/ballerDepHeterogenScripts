@@ -96,6 +96,12 @@ subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED <- subset_dep_or
 
 subset_with_clusters_AG_matched <- merge(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED, hydra_AG_matched_clusters, by = "bblid")
 
+#get scanID lists for each cluster
+scanid_TD <- data.frame(subset_with_clusters_AG_matched$scanid[which(subset_with_clusters_AG_matched$Hydra_k3 == -1)])
+scanid_cluster1 <- data.frame(subset_with_clusters_AG_matched$scanid[which(subset_with_clusters_AG_matched$Hydra_k3 == 1)])
+scanid_cluster2 <- data.frame(subset_with_clusters_AG_matched$scanid[which(subset_with_clusters_AG_matched$Hydra_k3 == 2)])
+scanid_cluster3 <- data.frame(subset_with_clusters_AG_matched$scanid[which(subset_with_clusters_AG_matched$Hydra_k3 == 3)])
+
 #save to rds so it can be transfered to the cluster
 saveRDS(object = subset_with_clusters_AG_matched, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/ballerDepHeterogenScripts/PrepForFunctionalNetworks/subset_with_T1_FC_and_dem_with_clusters.rds")
 
@@ -104,3 +110,9 @@ write.table(x = subset_with_clusters_AG_matched, file = "/Users/eballer/BBL/from
 write.table(x = cbind(subset_with_clusters_AG_matched$bblid, subset_with_clusters_AG_matched$scanid), file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/ballerDepHeterogenScripts/PrepForFunctionalNetworks/subset_with_T1_NbackFC_and_dem_with_clusters_justBBLID_and_SCANID.csv", quote = FALSE, sep = " ", col.names = FALSE, row.names = FALSE)
 write.table(x = subset_with_clusters_AG_matched$scanid, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/ballerDepHeterogenScripts/PrepForFunctionalNetworks/subset_with_T1_NbackFC_and_dem_with_clusters_justSCANID.csv", quote = FALSE, sep = " ", col.names = FALSE, row.names = FALSE)
 write.table(x = subset_with_clusters_AG_matched$bblid, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/ballerDepHeterogenScripts/PrepForFunctionalNetworks/subset_with_T1_NbackFC_and_dem_with_clusters_justBBLID.csv", quote = FALSE, sep = " ", col.names = FALSE, row.names = FALSE)
+
+#write tables for each of the scanid data frames
+write.table(x = scanid_TD, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/ballerDepHeterogenScripts/PrepForFunctionalNetworks/nback_just_scanid_TD_n200.csv", quote = FALSE, sep = " ", col.names = FALSE, row.names = FALSE)
+write.table(x = scanid_cluster1, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/ballerDepHeterogenScripts/PrepForFunctionalNetworks/nback_just_scanid_cluster1_n68.csv", quote = FALSE, sep = " ", col.names = FALSE, row.names = FALSE)
+write.table(x = scanid_cluster2, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/ballerDepHeterogenScripts/PrepForFunctionalNetworks/nback_just_scanid_cluster2_n53.csv", quote = FALSE, sep = " ", col.names = FALSE, row.names = FALSE)
+write.table(x = scanid_cluster3, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/ballerDepHeterogenScripts/PrepForFunctionalNetworks/nback_just_scanid_cluster3_n47.csv", quote = FALSE, sep = " ", col.names = FALSE, row.names = FALSE)
