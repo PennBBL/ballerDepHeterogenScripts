@@ -84,7 +84,8 @@ num_fc_pairs <- (num_communities * (num_communities -1))/2 + num_communities
 networks <- names(subset_with_clusters_AG_matched[2:(num_fc_pairs+1)])
 
 #Coerce hydra values into factor format
-fc_networks_and_dem_clinical_psych_data[clusters] <- lapply(fc_networks_and_dem_clinical_psych_data[clusters], factor)
+#fc_networks_and_dem_clinical_psych_data[clusters] <- lapply(fc_networks_and_dem_clinical_psych_data[clusters], factor)
+subset_with_clusters_AG_matched[clusters] <- lapply(subset_with_clusters_AG_matched[clusters], factor)
 
 #get number of measures (to be used later on when trying to make graphs), for every different modality WILL HAVE TO CHANGE THIS
 num_measures <- length(networks)
