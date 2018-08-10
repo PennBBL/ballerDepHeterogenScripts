@@ -3,8 +3,8 @@ title: "Functional Connectivity, Absolute removal, concatenated files(rest+nback
 author: "Erica Baller"
 date: "7/31/18"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -198,7 +198,7 @@ network_cluster_stats_lm_AG_matched_by_cluster_1through10 <- lapply(clusters, fu
   network_cluster_stats_lm_AG_matched_withincluster<- lapply(networks, cluster=as.name(cluster), function(network, cluster) 
   {
     network <- as.name(network)
-    lm(substitute(network ~ cluster + restRelMeanRMSMotion, list(network = network, cluster = cluster)), data = subset_with_clusters_AG_matched)
+    lm(substitute(network ~ cluster + sex + age_in_years + restRelMeanRMSMotion, list(network = network, cluster = cluster)), data = subset_with_clusters_AG_matched)
   })
   setNames(network_cluster_stats_lm_AG_matched_withincluster, networks)
 })
@@ -236,7 +236,7 @@ names(network_cluster_stats_lm_agesq_AG_matched_by_cluster_1through10) <- cluste
 #lm
 network_cluster_stats_lm_AG_matched <- lapply(networks, function(network) 
 {
-  lm(substitute(i ~ Hydra_k3 + restRelMeanRMSMotion, list(i = as.name(network))), data = subset_with_clusters_AG_matched)
+  lm(substitute(i ~ Hydra_k3 + sex + age_in_years + restRelMeanRMSMotion, list(i = as.name(network))), data = subset_with_clusters_AG_matched)
 })
 names(network_cluster_stats_lm_AG_matched) <- networks
 
@@ -269,7 +269,7 @@ network_cluster_stats_anova_AG_matched_by_cluster_1through10 <- lapply(clusters,
   network_cluster_stats_anova_AG_withincluster <- lapply(networks, cluster=as.name(cluster), function(network, cluster) 
   {
      network <- as.name(network)
-     anova(lm(substitute(network ~ cluster + restRelMeanRMSMotion, list(network = network, cluster = cluster)), data = subset_with_clusters_AG_matched))
+     anova(lm(substitute(network ~ cluster + sex + age_in_years + restRelMeanRMSMotion, list(network = network, cluster = cluster)), data = subset_with_clusters_AG_matched))
   })
   setNames(network_cluster_stats_anova_AG_withincluster, networks)
 })
@@ -357,7 +357,10 @@ for(network in networks){
     sd_for_eval <- paste("sd(subset_with_clusters_AG_matched$", network, "[which(subset_with_clusters_AG_matched$Hydra_k3 == ", groups[num,2], ")])", sep="")
     sd_grp <- eval(parse(text=as.name(sd_for_eval)))
     all_mean_sd_sem$sd[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$network == network)] <- sd_grp
-    all_mean_sd_sem$sem[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$network == network)] <- all_mean_sd_sem$sd[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$network == network)]/sqrt(nrow(subset_with_clusters_AG_matched))
+   # all_mean_sd_sem$sem[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$network == network)] <- all_mean_sd_sem$sd[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$network == network)]/sqrt(nrow(subset_with_clusters_AG_matched))
+    
+    #THIS WAS CHANGED 8/8, sem should be based on the number of subjects in each group!
+    all_mean_sd_sem$sem[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$network == network)] <- all_mean_sd_sem$sd[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$network == network)]/sqrt(length(which(subset_with_clusters_AG_matched$Hydra_k3 == meas)))
   }
 }
 
