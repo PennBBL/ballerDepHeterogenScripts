@@ -102,6 +102,9 @@ scanid_cluster1 <- data.frame(subset_with_clusters_AG_matched$scanid[which(subse
 scanid_cluster2 <- data.frame(subset_with_clusters_AG_matched$scanid[which(subset_with_clusters_AG_matched$Hydra_k3 == 2)])
 scanid_cluster3 <- data.frame(subset_with_clusters_AG_matched$scanid[which(subset_with_clusters_AG_matched$Hydra_k3 == 3)])
 
+#add column indicating that all data should be included for voxelwrapper
+subset_with_clusters_AG_matched$include <- c(rep(1, nrow(subset_with_clusters_AG_matched)))
+
 #save to rds so it can be transfered to the cluster
 saveRDS(object = subset_with_clusters_AG_matched, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/ballerDepHeterogenScripts/PrepForFunctionalNetworks/subset_with_T1_FC_and_dem_with_clusters.rds")
 
