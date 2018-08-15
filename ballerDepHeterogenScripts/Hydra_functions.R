@@ -111,6 +111,16 @@ get_cluster_titles <- function(hydra_cluster){
   return(cluster_titles)
 }
 
+get_cluster_titles_no_TD <- function(hydra_cluster){
+  # build vector of titles
+  cluster_titles <- NULL
+  for (cluster_counter in 1:hydra_cluster){
+    title_to_add <- paste0("Cluster", cluster_counter)
+    cluster_titles <- c(cluster_titles, title_to_add)
+  }
+  return(cluster_titles)
+}
+
 get_cluster_numerical_vector <- function(hydra_cluster){
   # build vector of titles
   cluster_vector <- c("-1")
@@ -121,9 +131,30 @@ get_cluster_numerical_vector <- function(hydra_cluster){
   return(cluster_vector)
 }
  
+get_cluster_numerical_vector_no_TD <- function(hydra_cluster){
+  # build vector of titles
+  cluster_vector <- NULL
+  for (cluster_counter in 1:hydra_cluster){
+    title_to_add <- paste0(cluster_counter)
+    cluster_vector <- c(cluster_vector, title_to_add)
+  }
+  return(cluster_vector)
+}
+
 get_variable_mean_vector <- function(data_frame, variable, hydra_cluster){
   #returns a vector of means, depends on # hydra clusters
   means <- eval(parse(text = paste0("c(mean(data_frame$", variable, "[which(data_frame$Hydra_k", hydra_cluster, " == -1)]))")))
+  for (cluster_counter in 1:hydra_cluster){
+    mean_to_add <- eval(parse(text = paste0("c(mean(data_frame$", variable, "[which(data_frame$Hydra_k", hydra_cluster, " == ", cluster_counter, ")]))")))
+    means <- c(means, mean_to_add)
+  }
+  return(means)
+}
+
+get_variable_mean_vector_no_TD <- function(data_frame, variable, hydra_cluster){
+  #returns a vector of means, depends on # hydra clusters
+  #means <- eval(parse(text = paste0("c(mean(data_frame$", variable, "[which(data_frame$Hydra_k", hydra_cluster, " == -1)]))")))
+  means <- NULL
   for (cluster_counter in 1:hydra_cluster){
     mean_to_add <- eval(parse(text = paste0("c(mean(data_frame$", variable, "[which(data_frame$Hydra_k", hydra_cluster, " == ", cluster_counter, ")]))")))
     means <- c(means, mean_to_add)
@@ -141,9 +172,31 @@ get_variable_sd_vector <- function(data_frame, variable, hydra_cluster){
   return(sds)
 }
 
+get_variable_sd_vector_no_TD <- function(data_frame, variable, hydra_cluster){
+  #returns vector of sds, depends on # hydra clusters
+  #sds <- eval(parse(text = paste0("c(sd(data_frame$", variable, "[which(data_frame$Hydra_k", hydra_cluster, " == -1)]))")))
+  sds <- NULL
+  for (cluster_counter in 1:hydra_cluster){
+    sd_to_add <- eval(parse(text = paste0("c(sd(data_frame$", variable, "[which(data_frame$Hydra_k", hydra_cluster, " == ", cluster_counter, ")]))")))
+    sds <- c(sds, sd_to_add)
+  }
+  return(sds)
+}
+
 get_num_subj_per_cluster <- function(data_frame, hydra_cluster)
 {
   nums <- eval(parse(text = paste0("c(length(which(data_frame$Hydra_k", hydra_cluster, " == -1)))")))
+  for (cluster_counter in 1:hydra_cluster){
+    num_to_add <- eval(parse(text = paste0("c(length(which(data_frame$Hydra_k", hydra_cluster, " == ", cluster_counter, ")))")))
+    nums <- c(nums, num_to_add)
+  }
+  return(nums)
+}
+
+get_num_subj_per_cluster_no_TD <- function(data_frame, hydra_cluster)
+{
+ # nums <- eval(parse(text = paste0("c(length(which(data_frame$Hydra_k", hydra_cluster, " == -1)))")))
+  nums <- NULL
   for (cluster_counter in 1:hydra_cluster){
     num_to_add <- eval(parse(text = paste0("c(length(which(data_frame$Hydra_k", hydra_cluster, " == ", cluster_counter, ")))")))
     nums <- c(nums, num_to_add)
@@ -156,6 +209,18 @@ data_frame_mean_sd_sem <- function(data_frame, variable, hydra_cluster){
   variable_mean <- get_variable_mean_vector(data_frame = data_frame, variable = variable, hydra_cluster = hydra_cluster)
   variable_sd <- get_variable_sd_vector(data_frame = data_frame, variable = variable, hydra_cluster = hydra_cluster)
   num_per_cluster <- get_num_subj_per_cluster(data_frame = data_frame, hydra_cluster = hydra_cluster)
+  variable_sem <- variable_sd/sqrt(num_per_cluster)
+  
+  #put all together in one data frame
+  df_mean_sd_sem <- data.frame(cl = cluster_titles, mean = variable_mean, sd = variable_sd, sem = variable_sem)
+  return(df_mean_sd_sem)
+}
+
+data_frame_mean_sd_sem_no_TD <- function(data_frame, variable, hydra_cluster){
+  cluster_titles <- get_cluster_titles_no_TD(hydra_cluster = hydra_cluster)
+  variable_mean <- get_variable_mean_vector_no_TD(data_frame = data_frame, variable = variable, hydra_cluster = hydra_cluster)
+  variable_sd <- get_variable_sd_vector_no_TD(data_frame = data_frame, variable = variable, hydra_cluster = hydra_cluster)
+  num_per_cluster <- get_num_subj_per_cluster_no_TD(data_frame = data_frame, hydra_cluster = hydra_cluster)
   variable_sem <- variable_sd/sqrt(num_per_cluster)
   
   #put all together in one data frame
@@ -254,4 +319,87 @@ plot_continuous_variables <- function(data_frame, var1, var2, hydra_cluster, opt
   
 }
 
+fdr_anova <- function(data_frame) {
+  models_anova <- lapply(data_frame, summary)
+  
+  #Pull p-values
+  p_anova <- sapply(data_frame, function(v) v$"Pr(>F)"[1]) #$coef[,"Pr(>F)"][2]) #get the p value for dep binarized
+  
+  #Convert to data frame
+  p_anova <- as.data.frame(p_anova)
+  
+  #print BEFORE FDR correction 
+  print("Anova scores, BEFORE FDR correction: i.e., uncorrected")
+  print(p_anova)
+  
+  #Print original p-values to three decimal places
+  p_round_anova <- round(p_anova_lm_agesq,3)
+  
+  #FDR correct p-values
+  pfdr_anova <- p.adjust(p_anova[,1],method="fdr")
+  
+  #Convert to data frame
+  pfdr_anova <- as.data.frame(pfdr_anova)
+  row.names(pfdr_anova) <- names(data_frame)
+  
+  #To print fdr-corrected p-values to three decimal places
+  pfdr_round_anova <- round(pfdr_anova,3)
+  
+  #List the components that survive FDR correction
+  components_fdr_anova <- row.names(pfdr_anova)[pfdr_anova<0.05]
+  
+  #make a data frame with names and fdr values (rounded to 3 decimals)
+  names_and_fdr_values_anova <- data.frame(cbind(components_fdr_anova, round(pfdr_anova[pfdr_anova<0.05],3)))
+  
+  #add titles to names_and_fdr tables
+  names(names_and_fdr_values_anova) <- c("component", "p_FDR_corr")
+  
+  print("Mean centered age that was then squared, FDR corrected")
+  print(names_and_fdr_values_anova)
+  return(names_and_fdr_values_anova)
+  
+}
 
+pairwise_contrasts_3clusters <- function(data_frame_lm, fdr_anova) {
+ #for 3 clusters
+  print(fdr_anova)
+  emmodel_df <- lapply(data_frame_lm, function(x) {as.list(ref_grid(x))})
+  emgrid_df <- lapply(emmodel_df, function(x) {as.emmGrid(x)})
+  
+  #run emmeans
+  emmeans_df <- lapply(emgrid_df, function(x) {emmeans(x, "Hydra_k3")})
+  
+  #run pairwise contrasts
+  empairs_df <- lapply(emmeans_df, function(x) {pairs(x)})
+  
+
+  #Only include stuff that was fdr corrected (i.e., only keep parts of the model (or only display) ones that are corrected),this will be null if nothing was corrected
+  empairs_FDR_corrected <- empairs_df[fdr_anova[,1]]
+  
+  print(empairs_FDR_corrected)
+  #contrast names, -1 = controls, 1-3 are clusters
+  contrast_names <- c("-1 - 1", "-1 - 2", "-1 - 3", "1 - 2", "1 - 3", "2 - 3")
+  #go through each fdr corrected brain region, and extract p values
+  #contrast_table <- lapply(fdr_anova[,1], function(x) {round(summary(x)$p.value,3)})
+  contrast_table <- lapply(empairs_FDR_corrected, function(x) {round(summary(x)$p.value,3)})
+  #get the names of the brain regions that were fdr corrected
+  brain_regions <- names(contrast_table)
+  #build table that will hold the name of the brain region and the p values
+  pairwise_table <- data.frame(matrix(nrow = length(brain_regions), ncol = 6))
+  #give the appropriate names
+  rownames(pairwise_table) <- brain_regions
+  colnames(pairwise_table) <- contrast_names
+  
+  #loop through each brain region, and manually assign the columns to be the p values
+  for (region in brain_regions)
+  {
+    pair_pval <- contrast_table[[region]]
+    pairwise_table[region,] <- pair_pval
+  }
+  pairwise_table_with_fdr <- pairwise_table
+  pairwise_table_with_fdr$p_FDR_corr <- fdr_anova$p_FDR_corr
+  
+  pairwise <- list(empairs_df, empairs_FDR_corrected, pairwise_table, pairwise_table_with_fdr)
+  return(pairwise)
+  
+}

@@ -147,7 +147,7 @@ subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED <- subset_dep_or
 #AG Matched - n 1424
 
 subset_with_clusters_AG_matched <- merge(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED, hydra_AG_matched_clusters, by = "bblid")
-saveRDS(subset_with_clusters_AG_matched, "/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/neuroimaging/cortical_thickness/subset_with_clusters_for_roiVoxelwrapper_n374.rds")
+saveRDS(subset_with_clusters_AG_matched, "/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/neuroimaging/cortical_thickness/subset_with_clusters_for_roiVoxelwrapper_n419.rds")
 
 
 ```
