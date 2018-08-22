@@ -1,5 +1,5 @@
 ---
-title: "Functional Connectivity, Absolute removal, concatenated files(rest+nback+idemo), r400, com7 communities, n 305, Hydra_k3 within/between"
+title: "Functional Connectivity, weighted removal, concatenated(rest+nback+idemo), r400, com17 communities, n 312, Hydra_k3"
 author: "Erica Baller"
 date: "7/31/18"
 output:
@@ -62,12 +62,14 @@ Part 6 : FDR Correction
 
 #read in csvs, CHANGE THINGS HERE
 
-num_communities <- 7
+num_communities <- 17
 num_clusters <- 3
 res <- 400
-exclusion <- "abs"
+exclusion <- "weighted"
 
+#old data location
 #filename <- Sys.glob(paste0("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/output_of_fc/concatenate_rest_nback_idemo/fc_concat_", exclusion, "_r", res, "_com", num_communities, "/fc_concat_", exclusion, "_r", res, "_com", num_communities, ".csv"))
+
 
 filename <- Sys.glob(paste0("/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/output_of_fc/concatenate_rest_nback_idemo/fc_concat_", exclusion, "_r", res, "_com", num_communities, "/fc_concat_", exclusion, "_r", res, "_com", num_communities, ".csv"))
 
@@ -78,6 +80,7 @@ fc_networks_and_dem_clinical_psych_data <- read.csv(filename)
 
 #subset_with_clusters_AG_matched - rename because this is what will be used for the rest of the script
 subset_with_clusters_AG_matched <- fc_networks_and_dem_clinical_psych_data
+subset_with_clusters_AG_matched_noTD <-eval(parse(text=as.name(paste0("subset_with_clusters_AG_matched[which(subset_with_clusters_AG_matched$Hydra_k", num_clusters, " != -1),]"))))
 
 #Get cluster and network names
 clusters <- names(fc_networks_and_dem_clinical_psych_data[grep ("Hydra", names(fc_networks_and_dem_clinical_psych_data))])
@@ -85,19 +88,25 @@ num_fc_pairs <- (num_communities * (num_communities -1))/2 + num_communities
 networks <- names(subset_with_clusters_AG_matched[2:(num_fc_pairs+1)])
 
 #set up within/between networks
-within <- c("visual_visual", "somatomotor_somatomotor", "dorsalAttention_dorsalAttention", "salienceVentralAttention_salienceVentralAttention", "limbic_limbic", "frontoparietalControl_frontoparietalControl", "default_default")
+networks_within <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/community_names.csv")
+within <- networks_within[2]
+within <- c(sapply(within, as.character))
+#make the character lists of within networks, aka visualCentral_visualCentral
+for (row in 1:length(within)) {
+  within[row] <- paste0(within[row], "_", within[row])
+}
+
 between <- networks[!is.element(networks, within)]
 
 #Coerce hydra values into factor format
 #fc_networks_and_dem_clinical_psych_data[clusters] <- lapply(fc_networks_and_dem_clinical_psych_data[clusters], factor)
 subset_with_clusters_AG_matched[clusters] <- lapply(subset_with_clusters_AG_matched[clusters], factor)
 
-subset_with_clusters_AG_matched_noTD <-eval(parse(text=as.name(paste0("subset_with_clusters_AG_matched[which(subset_with_clusters_AG_matched$Hydra_k", num_clusters, " != -1),]"))))
-
 #get number of measures (to be used later on when trying to make graphs), for every different modality WILL HAVE TO CHANGE THIS
 num_measures <- length(networks)
 num_within <- length(within)
 num_between<- num_measures - num_within
+
 #get cluster titles 
 
 cluster_titles <- get_cluster_titles(hydra_cluster = num_clusters)
@@ -511,6 +520,7 @@ ggplot(data = all_mean_sd_sem_between, aes(x = network, y = mean, group = cl)) +
   geom_point(aes(color=cl)) + 
   geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1) +
   ggtitle("Hydra cluster by BETWEEN Network Connectivity")
+
 
 ```
 

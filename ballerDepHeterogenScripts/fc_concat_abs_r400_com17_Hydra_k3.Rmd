@@ -3,8 +3,8 @@ title: "Functional Connectivity, Absolute removal, concatenated files(rest+nback
 author: "Erica Baller"
 date: "7/31/18"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -67,7 +67,9 @@ num_clusters <- 3
 res <- 400
 exclusion <- "abs"
 
-filename <- Sys.glob(paste0("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/output_of_fc/concatenate_rest_nback_idemo/fc_concat_", exclusion, "_r", res, "_com", num_communities, "/fc_concat_", exclusion, "_r", res, "_com", num_communities, ".csv"))
+#filename <- Sys.glob(paste0("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/output_of_fc/concatenate_rest_nback_idemo/fc_concat_", exclusion, "_r", res, "_com", num_communities, "/fc_concat_", exclusion, "_r", res, "_com", num_communities, ".csv"))
+
+filename <- Sys.glob(paste0("/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/output_of_fc/concatenate_rest_nback_idemo/fc_concat_", exclusion, "_r", res, "_com", num_communities, "/fc_concat_", exclusion, "_r", res, "_com", num_communities, ".csv"))
 
 fc_networks_and_dem_clinical_psych_data <- read.csv(filename)
 #fc_networks_and_dem_clinical_psych_data <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/output_of_fc/fc_r400_com17/fc_r400_com17.csv")

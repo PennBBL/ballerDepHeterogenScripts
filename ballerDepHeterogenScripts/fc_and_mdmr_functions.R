@@ -117,7 +117,8 @@ get_schaefer_netpath <- function(resolution, modality, bblid, scanid){
 
 get_schaefer_netpath_concat <- function(resolution, modality, bblid, scanid){
  #resolution and modality to be used if I later use this for other resolutions or dti 
-  netpath <- paste0(data_dir, "SchaeferPNC/", bblid,"/", scanid, "/*.txt")
+ # netpath <- paste0(data_dir, "SchaeferPNC/", bblid,"/", scanid, "/", bblid, "_", scanid, "_restbold_nback_idemo_concat_ts_transposed.txt")
+  netpath <- paste0(data_dir, "SchaeferPNC/", bblid,"/", scanid, "/", bblid, "_", scanid, "_restbold_nback_idemo_concat_ts.txt")
   print(netpath)
   return(netpath)
 }
@@ -154,7 +155,7 @@ get_power_netpath <- function(scanid) {
 
 get_power_netpath_concat <- function(resolution, modality, bblid, scanid){
   #resolution and modality to be used if I later use this for other resolutions or dti 
-  netpath <- paste0(data_dir, "264PowerPNC/", bblid,"/", scanid, "/*.txt")
+  netpath <- paste0(data_dir, "264PowerPNC/", bblid,"/", scanid, "/*transposed.txt")
   netpath
 }
 
@@ -231,7 +232,7 @@ get_gordon_netpath <- function(scanid) {
 
 get_gordon_netpath_concat <- function(resolution, modality, bblid, scanid){
   #resolution and modality to be used if I later use this for other resolutions or dti 
-  netpath <- paste0(data_dir, "GordonPNC/", bblid,"/", scanid, "/*.txt")
+  netpath <- paste0(data_dir, "GordonPNC/", bblid,"/", scanid, "/*transposed.txt")
   netpath
 }
 
@@ -253,7 +254,7 @@ get_glasser_netpath <- function(scanid) {
 
 get_glasser_netpath_concat <- function(resolution, modality, bblid, scanid){
   #resolution and modality to be used if I later use this for other resolutions or dti 
-  netpath <- paste0(data_dir, "GlasserPNC/", bblid,"/", scanid, "/*.txt")
+  netpath <- paste0(data_dir, "GlasserPNC/", bblid,"/", scanid, "/*transposed.txt")
   netpath
 }
 
@@ -346,8 +347,9 @@ get_net_from_sample_concat <- function(sample,parcellation,resolution,modality) 
   for (i in 1:n_sample) {
     bblid = sample[i,'bblid']
     scanid = sample[i,'scanid']
-    # set up the correct path by modality, and resolution#
     
+    # set up the correct path by modality, and resolution#
+    #### THIS WAS ADDED 8/17
     
     # import the network data #
     
@@ -361,6 +363,7 @@ get_net_from_sample_concat <- function(sample,parcellation,resolution,modality) 
       sample_net[[i]] <- grab_net_from_path(netpath)
     } else if (parcellation == 'schaefer') {
       netpath <- get_schaefer_netpath_concat(resolution,modality,bblid,scanid)
+      ts <- read.table(netpath)
       print(paste0(i,"/",n_sample,": copying ",bblid,'_',scanid, ' of resolution ', resolution,' in ', modality,' of ', parcellation,' atlas'))
       if (modality == 'sc-d') {
         temp_net <- grab_net_from_path(netpath)
@@ -377,7 +380,7 @@ get_net_from_sample_concat <- function(sample,parcellation,resolution,modality) 
           sample_net[[i]] <- temp_net$streamlineCount.mat
         }
       } else if (modality == 'fc') {
-        sample_net[[i]] <- grab_net_from_path(netpath)
+        sample_net[[i]] <-  get_net_from_ts(ts = ts)
       }
     }
     
@@ -584,3 +587,38 @@ better_levelplot <- function(adj, node_names, title) {
                               y=list(at = 1:length(node_names),labels=node_names, tck = 0)))
   return(plot)
 }
+
+get_net_all_cat_tasks <- function(bblid,scanid,parcellation) {
+  #concatenates all three types of scans
+  
+  task = 'restbold'
+  rest_ts_path <- Sys.glob(paste0(remote_wkdir,'processedData/',task,'/',task,'*201607151621/',bblid,'/*x',scanid,'/net/',parcellation,'/*_ts.1D'))
+  rest_ts <- read.table(rest_ts_path)
+  
+  task = 'nback'
+  nback_ts_path <- Sys.glob(paste0(remote_wkdir,'processedData/',task,'/',task,'Connect_*/',bblid,'/*x',scanid,'/net/',parcellation,'/*_ts.1D'))
+  nback_ts <- read.table(nback_ts_path)
+  
+  task = 'idemo'
+  idemo_ts_path <- Sys.glob(paste0(remote_wkdir,'processedData/',task,'/',task,'Connect_*/',bblid,'/*x',scanid,'/net/',parcellation,'/*_ts.1D'))
+  idemo_ts <- read.table(idemo_ts_path)
+  
+  cat_ts <- rbind(rest_ts,nback_ts,idemo_ts)
+  
+  #This grabs your correlation matrix
+  net <- get_net_from_ts(cat_ts)
+  #net <- get_net_from_ts(rest_ts)
+}
+
+get_net_from_ts <-function(ts) {
+  num_node <- dim(ts)[2]
+  net <- matrix(NA,nrow = num_node, ncol = num_node)
+  for (i in 1:num_node) {
+    for (j in 1:num_node) {
+      net[i,j] <- cor(ts[,i],ts[,j],method = 'pearson')
+    }
+  }
+  #display the matrix
+  net
+}
+

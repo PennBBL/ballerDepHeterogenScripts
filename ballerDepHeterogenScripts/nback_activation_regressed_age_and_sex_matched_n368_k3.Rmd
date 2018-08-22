@@ -3,8 +3,8 @@ title: "Nback Activation, matched age and sex, n368, Hydra K3, Schafer400 parcel
 author: "Erica Baller"
 date: "8/10/2018"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
