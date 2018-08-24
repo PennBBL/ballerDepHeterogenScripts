@@ -20,8 +20,8 @@ USE
 ##### Define the RDS File and Output Path #####
 ###############################################
 
-subjDataName="/data/jux/BBL/projects/ballerDepHeterogen/ballerDepHeterogenScripts/Imaging/matched/nback/voxelwrapper_20180810/subset_with_T1_NbackFC_and_dem_with_clusters.rds"
-OutDirRoot="/data/jux/BBL/projects/ballerDepHeterogen/ballerDepHeterogenScripts/Imaging/matched/nback/voxelwrapper_20180810/roiWrapper"  
+subjDataName="/Users/eballer/BBL/from_chead/ballerDepHeterogen/ballerDepHeterogenScripts/Imaging/matched/nback/voxelwrapper_20180810/subset_with_T1_NbackFC_and_dem_with_clusters.rds"
+OutDirRoot="/Users/eballer/BBL/from_chead/ballerDepHeterogen/ballerDepHeterogenScripts/Imaging/matched/nback/voxelwrapper_20180824/roiWrapper"  
 
 ###################################################################################################
 ##### Define the name of the Variable that Specific which Subjects to Exclude in the RDS File #####
@@ -59,13 +59,13 @@ residualMap=FALSE
 #####   will encounter errors, use reduceGMD.R to remove "NA's"    #####
 ########################################################################
 
-input=/data/jux/BBL/projects/ballerDepHeterogen/ballerDepHeterogenScripts/Imaging/matched/nback/voxelwrapper_20180810/BBLID_SCANID_schaefer_parcellations_n368.csv
+input=/Users/eballer/BBL/from_chead/ballerDepHeterogen/ballerDepHeterogenScripts/Imaging/matched/nback/voxelwrapper_20180810/BBLID_SCANID_schaefer_parcellations_n368.csv
 
 ########################################################################
 ##### Calls the " gamROI.R" Rscript that will Perform the Analysis #####
 ########################################################################
 
-Rscript /data/jux/BBL/projects/ballerDepHeterogen/ballerDepHeterogenScripts/Imaging/matched/nback/voxelwrapper_20180810/gamROI.R -c $subjDataName -o $OutDirRoot -p ${input} -i $inclusionName -u $subjID -f $covsFormula -a $pAdjustMethod -n 5 -r $residualMap
+Rscript /Users/eballer/BBL/from_chead/ballerDepHeterogen/ballerDepHeterogenScripts/Imaging/matched/nback/voxelwrapper_20180810/gamROI_nback_local.R -c $subjDataName -o $OutDirRoot -p ${input} -i $inclusionName -u $subjID -f $covsFormula -a $pAdjustMethod -n 5 -r $residualMap
 
 
 ###################################################################################################

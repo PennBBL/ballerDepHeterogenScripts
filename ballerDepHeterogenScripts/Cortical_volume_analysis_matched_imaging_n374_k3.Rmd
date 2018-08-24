@@ -261,7 +261,7 @@ volume_score_cluster_stats_lm_AG_matched_by_cluster_1through10 <- lapply(cluster
   volume_score_cluster_stats_lm_AG_matched_withincluster<- lapply(volume_measure_names_list, cluster=as.name(cluster_name), function(volume_measure_name, cluster) 
   {
     volume_measure <- as.name(volume_measure_name)
-    lm(substitute(volume_measure ~ cluster + averageManualRating, list(volume_measure = volume_measure, cluster = cluster)), data = subset_with_clusters_AG_matched)
+    lm(substitute(volume_measure ~ cluster + sex + age_in_years + averageManualRating, list(volume_measure = volume_measure, cluster = cluster)), data = subset_with_clusters_AG_matched)
   })
   setNames(volume_score_cluster_stats_lm_AG_matched_withincluster, volume_measure_names_list)
 })
@@ -275,7 +275,7 @@ volume_score_cluster_stats_gam_AG_matched_by_cluster_1through10 <- lapply(cluste
  volume_score_cluster_stats_gam_AG_matched_withincluster<- lapply(volume_measure_names_list, cluster=as.name(cluster_name),   function(volume_measure_name, cluster) 
  {
     volume_measure <- as.name(volume_measure_name)
-    gam(substitute(volume_measure ~ cluster + sex + s(age_in_years) + averageManualRating, list(volume_measure = volume_measure, cluster = cluster)), data = subset_with_clusters_AG_matched)
+    gam(substitute(volume_measure ~ cluster + sex + s(age_in_years) + averageManualRating, list(volume_measure = volume_measure, cluster = cluster)), data = subset_with_clusters_AG_matched, method="REML")
   })
  setNames(volume_score_cluster_stats_gam_AG_matched_withincluster, volume_measure_names_list)
 })
@@ -299,7 +299,7 @@ names(volume_score_cluster_stats_lm_agesq_AG_matched_by_cluster_1through10) <- c
 #lm
 volume_score_cluster_stats_lm_AG_matched <- lapply(volume_measure_names, function(x) 
 {
-  lm(substitute(i ~ Hydra_k3 + averageManualRating, list(i = as.name(x))), data = subset_with_clusters_AG_matched)
+  lm(substitute(i ~ Hydra_k3 + sex+age_in_years+ averageManualRating, list(i = as.name(x))), data = subset_with_clusters_AG_matched)
 })
 names(volume_score_cluster_stats_lm_AG_matched) <- volume_measure_names
 
@@ -307,7 +307,7 @@ names(volume_score_cluster_stats_lm_AG_matched) <- volume_measure_names
 volume_score_cluster_stats_gam_AG_matched <- lapply(volume_measure_names, function(x) 
 {
   volume_measure = as.name(x)
-  gam(substitute(volume_measure ~ Hydra_k3 + sex + s(age_in_years) + averageManualRating, list(volume_measure = volume_measure)), data = subset_with_clusters_AG_matched)
+  gam(substitute(volume_measure ~ Hydra_k3 + sex + s(age_in_years) + averageManualRating, list(volume_measure = volume_measure)), data = subset_with_clusters_AG_matched, method="REML")
 })
 names(volume_score_cluster_stats_gam_AG_matched) <- volume_measure_names
 
@@ -332,7 +332,7 @@ volume_score_cluster_stats_anova_AG_matched_by_cluster_1through10 <- lapply(clus
   volume_score_cluster_stats_anova_AG_withincluster <- lapply(volume_measure_names_list, cluster=as.name(cluster_name), function(volume_measure_name, cluster) 
   {
      volume_measure <- as.name(volume_measure_name)
-     anova(lm(substitute(volume_measure ~ cluster + averageManualRating, list(volume_measure = volume_measure, cluster = cluster)), data = subset_with_clusters_AG_matched))
+     anova(lm(substitute(volume_measure ~ cluster + sex + age_in_years + averageManualRating, list(volume_measure = volume_measure, cluster = cluster)), data = subset_with_clusters_AG_matched))
   })
   setNames(volume_score_cluster_stats_anova_AG_withincluster, volume_measure_names_list)
 })
@@ -344,7 +344,7 @@ volume_score_cluster_stats_anova_gam_AG_matched_by_cluster_1through10 <- lapply(
   volume_score_cluster_stats_anova_gam_AG_withincluster <- lapply(volume_measure_names_list, cluster=as.name(cluster_name), function(volume_measure_name, cluster) 
   {
      volume_measure <- as.name(volume_measure_name)
-     anova(gam(substitute(volume_measure ~ cluster + sex + s(age_in_years) + averageManualRating, list(volume_measure = volume_measure, cluster = cluster)), data = subset_with_clusters_AG_matched))
+     anova(gam(substitute(volume_measure ~ cluster + sex + s(age_in_years) + averageManualRating, list(volume_measure = volume_measure, cluster = cluster)), data = subset_with_clusters_AG_matched, method="REML"))
   })
   setNames(volume_score_cluster_stats_anova_gam_AG_withincluster, volume_measure_names_list)
 })

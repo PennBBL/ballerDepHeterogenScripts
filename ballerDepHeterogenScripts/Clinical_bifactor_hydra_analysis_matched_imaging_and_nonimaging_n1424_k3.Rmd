@@ -3,8 +3,8 @@ title: "Clinical_bifactor_hydra_analysis_matched_imaging_and_non_imaging_n1424_k
 author: "Erica Baller"
 date: "6/29/2018"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -248,7 +248,7 @@ clinical_score_cluster_stats_lm_AG_matched_by_cluster_1through10 <- lapply(clust
   clinical_score_cluster_stats_lm_AG_matched_withincluster<- lapply(clinical_measure_names_list, cluster=as.name(cluster_name), function(clinical_measure_name, cluster) 
   {
     clinical_measure <- as.name(clinical_measure_name)
-    lm(substitute(clinical_measure ~ cluster, list(clinical_measure = clinical_measure, cluster = cluster)), data = subset_with_clusters_AG_matched)
+    lm(substitute(clinical_measure ~ cluster + sex + age_in_years, list(clinical_measure = clinical_measure, cluster = cluster)), data = subset_with_clusters_AG_matched)
   })
   setNames(clinical_score_cluster_stats_lm_AG_matched_withincluster, clinical_measure_names_list)
 })
@@ -262,7 +262,7 @@ clinical_score_cluster_stats_gam_AG_matched_by_cluster_1through10 <- lapply(clus
  clinical_score_cluster_stats_gam_AG_matched_withincluster<- lapply(clinical_measure_names_list, cluster=as.name(cluster_name),   function(clinical_measure_name, cluster) 
  {
     clinical_measure <- as.name(clinical_measure_name)
-    gam(substitute(clinical_measure ~ cluster + sex + s(age_in_years), list(clinical_measure = clinical_measure, cluster = cluster)), data = subset_with_clusters_AG_matched)
+    gam(substitute(clinical_measure ~ cluster + sex + s(age_in_years), list(clinical_measure = clinical_measure, cluster = cluster)), data = subset_with_clusters_AG_matched, method="REML")
   })
  setNames(clinical_score_cluster_stats_gam_AG_matched_withincluster, clinical_measure_names_list)
 })
@@ -286,7 +286,7 @@ names(clinical_score_cluster_stats_lm_agesq_AG_matched_by_cluster_1through10) <-
 #lm
 clinical_score_cluster_stats_lm_AG_matched <- lapply(clinical_measure_names, function(x) 
 {
-  lm(substitute(i ~ Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_AG_matched)
+  lm(substitute(i ~ Hydra_k3+sex+age_in_years, list(i = as.name(x))), data = subset_with_clusters_AG_matched)
 })
 names(clinical_score_cluster_stats_lm_AG_matched) <- clinical_measure_names
 
@@ -294,7 +294,7 @@ names(clinical_score_cluster_stats_lm_AG_matched) <- clinical_measure_names
 clinical_score_cluster_stats_gam_AG_matched <- lapply(clinical_measure_names, function(x) 
 {
   clinical_measure = as.name(x)
-  gam(substitute(clinical_measure ~ Hydra_k3 + sex + s(age_in_years) , list(clinical_measure = clinical_measure)), data = subset_with_clusters_AG_matched)
+  gam(substitute(clinical_measure ~ Hydra_k3 + sex + s(age_in_years) , list(clinical_measure = clinical_measure)), data = subset_with_clusters_AG_matched, method="REML")
 })
 names(clinical_score_cluster_stats_gam_AG_matched) <- clinical_measure_names
 
@@ -331,7 +331,7 @@ clinical_score_cluster_stats_anova_gam_AG_matched_by_cluster_1through10 <- lappl
   clinical_score_cluster_stats_anova_gam_AG_withincluster <- lapply(clinical_measure_names_list, cluster=as.name(cluster_name), function(clinical_measure_name, cluster) 
   {
      clinical_measure <- as.name(clinical_measure_name)
-     anova(gam(substitute(clinical_measure ~ cluster + sex + s(age_in_years) , list(clinical_measure = clinical_measure, cluster = cluster)), data = subset_with_clusters_AG_matched))
+     anova(gam(substitute(clinical_measure ~ cluster + sex + s(age_in_years) , list(clinical_measure = clinical_measure, cluster = cluster)), data = subset_with_clusters_AG_matched, method="REML"))
   })
   setNames(clinical_score_cluster_stats_anova_gam_AG_withincluster, clinical_measure_names_list)
 })

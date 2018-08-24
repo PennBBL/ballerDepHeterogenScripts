@@ -3,8 +3,8 @@ title: "Functional Connectivity, weighted removal, concatenated(rest+nback+idemo
 author: "Erica Baller"
 date: "8/14/18"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -223,7 +223,7 @@ network_cluster_stats_gam_AG_matched_by_cluster_1through10 <- lapply(clusters, f
  network_cluster_stats_gam_AG_matched_withincluster<- lapply(networks, cluster=as.name(cluster), function(network, cluster) 
  {
     network <- as.name(network)
-    gam(substitute(network ~ cluster + sex + s(age_in_years) + restRelMeanRMSMotion, list(network = network, cluster = cluster)), data = subset_with_clusters_AG_matched)
+    gam(substitute(network ~ cluster + sex + s(age_in_years) + restRelMeanRMSMotion, list(network = network, cluster = cluster)), data = subset_with_clusters_AG_matched, method = "REML")
   })
  setNames(network_cluster_stats_gam_AG_matched_withincluster, networks)
 })
@@ -255,7 +255,7 @@ names(network_cluster_stats_lm_AG_matched) <- networks
 network_cluster_stats_gam_AG_matched <- lapply(networks, function(network) 
 {
   network = as.name(network)
-  gam(substitute(network ~ Hydra_k3 + sex + s(age_in_years) + restRelMeanRMSMotion, list(network = network)), data = subset_with_clusters_AG_matched)
+  gam(substitute(network ~ Hydra_k3 + sex + s(age_in_years) + restRelMeanRMSMotion, list(network = network)), data = subset_with_clusters_AG_matched, method = "REML")
 })
 names(network_cluster_stats_gam_AG_matched) <- networks
 
@@ -279,7 +279,7 @@ names(network_cluster_stats_lm_AG_matched_noTD) <- networks
 network_cluster_stats_gam_AG_matched_noTD <- lapply(networks, function(network) 
 {
   network = as.name(network)
-  gam(substitute(network ~ Hydra_k3 + sex + s(age_in_years) + restRelMeanRMSMotion, list(network = network)), data = subset_with_clusters_AG_matched_noTD)
+  gam(substitute(network ~ Hydra_k3 + sex + s(age_in_years) + restRelMeanRMSMotion, list(network = network)), data = subset_with_clusters_AG_matched_noTD, method = "REML")
 })
 names(network_cluster_stats_gam_AG_matched_noTD) <- networks
 
@@ -315,7 +315,7 @@ network_cluster_stats_anova_gam_AG_matched_by_cluster_1through10 <- lapply(clust
   network_cluster_stats_anova_gam_AG_withincluster <- lapply(networks, cluster=as.name(cluster), function(network, cluster) 
   {
      network <- as.name(network)
-     anova(gam(substitute(network ~ cluster + sex + s(age_in_years) + restRelMeanRMSMotion, list(network = network, cluster = cluster)), data = subset_with_clusters_AG_matched))
+     anova(gam(substitute(network ~ cluster + sex + s(age_in_years) + restRelMeanRMSMotion, list(network = network, cluster = cluster)), data = subset_with_clusters_AG_matched, method = "REML"))
   })
   setNames(network_cluster_stats_anova_gam_AG_withincluster, networks)
 })

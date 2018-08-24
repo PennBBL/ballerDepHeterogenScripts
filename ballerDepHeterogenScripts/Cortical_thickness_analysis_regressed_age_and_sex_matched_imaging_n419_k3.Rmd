@@ -3,8 +3,8 @@ title: "Cortical_CT_analysis_matched_age_and_sex_imaging_k3"
 author: "Erica Baller"
 date: "6/29/2018"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -276,7 +276,7 @@ CT_score_cluster_stats_gam_AG_matched_by_cluster_1through10 <- lapply(cluster_na
  CT_score_cluster_stats_gam_AG_matched_withincluster<- lapply(CT_measure_names_list, cluster=as.name(cluster_name),   function(CT_measure_name, cluster) 
  {
     CT_measure <- as.name(CT_measure_name)
-    gam(substitute(CT_measure ~ cluster + sex + s(age_in_years) + averageManualRating, list(CT_measure = CT_measure, cluster = cluster)), data = subset_with_clusters_AG_matched)
+    gam(substitute(CT_measure ~ cluster + sex + s(age_in_years) + averageManualRating, list(CT_measure = CT_measure, cluster = cluster)), data = subset_with_clusters_AG_matched, method="REML")
   })
  setNames(CT_score_cluster_stats_gam_AG_matched_withincluster, CT_measure_names_list)
 })
@@ -308,7 +308,7 @@ names(CT_score_cluster_stats_lm_AG_matched) <- CT_measure_names
 CT_score_cluster_stats_gam_AG_matched <- lapply(CT_measure_names, function(x) 
 {
   CT_measure = as.name(x)
-  gam(substitute(CT_measure ~ Hydra_k3 + sex + s(age_in_years) + averageManualRating, list(CT_measure = CT_measure)), data = subset_with_clusters_AG_matched)
+  gam(substitute(CT_measure ~ Hydra_k3 + sex + s(age_in_years) + averageManualRating, list(CT_measure = CT_measure)), data = subset_with_clusters_AG_matched, method="REML")
 })
 names(CT_score_cluster_stats_gam_AG_matched) <- CT_measure_names
 
@@ -341,7 +341,7 @@ CT_score_cluster_stats_anova_gam_AG_matched_by_cluster_1through10 <- lapply(clus
   CT_score_cluster_stats_anova_gam_AG_withincluster <- lapply(CT_measure_names_list, cluster=as.name(cluster_name), function(CT_measure_name, cluster) 
   {
      CT_measure <- as.name(CT_measure_name)
-     anova(gam(substitute(CT_measure ~ cluster + sex + s(age_in_years) + averageManualRating, list(CT_measure = CT_measure, cluster = cluster)), data = subset_with_clusters_AG_matched))
+     anova(gam(substitute(CT_measure ~ cluster + sex + s(age_in_years) + averageManualRating, list(CT_measure = CT_measure, cluster = cluster)), data = subset_with_clusters_AG_matched, method="REML"))
   })
   setNames(CT_score_cluster_stats_anova_gam_AG_withincluster, CT_measure_names_list)
 })

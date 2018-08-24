@@ -3,8 +3,8 @@ title: "Nback Activation, matched age and sex, n368, Hydra K3, Schafer400 parcel
 author: "Erica Baller"
 date: "8/10/2018"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -19,6 +19,7 @@ library(tidyr)
 library(ggplot2)
 library(reshape)
 library(emmeans)
+library(MASS)
 theme_update(plot.title = element_text(hjust = 0.5))
 source("~/BBL/from_chead/ballerDepHeterogen/ballerDepHeterogenScripts/Hydra_functions.R")
 
@@ -80,9 +81,11 @@ parcellations <- names(schaefer_parcellations[3:402])
 #get number of measures (to be used later on when trying to make graphs), for every different modality WILL HAVE TO CHANGE THIS
 num_measures <- 400
 
-#Coerce hydra values into factor format
+#Coerce values into factor format
 hydra_names <- names(dem_and_cluster_data[107:116])
 dem_and_cluster_data[hydra_names] <- lapply(dem_and_cluster_data[clusters], factor)
+dem_and_cluster_data$sex <- as.factor(dem_and_cluster_data$sex)
+dem_and_cluster_data$race <- as.factor(dem_and_cluster_data$race)
 
 #merge
 subset_with_clusters_AG_matched <- merge(schaefer_parcellations, dem_and_cluster_data, by = "bblid")
@@ -242,7 +245,7 @@ names(parcellation_cluster_stats_lm_AG_matched) <- parcellations
 parcellation_cluster_stats_gam_AG_matched <- lapply(parcellations, function(parcellation) 
 {
   parcellation = as.name(parcellation)
-  gam(substitute(parcellation ~ Hydra_k3 + sex + s(age_in_years) + nbackRelMeanRMSMotion, list(parcellation = parcellation)), data = subset_with_clusters_AG_matched)
+  gam(substitute(parcellation ~ Hydra_k3 + sex + s(age_in_years) + nbackRelMeanRMSMotion, list(parcellation = parcellation)), data = subset_with_clusters_AG_matched, method="REML")
 })
 names(parcellation_cluster_stats_gam_AG_matched) <- parcellations
 
@@ -311,6 +314,12 @@ names(parcellation_cluster_stats_anova_gam_AG_matched) <- parcellations
 parcellation_cluster_stats_anova_lm_agesq_AG_matched <- lapply(parcellation_cluster_stats_lm_agesq_AG_matched, anova) 
 names(parcellation_cluster_stats_anova_lm_agesq_AG_matched) <- parcellations
 
+#lm Hydra k3 aov
+parcellation_cluster_stats_aov_lm_agesq_AG_matched <- lapply(parcellation_cluster_stats_lm_agesq_AG_matched, aov) 
+names(parcellation_cluster_stats_aov_lm_agesq_AG_matched) <- parcellations
+
+#tukey
+#invisible(parcellation_cluster_stats_tukey_of_aov_lm_agesq_AG_matched <- lapply(parcellation_cluster_stats_aov_lm_agesq_AG_matched, function(y) {TukeyHSD(x = y, which = c("Hydra_k3"), ordered = FALSE, conf.level = 0.95)}))
 ```
 
 ##Results graphically presented
@@ -475,6 +484,9 @@ p_anova_lm_agesq <- as.data.frame(p_anova_lm_agesq)
 #print BEFORE FDR correction 
 print("LM Agesq anova scores, BEFORE FDR correction: i.e., uncorrected")
 print(p_anova_lm_agesq)
+
+print("LM agesq anova scores, BEFORE FDR correction, p <0.05")
+print(cbind(which(p_anova_lm_agesq <0.05), p_anova_lm_agesq[p_anova_lm_agesq <0.05]))
 
 #Print original p-values to three decimal places
 p_round_anova_lm_agesq <- round(p_anova_lm_agesq,3)
