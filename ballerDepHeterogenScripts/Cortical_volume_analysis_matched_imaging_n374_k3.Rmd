@@ -3,8 +3,8 @@ title: "Cortical_volume_analysis_matched_age_and_sex_imaging_k3"
 author: "Erica Baller"
 date: "6/29/2018"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -420,6 +420,7 @@ ggplot(data = all_mean_sd_sem, aes(x = volume, y = mean, group = cl)) +  ylab("M
   geom_line(aes(color=cl)) +
   geom_point(aes(color=cl)) + 
   geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   ggtitle("Hydra_k3 by volume Measures")
 
 ```
