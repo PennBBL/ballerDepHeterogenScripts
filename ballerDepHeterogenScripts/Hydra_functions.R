@@ -329,11 +329,11 @@ fdr_anova <- function(data_frame) {
   p_anova <- as.data.frame(p_anova)
   
   #print BEFORE FDR correction 
-  print("Anova scores, BEFORE FDR correction: i.e., uncorrected")
+  #print("Anova scores, BEFORE FDR correction: i.e., uncorrected")
   print(p_anova)
   
   #Print original p-values to three decimal places
-  p_round_anova <- round(p_anova_lm_agesq,3)
+  p_round_anova <- round(p_anova,3)
   
   #FDR correct p-values
   pfdr_anova <- p.adjust(p_anova[,1],method="fdr")
@@ -354,8 +354,8 @@ fdr_anova <- function(data_frame) {
   #add titles to names_and_fdr tables
   names(names_and_fdr_values_anova) <- c("component", "p_FDR_corr")
   
-  print("Mean centered age that was then squared, FDR corrected")
-  print(names_and_fdr_values_anova)
+ # print("Mean centered age that was then squared, FDR corrected")
+  #print(names_and_fdr_values_anova)
   return(names_and_fdr_values_anova)
   
 }
@@ -386,6 +386,68 @@ pairwise_contrasts_3clusters <- function(data_frame_lm, fdr_anova) {
   brain_regions <- names(contrast_table)
   #build table that will hold the name of the brain region and the p values
   pairwise_table <- data.frame(matrix(nrow = length(brain_regions), ncol = 6))
+  #give the appropriate names
+  rownames(pairwise_table) <- brain_regions
+  colnames(pairwise_table) <- contrast_names
+  
+  #loop through each brain region, and manually assign the columns to be the p values
+  for (region in brain_regions)
+  {
+    pair_pval <- contrast_table[[region]]
+    pairwise_table[region,] <- pair_pval
+  }
+  pairwise_table_with_fdr <- pairwise_table
+  pairwise_table_with_fdr$p_FDR_corr <- fdr_anova$p_FDR_corr
+  
+  pairwise <- list(empairs_df, empairs_FDR_corrected, pairwise_table, pairwise_table_with_fdr)
+  return(pairwise)
+  
+}
+
+make_pairwise_contrast_names <- function(num_clusters) {
+  #get the numerical vector per number of clusters, will loop through them, and generate vector with all pairs
+  clusters_vector1 <- get_cluster_numerical_vector(hydra_cluster = num_clusters)
+  clusters_vector2 <- clusters_vector1
+  pairs_vector <- NULL
+  for(pair1 in clusters_vector1){
+    for(pair2 in clusters_vector2)
+      if (pair1 < pair2) {
+        pair_text <- paste0(pair1, " - ", pair2)
+        pairs_vector <- c(pairs_vector, pair_text)
+      }
+  }
+  return(pairs_vector)
+}
+
+
+pairwise_contrasts_generic_num_clusters <- function(data_frame_lm, fdr_anova, num_clusters) {
+  #for 3 clusters
+  print(fdr_anova)
+  emmodel_df <- lapply(data_frame_lm, function(x) {as.list(ref_grid(x))})
+  emgrid_df <- lapply(emmodel_df, function(x) {as.emmGrid(x)})
+  
+  #run emmeans
+  hydra_var <- paste0("Hydra_k", num_clusters)
+  emmeans_df <- lapply(emgrid_df, function(x) {emmeans(x, hydra_var)})
+  
+  #run pairwise contrasts
+  empairs_df <- lapply(emmeans_df, function(x) {pairs(x)})
+  
+  
+  #Only include stuff that was fdr corrected (i.e., only keep parts of the model (or only display) ones that are corrected),this will be null if nothing was corrected
+  empairs_FDR_corrected <- empairs_df[fdr_anova[,1]]
+  
+ # print(empairs_FDR_corrected)
+  #contrast names, -1 = controls, other numbers are clusters
+  contrast_names <- make_pairwise_contrast_names(num_clusters = num_clusters)
+  #go through each fdr corrected brain region, and extract p values
+  #contrast_table <- lapply(fdr_anova[,1], function(x) {round(summary(x)$p.value,3)})
+  contrast_table <- lapply(empairs_FDR_corrected, function(x) {round(summary(x)$p.value,3)})
+  #get the names of the brain regions that were fdr corrected
+  brain_regions <- names(contrast_table)
+  #build table that will hold the name of the brain region and the p values
+  #number of columns (or number of unique pairs is)
+  pairwise_table <- data.frame(matrix(nrow = length(brain_regions), ncol = length(contrast_names)))
   #give the appropriate names
   rownames(pairwise_table) <- brain_regions
   colnames(pairwise_table) <- contrast_names
