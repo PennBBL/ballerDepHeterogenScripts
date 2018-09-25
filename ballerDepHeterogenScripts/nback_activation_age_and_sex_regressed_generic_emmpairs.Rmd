@@ -1,5 +1,5 @@
 ---
-title: "Nback Activation, matched age and sex, n368, Hydra K3, 13 jneurosci labels, generic script, just need to change to # clusters!"
+title: "Nback Activation, matched age and sex, n368, Hydra K3, 13 jneurosci labels, generic script"
 author: "Erica Baller"
 date: "9/4/2018"
 output:

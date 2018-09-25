@@ -1,5 +1,5 @@
 ---
-title: "Cortical_CT_analysis_matched_age_and_sex_imaging_k3, n419"
+title: "Cortical_volume_analysis_matched_age_and_sex_imaging_k3, n 419"
 author: "Erica Baller"
 date: "6/29/2018"
 output:
@@ -26,10 +26,10 @@ source("~/BBL/from_chead/ballerDepHeterogen/ballerDepHeterogenScripts/Hydra_func
 
 ## R Markdown
 
-This script goes through demographics, CT scores, health, and psych summaries, adds clustering information, runs statistics and makes graphs from results.
+This script goes through demographics, volume scores, health, and psych summaries, adds clustering information, runs statistics and makes graphs from results.
 
 Part 1 : Read in csv.s
-  -This script reads in demographics, CT_scores, health and psych summaries, merges them, removes NAs, codes and separates by depression.
+  -This script reads in demographics, volume_scores, health and psych summaries, merges them, removes NAs, codes and separates by depression.
 
 Part 2 : merge with hydra
   -It then merges these documents with hydra output (made in cbica), adding Hydra_k1 through Hydra_k10 columns (which represent the number of clusters)
@@ -44,38 +44,35 @@ Part 4 : Graphing
     *For categorical variables (race, sex) the graphs are percentages (caucasian, male) per group, with chisq used to calculate significance
 
 Part 5 : LM/GAM/LM with Agesq
-  -The script then runs LM on each cognitive score (CT_measure ~ hydra_group). 
-   - Does gam (CT_measure ~ hydra_group + s(age) + sex + averageManualRating)
-   - Does LM with ageSq (CT_measure ~ hydra_group + ageSq + sex + averageManualRating)
-  -There is a test option that does this for all CT measures and all hydra groups, but for the remainder of the analysis, Hydra_k3 was the only classification more deeply explored.
+  -The script then runs LM on each cognitive score (volume_measure ~ hydra_group). 
+   - Does gam (volume_measure ~ hydra_group + s(age) + sex + averageManualRating)
+   - Does LM with ageSq (volume_measure ~ hydra_group + ageSq + sex + averageManualRating)
+  -There is a test option that does this for all volume measures and all hydra groups, but for the remainder of the analysis, Hydra_k3 was the only classification more deeply explored.
 
 Part 6 : Anovas
-  -Anovas were also run on the results of the LM of each CT value by cluster.
+  -Anovas were also run on the results of the LM of each volume value by cluster.
 
 
 Part 7 : FDR Correction
-  -FDR correction was calculated for each CT measure ANOVA output
+  -FDR correction was calculated for each volume measure ANOVA output
   -A table of the results was extracted
   
 
 
-```{r CT, echo = FALSE}
-
-
+```{r volume, echo = FALSE}
 #######################################################
 ############ READ IN, MERGE AND SUBSET DATA############
 #######################################################
-
 num_clusters <- 3
 cluster_titles <- get_cluster_titles(hydra_cluster = num_clusters)
 
 #read in csvs
-demographics <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_demographics_go1_20161212.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_demographics_go1_20161212.csv
+demographics <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_demographics_go1_20161212.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projevolumes/ballerDepHeterogen/data/n9498_demographics_go1_20161212.csv
 cnb_scores <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_cnb_zscores_fr_20170202.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_cnb_zscores_fr_20170202.csv
 health <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_health_20170405.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_health_20170405.csv
 psych_summary <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_goassess_psych_summary_vars_20131014.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_goassess_psych_summary_vars_20131014.csv
 t1_qa_scores <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/neuroimaging/t1struct/n1601_t1QaData_20170306.csv", header = TRUE, sep = ",") 
-jlfCT_summary <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/neuroimaging/t1struct/n1601_jlfAntsCTIntersectionCT_20170331.csv", header = TRUE, sep = ",") 
+jlfvolume_summary <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/neuroimaging/t1struct/n1601_jlfAntsCTIntersectionVol_20170412.csv", header = TRUE, sep = ",") 
 
 
 
@@ -109,15 +106,15 @@ t1_struct_include = subset.data.frame(t1_qa_scores, (t1Exclude == 0))
 dem_cnb <- merge(demographics_noNA_race_age_andCNBage_sex, cnb_scores, by = "bblid") #merge demographics and cnb, N = 9406
 psych_health <- merge(psych_summary_no_NA_dep_and_smry_psych_overall, health, by = "bblid") #merge psych and health, N = 9411
 dem_cnb_psych_health <- merge(dem_cnb, psych_health, by = "bblid") #merge all 4 csvs, lost 1 person [134716] (had demographics, but no psych ratings): N = 9405
-t1_qa_and_jlfCT = merge(t1_struct_include, jlfCT_summary, by = "bblid")
+t1_qa_and_jlfvolume = merge(t1_struct_include, jlfvolume_summary, by = "bblid")
 
-dem_psych_health_qa_CT_merged <- merge (dem_cnb_psych_health, t1_qa_and_jlfCT, by = "bblid") 
+dem_psych_health_qa_volume_merged <- merge (dem_cnb_psych_health, t1_qa_and_jlfvolume, by = "bblid") 
 #dem_cnb_psych_health_factor_scores_merged <- merge(dem_cnb_psych_health_merged, cnb_factor_scores, by = "bblid")
 
 #make subsets
-subset_just_dep_and_no_medicalratingExclude <- subset.data.frame(dem_psych_health_qa_CT_merged, (medicalratingExclude == 0) & (smry_dep == 4), select = "bblid") 
-subset_no_psych_no_medicalratingExclude <- subset.data.frame(dem_psych_health_qa_CT_merged, (medicalratingExclude == 0) & (smry_psych_overall_rtg < 4), select = "bblid") 
-subset_dep_or_no_psych_and_no_medicalratingExclude <- subset.data.frame(dem_psych_health_qa_CT_merged, (medicalratingExclude == 0) & ((smry_dep == 4) | (smry_psych_overall_rtg <4))) 
+subset_just_dep_and_no_medicalratingExclude <- subset.data.frame(dem_psych_health_qa_volume_merged, (medicalratingExclude == 0) & (smry_dep == 4), select = "bblid") 
+subset_no_psych_no_medicalratingExclude <- subset.data.frame(dem_psych_health_qa_volume_merged, (medicalratingExclude == 0) & (smry_psych_overall_rtg < 4), select = "bblid") 
+subset_dep_or_no_psych_and_no_medicalratingExclude <- subset.data.frame(dem_psych_health_qa_volume_merged, (medicalratingExclude == 0) & ((smry_dep == 4) | (smry_psych_overall_rtg <4))) 
 
 #would binarize depression smry score to -1 (less than 4, not depressed) and 1 (score 4 , depressed)
 dep_binarized <- ifelse(subset_dep_or_no_psych_and_no_medicalratingExclude$smry_dep == 4, 1, -1)
@@ -147,7 +144,7 @@ subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED <- subset_dep_or
 #AG Matched - n 1424
 
 subset_with_clusters_AG_matched <- merge(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED, hydra_AG_matched_clusters, by = "bblid")
-saveRDS(subset_with_clusters_AG_matched, "/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/neuroimaging/cortical_thickness/subset_with_clusters_for_roiVoxelwrapper_n419.rds")
+
 
 
 ```
@@ -158,6 +155,7 @@ saveRDS(subset_with_clusters_AG_matched, "/Users/eballer/BBL/from_chead/ballerDe
 #############################
 ####### Demographics ########
 #############################
+
 make_demographics_table(data_frame = subset_with_clusters_AG_matched, hydra_cluster = num_clusters)
 
 
@@ -250,129 +248,133 @@ for(x in 1:length(plot_list)){
 ##### Results stored in list ####
 #################################
 
-#get CT measure names
-CT_measure_names <- names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED)[grep("jlf_ct_", names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED))] #get the names of all the columns with _vol in the name
+#get volume measure names
+volume_measure_names <- names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED)[grep("_vol_", names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED))] #get the names of all the columns with _vol in the name
 cluster_names <- colnames(hydra_AG_matched_clusters[,2:11])
 
-CT_measure_names_list <- names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED)[grep("jlf_ct_", names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED))] #get the names of all the columns with _vol_ in the name
+volume_measure_names_list <- names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED)[grep("_vol_", names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED))] #get the names of all the columns with _vol_ in the name
 cluster_names_list <- colnames(hydra_AG_matched_clusters[,2:11])
 
 #### All Hydra clusters in embedded lis t######
-#lm
-CT_score_cluster_stats_lm_AG_matched_by_cluster_1through10 <- lapply(cluster_names_list, function(cluster_name)
+volume_score_cluster_stats_lm_AG_matched_by_cluster_1through10 <- lapply(cluster_names_list, function(cluster_name)
 {
-  CT_score_cluster_stats_lm_AG_matched_withincluster<- lapply(CT_measure_names_list, cluster=as.name(cluster_name), function(CT_measure_name, cluster) 
+  volume_score_cluster_stats_lm_AG_matched_withincluster<- lapply(volume_measure_names_list, cluster=as.name(cluster_name), function(volume_measure_name, cluster) 
   {
-    CT_measure <- as.name(CT_measure_name)
-    lm(substitute(CT_measure ~ cluster + averageManualRating, list(CT_measure = CT_measure, cluster = cluster)), data = subset_with_clusters_AG_matched)
+    volume_measure <- as.name(volume_measure_name)
+    lm(substitute(volume_measure ~ cluster + sex + age_in_years + averageManualRating, list(volume_measure = volume_measure, cluster = cluster)), data = subset_with_clusters_AG_matched)
   })
-  setNames(CT_score_cluster_stats_lm_AG_matched_withincluster, CT_measure_names_list)
+  setNames(volume_score_cluster_stats_lm_AG_matched_withincluster, volume_measure_names_list)
 })
-names(CT_score_cluster_stats_lm_AG_matched_by_cluster_1through10) <- cluster_names_list
+
+names(volume_score_cluster_stats_lm_AG_matched_by_cluster_1through10) <- cluster_names_list
+
 
 #gam
-CT_score_cluster_stats_gam_AG_matched_by_cluster_1through10 <- lapply(cluster_names_list, function(cluster_name)
+volume_score_cluster_stats_gam_AG_matched_by_cluster_1through10 <- lapply(cluster_names_list, function(cluster_name)
 {
- CT_score_cluster_stats_gam_AG_matched_withincluster<- lapply(CT_measure_names_list, cluster=as.name(cluster_name),   function(CT_measure_name, cluster) 
+ volume_score_cluster_stats_gam_AG_matched_withincluster<- lapply(volume_measure_names_list, cluster=as.name(cluster_name),   function(volume_measure_name, cluster) 
  {
-    CT_measure <- as.name(CT_measure_name)
-    gam(substitute(CT_measure ~ cluster + sex + s(age_in_years) + averageManualRating, list(CT_measure = CT_measure, cluster = cluster)), data = subset_with_clusters_AG_matched, method="REML")
+    volume_measure <- as.name(volume_measure_name)
+    gam(substitute(volume_measure ~ cluster + sex + s(age_in_years) + averageManualRating, list(volume_measure = volume_measure, cluster = cluster)), data = subset_with_clusters_AG_matched, method="REML")
   })
- setNames(CT_score_cluster_stats_gam_AG_matched_withincluster, CT_measure_names_list)
+ setNames(volume_score_cluster_stats_gam_AG_matched_withincluster, volume_measure_names_list)
 })
-names(CT_score_cluster_stats_gam_AG_matched_by_cluster_1through10) <- cluster_names_list
+names(volume_score_cluster_stats_gam_AG_matched_by_cluster_1through10) <- cluster_names_list
 
 #LM with mean-centered, squared age- quadratic term#
 
-CT_score_cluster_stats_lm_agesq_AG_matched_by_cluster_1through10 <- lapply(cluster_names_list, function(cluster_name)
+volume_score_cluster_stats_lm_agesq_AG_matched_by_cluster_1through10 <- lapply(cluster_names_list, function(cluster_name)
 {
-  CT_score_cluster_stats_lm_agesq_AG_matched_withincluster<- lapply(CT_measure_names_list, cluster=as.name(cluster_name), function(CT_measure_name, cluster) 
+  volume_score_cluster_stats_lm_agesq_AG_matched_withincluster<- lapply(volume_measure_names_list, cluster=as.name(cluster_name), function(volume_measure_name, cluster) 
   {
-    CT_measure <- as.name(CT_measure_name)
-    lm(substitute(CT_measure ~ cluster + sex + age_in_years + ageSq + averageManualRating, list(CT_measure = CT_measure, cluster = cluster)), data = subset_with_clusters_AG_matched)
+    volume_measure <- as.name(volume_measure_name)
+    lm(substitute(volume_measure ~ cluster + sex + age_in_years + ageSq + averageManualRating, list(volume_measure = volume_measure, cluster = cluster)), data = subset_with_clusters_AG_matched)
   })
-  setNames(CT_score_cluster_stats_lm_agesq_AG_matched_withincluster, CT_measure_names_list)
+  setNames(volume_score_cluster_stats_lm_agesq_AG_matched_withincluster, volume_measure_names_list)
 })
-names(CT_score_cluster_stats_lm_agesq_AG_matched_by_cluster_1through10) <- cluster_names_list
+names(volume_score_cluster_stats_lm_agesq_AG_matched_by_cluster_1through10) <- cluster_names_list
 
 
 ##### Just Hydra_3 clusters ######
 #lm
-CT_score_cluster_stats_lm_AG_matched <- lapply(CT_measure_names, function(x) 
+volume_score_cluster_stats_lm_AG_matched <- lapply(volume_measure_names_list, function(x) 
 {
-  lm(substitute(i ~ Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_AG_matched)
+  lm(substitute(i ~ Hydra_k3 + sex+age_in_years+ averageManualRating, list(i = as.name(x))), data = subset_with_clusters_AG_matched)
 })
-names(CT_score_cluster_stats_lm_AG_matched) <- CT_measure_names
+names(volume_score_cluster_stats_lm_AG_matched) <- volume_measure_names
 
 #gam
-CT_score_cluster_stats_gam_AG_matched <- lapply(CT_measure_names, function(x) 
+volume_score_cluster_stats_gam_AG_matched <- lapply(volume_measure_names_list, function(volume_measure) 
 {
-  CT_measure = as.name(x)
-  gam(substitute(CT_measure ~ Hydra_k3 + sex + s(age_in_years) + averageManualRating, list(CT_measure = CT_measure)), data = subset_with_clusters_AG_matched, method="REML")
+  volume_measure = as.name(volume_measure)
+  gam(substitute(volume_measure ~ Hydra_k3 + sex + s(age_in_years) + averageManualRating, list(volume_measure = volume_measure)), data = subset_with_clusters_AG_matched, method="REML")
 })
-names(CT_score_cluster_stats_gam_AG_matched) <- CT_measure_names
+names(volume_score_cluster_stats_gam_AG_matched) <- volume_measure_names
 
 #lm ageSq and mean centered
-CT_score_cluster_stats_lm_agesq_AG_matched <- lapply(CT_measure_names, function(x) 
+volume_score_cluster_stats_lm_agesq_AG_matched <- lapply(volume_measure_names_list, function(x) 
 {
   lm(substitute(i ~ Hydra_k3 + sex + age_in_years + ageSq + averageManualRating, list(i = as.name(x))), data = subset_with_clusters_AG_matched)
 })
-names(CT_score_cluster_stats_lm_agesq_AG_matched) <- CT_measure_names
+names(volume_score_cluster_stats_lm_agesq_AG_matched) <- volume_measure_names
+
+
+
 ##############################
 ####### Statistics ###########
 ##############################
 
 ######## All hydra clusters, Anova results ########
-#lm anova all clusters
-CT_score_cluster_stats_anova_lm_AG_matched_by_cluster_1through10 <- lapply(cluster_names_list, function(cluster_name)
+
+#lm
+volume_score_cluster_stats_anova_AG_matched_by_cluster_1through10 <- lapply(cluster_names_list, function(cluster_name)
 {
-  CT_score_cluster_stats_anova_AG_withincluster <- lapply(CT_measure_names_list, cluster=as.name(cluster_name), function(CT_measure_name, cluster) 
+  volume_score_cluster_stats_anova_AG_withincluster <- lapply(volume_measure_names_list, cluster=as.name(cluster_name), function(volume_measure_name, cluster) 
   {
-     CT_measure <- as.name(CT_measure_name)
-     anova(lm(substitute(CT_measure ~ cluster + averageManualRating, list(CT_measure = CT_measure, cluster = cluster)), data = subset_with_clusters_AG_matched))
+     volume_measure <- as.name(volume_measure_name)
+     anova(lm(substitute(volume_measure ~ cluster + sex + age_in_years + averageManualRating, list(volume_measure = volume_measure, cluster = cluster)), data = subset_with_clusters_AG_matched))
   })
-  setNames(CT_score_cluster_stats_anova_AG_withincluster, CT_measure_names_list)
+  setNames(volume_score_cluster_stats_anova_AG_withincluster, volume_measure_names_list)
 })
-names(CT_score_cluster_stats_anova_lm_AG_matched_by_cluster_1through10) <- cluster_names_list
+names(volume_score_cluster_stats_anova_AG_matched_by_cluster_1through10) <- cluster_names_list
 
 #gam anova all clusters
-CT_score_cluster_stats_anova_gam_AG_matched_by_cluster_1through10 <- lapply(cluster_names_list, function(cluster_name)
+volume_score_cluster_stats_anova_gam_AG_matched_by_cluster_1through10 <- lapply(cluster_names_list, function(cluster_name)
 {
-  CT_score_cluster_stats_anova_gam_AG_withincluster <- lapply(CT_measure_names_list, cluster=as.name(cluster_name), function(CT_measure_name, cluster) 
+  volume_score_cluster_stats_anova_gam_AG_withincluster <- lapply(volume_measure_names_list, cluster=as.name(cluster_name), function(volume_measure_name, cluster) 
   {
-     CT_measure <- as.name(CT_measure_name)
-     anova(gam(substitute(CT_measure ~ cluster + sex + s(age_in_years) + averageManualRating, list(CT_measure = CT_measure, cluster = cluster)), data = subset_with_clusters_AG_matched, method="REML"))
+     volume_measure <- as.name(volume_measure_name)
+     anova(gam(substitute(volume_measure ~ cluster + sex + s(age_in_years) + averageManualRating, list(volume_measure = volume_measure, cluster = cluster)), data = subset_with_clusters_AG_matched, method="REML"))
   })
-  setNames(CT_score_cluster_stats_anova_gam_AG_withincluster, CT_measure_names_list)
+  setNames(volume_score_cluster_stats_anova_gam_AG_withincluster, volume_measure_names_list)
 })
-names(CT_score_cluster_stats_anova_gam_AG_matched_by_cluster_1through10) <- cluster_names_list
+names(volume_score_cluster_stats_anova_gam_AG_matched_by_cluster_1through10) <- cluster_names_list
 
 #lm agesq anova all clusters
-CT_score_cluster_stats_anova_lm_agesq_AG_matched_by_cluster_1through10 <- lapply(cluster_names_list, function(cluster_name)
+volume_score_cluster_stats_anova_lm_agesq_AG_matched_by_cluster_1through10 <- lapply(cluster_names_list, function(cluster_name)
 {
-  CT_score_cluster_stats_anova_lm_agesq_AG_withincluster <- lapply(CT_measure_names_list, cluster=as.name(cluster_name), function(CT_measure_name, cluster) 
+  volume_score_cluster_stats_anova_lm_agesq_AG_withincluster <- lapply(volume_measure_names_list, cluster=as.name(cluster_name), function(volume_measure_name, cluster) 
   {
-     CT_measure <- as.name(CT_measure_name)
-     anova(lm(substitute(CT_measure ~ cluster + sex + age_in_years + ageSq + averageManualRating, list(CT_measure = CT_measure, cluster = cluster)), data = subset_with_clusters_AG_matched))
+     volume_measure <- as.name(volume_measure_name)
+     anova(lm(substitute(volume_measure ~ cluster + sex + age_in_years + ageSq + averageManualRating, list(volume_measure = volume_measure, cluster = cluster)), data = subset_with_clusters_AG_matched))
   })
-  setNames(CT_score_cluster_stats_anova_lm_agesq_AG_withincluster, CT_measure_names_list)
+  setNames(volume_score_cluster_stats_anova_lm_agesq_AG_withincluster, volume_measure_names_list)
 })
-names(CT_score_cluster_stats_anova_lm_agesq_AG_matched_by_cluster_1through10) <- cluster_names_list
+names(volume_score_cluster_stats_anova_lm_agesq_AG_matched_by_cluster_1through10) <- cluster_names_list
 
 
 #####Just Hydra 3 clusters ANOVA ########
 #lm Hydra K3 Anova
-CT_score_cluster_stats_anova_lm_AG_matched <- lapply(CT_score_cluster_stats_lm_AG_matched, anova) 
-names(CT_score_cluster_stats_anova_lm_AG_matched) <- CT_measure_names
+volume_score_cluster_stats_anova_lm_AG_matched <- lapply(volume_score_cluster_stats_lm_AG_matched, anova) 
+names(volume_score_cluster_stats_anova_lm_AG_matched) <- volume_measure_names
 
 #gam Hydra K3 ANOVA
-CT_score_cluster_stats_anova_gam_AG_matched <- lapply(CT_score_cluster_stats_gam_AG_matched, anova)
-names(CT_score_cluster_stats_anova_gam_AG_matched) <- CT_measure_names
+volume_score_cluster_stats_anova_gam_AG_matched <- lapply(volume_score_cluster_stats_gam_AG_matched, anova)
+names(volume_score_cluster_stats_anova_gam_AG_matched) <- volume_measure_names
 
-#####Just Hydra 3 clusters ANOVA ########
 #lm Hydra K3 Anova
-CT_score_cluster_stats_anova_lm_agesq_AG_matched <- lapply(CT_score_cluster_stats_lm_agesq_AG_matched, anova) 
-names(CT_score_cluster_stats_anova_lm_agesq_AG_matched) <- CT_measure_names
+volume_score_cluster_stats_anova_lm_agesq_AG_matched <- lapply(volume_score_cluster_stats_lm_agesq_AG_matched, anova) 
+names(volume_score_cluster_stats_anova_lm_agesq_AG_matched) <- volume_measure_names
 
 ```
 
@@ -381,51 +383,50 @@ names(CT_score_cluster_stats_anova_lm_agesq_AG_matched) <- CT_measure_names
 
 
 #####################################
-###### By CT Measure ###############
+###### By volume Measure ###############
 #####################################
 #can do with all gender as well, as well as matched/unmatched, etc
-#loop through each cluster and each CT measure, make text and evaluate the following: mean of each cluster by measure, and sd of each cluster by measure
+#loop through each cluster and each volume measure, make text and evaluate the following: mean of each cluster by measure, and sd of each cluster by measure
 #SEM calculated by taking SD, and dividing by the square root of the number of people in the analysis... Should this be by # people in cluster?
 
 
 groups_list <- data.frame(cbind(c("TD", "Cluster1", "Cluster2", "Cluster3"), c("-1", "1", "2", "3")))
 names(groups_list) <- c("cl", "numeric")
-all_mean_sd_sem <- data.frame(rep(groups_list$cl, 98), rep(CT_measure_names, each = 4), rep(0, 1), rep(0, 1), rep(0,1))
-names(all_mean_sd_sem) <- c("cl", "CT", "mean", "sd", "sem")
-for(CT in CT_measure_names_list){
+all_mean_sd_sem <- data.frame(rep(groups_list$cl, 129), rep(volume_measure_names, each = 4), rep(0, 1), rep(0, 1), rep(0,1))
+names(all_mean_sd_sem) <- c("cl", "volume", "mean", "sd", "sem")
+for(volume in volume_measure_names_list){
   for(num in 1:4) {
     clst <- groups_list[num,1]
     meas <- groups_list[num,2]
-    mean_for_eval <- paste("mean(subset_with_clusters_AG_matched$", CT, "[which(subset_with_clusters_AG_matched$Hydra_k3 == ", groups_list[num,2], ")])", sep="")
+    mean_for_eval <- paste("mean(subset_with_clusters_AG_matched$", volume, "[which(subset_with_clusters_AG_matched$Hydra_k3 == ", groups_list[num,2], ")])", sep="")
     mean_grp <- eval(parse(text=as.name(mean_for_eval)))
-    all_mean_sd_sem$mean[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$CT == CT)] <- mean_grp
+    all_mean_sd_sem$mean[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$volume == volume)] <- mean_grp
     
-    sd_for_eval <- paste("sd(subset_with_clusters_AG_matched$", CT, "[which(subset_with_clusters_AG_matched$Hydra_k3 == ", groups_list[num,2], ")])", sep="")
+    sd_for_eval <- paste("sd(subset_with_clusters_AG_matched$", volume, "[which(subset_with_clusters_AG_matched$Hydra_k3 == ", groups_list[num,2], ")])", sep="")
     sd_grp <- eval(parse(text=as.name(sd_for_eval)))
-    all_mean_sd_sem$sd[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$CT == CT)] <- sd_grp
-    #all_mean_sd_sem$sem[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$CT == CT)] <- all_mean_sd_sem$sd[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$CT == CT)]/sqrt(nrow(subset_with_clusters_AG_matched))
-    sem_for_eval <- paste("sd(subset_with_clusters_AG_matched$", CT, "[which(subset_with_clusters_AG_matched$Hydra_k3 == ", groups_list[num,2], ")])/sqrt(length(which(subset_with_clusters_AG_matched$Hydra_k3 == ", groups_list[num,2], ")))", sep="")
+    all_mean_sd_sem$sd[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$volume == volume)] <- sd_grp
+  #  all_mean_sd_sem$sem[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$volume == volume)] <- all_mean_sd_sem$sd[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$volume == volume)]/sqrt(nrow(subset_with_clusters_AG_matched))
+    sem_for_eval <- paste("sd(subset_with_clusters_AG_matched$", volume, "[which(subset_with_clusters_AG_matched$Hydra_k3 == ", groups_list[num,2], ")])/sqrt(length(which(subset_with_clusters_AG_matched$Hydra_k3 == ", groups_list[num,2], ")))", sep="")
     sem_grp <- eval(parse(text=as.name(sem_for_eval)))
-    all_mean_sd_sem$sem[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$CT == CT)] <- sem_grp
+    all_mean_sd_sem$sem[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$volume == volume)] <- sem_grp
   }
 }
 
 
-#add sems to CT_measures_for_plot
-#CT_measures_for_plot$sem <- all_sem_one_col
-#names(CT_measures_for_plot) <- c("cluster", "CT", "z_score", "sem")
-ggplot(data = all_mean_sd_sem, aes(x = CT, y = mean, group = cl)) +  ylab("Mean CT") +
+#add sems to volume_measures_for_plot
+#volume_measures_for_plot$sem <- all_sem_one_col
+#names(volume_measures_for_plot) <- c("cluster", "volume", "z_score", "sem")
+ggplot(data = all_mean_sd_sem, aes(x = volume, y = mean, group = cl)) +  ylab("Mean Volume") +
   geom_line(aes(color=cl)) +
   geom_point(aes(color=cl)) + 
   geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  ggtitle("Hydra_k3 by CT Measures")
-
+  ggtitle("Hydra_k3 by volume Measures")
 
 ```
 
 FDR correction 
-```{r FDR Correction, echo = FALSE, fig.width=8}
+```{r FDR Correction, echo = FALSE, fig.width=10}
 
 ###################################################
 ## Extracting anovas with significant p values ####
@@ -433,10 +434,10 @@ FDR correction
 #lm
 #Looking at Hydra_k3, but can redo with nested list
 #Look at model summaries
-models_anova <- lapply(CT_score_cluster_stats_anova_lm_AG_matched, summary)
+models_anova <- lapply(volume_score_cluster_stats_anova_lm_AG_matched, summary)
 
 #Pull p-values
-p_anova <- sapply(CT_score_cluster_stats_anova_lm_AG_matched, function(v) v$"Pr(>F)"[1]) #$coef[,"Pr(>F)"][2]) #get the p value for dep binarized
+p_anova <- sapply(volume_score_cluster_stats_anova_lm_AG_matched, function(v) v$"Pr(>F)"[1]) #$coef[,"Pr(>F)"][2]) #get the p value for dep binarized
 
 #Convert to data frame
 p_anova <- as.data.frame(p_anova)
@@ -449,31 +450,31 @@ pfdr_anova <- p.adjust(p_anova[,1],method="fdr")
 
 #Convert to data frame
 pfdr_anova <- as.data.frame(pfdr_anova)
-row.names(pfdr_anova) <- CT_measure_names
+row.names(pfdr_anova) <- volume_measure_names
 
 #To print fdr-corrected p-values to three decimal places
 pfdr_round_anova <- round(pfdr_anova,3)
 
 #List the NMF components that survive FDR correction
-CT_fdr_anova <- row.names(pfdr_anova)[pfdr_anova<0.05]
+volume_fdr_anova <- row.names(pfdr_anova)[pfdr_anova<0.05]
 
 #make a data frame with names and fdr values (rounded to 3 decimals)
-CT_names_and_fdr_values_anova <- data.frame(cbind(CT_fdr_anova, round(pfdr_anova[pfdr_anova<0.05],3)))
+volume_names_and_fdr_values_anova <- data.frame(cbind(volume_fdr_anova, round(pfdr_anova[pfdr_anova<0.05],3)))
 
 #add titles to names_and_fdr tables
-names(CT_names_and_fdr_values_anova) <- c("CT_measure", "p_FDR_corr")
+names(volume_names_and_fdr_values_anova) <- c("volume_measure", "p_FDR_corr")
 
 print("LM")
-print(CT_names_and_fdr_values_anova)
+print(volume_names_and_fdr_values_anova)
 
 #gam
 
 #Looking at Hydra_k3, but can redo with nested list
 #Look at model summaries
-#models_anova <- lapply(CT_score_cluster_stats_anova_gam_AG_matched, summary)
+#models_anova <- lapply(volume_score_cluster_stats_anova_gam_AG_matched, summary)
 
 #Pull p-values
-p_anova <- sapply(CT_score_cluster_stats_anova_gam_AG_matched, function(v) v$pTerms.table[1,3])
+p_anova <- sapply(volume_score_cluster_stats_anova_gam_AG_matched, function(v) v$pTerms.table[1,3])
                     #"Pr(>F)"[1]) #$coef[,"Pr(>F)"][2]) #get the p value for dep binarized
 
 #Convert to data frame
@@ -487,30 +488,30 @@ pfdr_anova <- p.adjust(p_anova[,1],method="fdr")
 
 #Convert to data frame
 pfdr_anova <- as.data.frame(pfdr_anova)
-row.names(pfdr_anova) <- CT_measure_names
+row.names(pfdr_anova) <- volume_measure_names
 
 #To print fdr-corrected p-values to three decimal places
 pfdr_round_anova <- round(pfdr_anova,3)
 
 #List the NMF components that survive FDR correction
-CT_fdr_anova <- row.names(pfdr_anova)[pfdr_anova<0.05]
+volume_fdr_anova <- row.names(pfdr_anova)[pfdr_anova<0.05]
 
 #make a data frame with names and fdr values (rounded to 3 decimals)
-CT_names_and_fdr_values_anova <- data.frame(cbind(CT_fdr_anova, round(pfdr_anova[pfdr_anova<0.05],3)))
+volume_names_and_fdr_values_anova <- data.frame(cbind(volume_fdr_anova, round(pfdr_anova[pfdr_anova<0.05],3)))
 
 #add titles to names_and_fdr tables
-names(CT_names_and_fdr_values_anova) <- c("CT_measure", "p_FDR_corr_GAM")
+names(volume_names_and_fdr_values_anova) <- c("volume_measure", "p_FDR_corr_GAM")
 
 print("GAM")
-print(CT_names_and_fdr_values_anova)
+print(volume_names_and_fdr_values_anova)
 
 #lm agesq
 #Looking at Hydra_k3
 #Look at model summaries
-models_anova_lm_agesq <- lapply(CT_score_cluster_stats_anova_lm_agesq_AG_matched, summary)
+models_anova_lm_agesq <- lapply(volume_score_cluster_stats_anova_lm_agesq_AG_matched, summary)
 
 #Pull p-values
-p_anova_lm_agesq <- sapply(CT_score_cluster_stats_anova_lm_agesq_AG_matched, function(v) v$"Pr(>F)"[1]) #$coef[,"Pr(>F)"][2]) #get the p value for dep binarized
+p_anova_lm_agesq <- sapply(volume_score_cluster_stats_anova_lm_agesq_AG_matched, function(v) v$"Pr(>F)"[1]) #$coef[,"Pr(>F)"][2]) #get the p value for dep binarized
 
 #Convert to data frame
 p_anova_lm_agesq <- as.data.frame(p_anova_lm_agesq)
@@ -523,46 +524,46 @@ pfdr_anova_lm_agesq <- p.adjust(p_anova_lm_agesq[,1],method="fdr")
 
 #Convert to data frame
 pfdr_anova_lm_agesq <- as.data.frame(pfdr_anova_lm_agesq)
-row.names(pfdr_anova_lm_agesq) <- CT_measure_names
+row.names(pfdr_anova_lm_agesq) <- volume_measure_names
 
 #To print fdr-corrected p-values to three decimal places
 pfdr_round_anova_lm_agesq <- round(pfdr_anova_lm_agesq,3)
 
 #List the NMF components that survive FDR correction
-CT_fdr_anova_lm_agesq <- row.names(pfdr_anova_lm_agesq)[pfdr_anova_lm_agesq<0.05]
+volume_fdr_anova_lm_agesq <- row.names(pfdr_anova_lm_agesq)[pfdr_anova_lm_agesq<0.05]
 
 #make a data frame with names and fdr values (rounded to 3 decimals)
-CT_names_and_fdr_values_anova_lm_agesq <- data.frame(cbind(CT_fdr_anova_lm_agesq, round(pfdr_anova_lm_agesq[pfdr_anova_lm_agesq<0.05],3)))
+volume_names_and_fdr_values_anova_lm_agesq <- data.frame(cbind(volume_fdr_anova_lm_agesq, round(pfdr_anova_lm_agesq[pfdr_anova_lm_agesq<0.05],3)))
 
 #add titles to names_and_fdr tables
-names(CT_names_and_fdr_values_anova_lm_agesq) <- c("CT_measure", "p_FDR_corr")
+names(volume_names_and_fdr_values_anova_lm_agesq) <- c("volume_measure", "p_FDR_corr")
 
 print("LM Agesq- Mean centered age that was then squared")
-print(CT_names_and_fdr_values_anova_lm_agesq)
+print(volume_names_and_fdr_values_anova_lm_agesq)
 
 ######################################################
 ####Pairwise t-tests for anova-corrected lm means ####
 ######################################################
 
 #put lm model into emmeans format
-CT_emmodel_lm_agesq_AG_matched <- lapply(CT_score_cluster_stats_lm_agesq_AG_matched, function(x) {as.list(ref_grid(x))})
-CT_emmgrid_lm_agesq_AG_matched <- lapply(CT_emmodel_lm_agesq_AG_matched, function(x) {as.emmGrid(x)})
+volume_emmodel_lm_agesq_AG_matched <- lapply(volume_score_cluster_stats_lm_agesq_AG_matched, function(x) {as.list(ref_grid(x))})
+volume_emmgrid_lm_agesq_AG_matched <- lapply(volume_emmodel_lm_agesq_AG_matched, function(x) {as.emmGrid(x)})
 
 #run emmeans, do not include values that were not FDR corrected
-CT_emmeans_lm_agesq_AG_matched <- lapply(CT_emmgrid_lm_agesq_AG_matched, function(x) {emmeans(x, "Hydra_k3")})
+volume_emmeans_lm_agesq_AG_matched <- lapply(volume_emmgrid_lm_agesq_AG_matched, function(x) {emmeans(x, "Hydra_k3")})
 
 #run pairwise contrasts
-CT_emmpairs_lm_agesq_AG_matched <- lapply(CT_emmeans_lm_agesq_AG_matched, function(x) {pairs(x)})
+volume_emmpairs_lm_agesq_AG_matched <- lapply(volume_emmeans_lm_agesq_AG_matched, function(x) {pairs(x)})
 
 #Only include stuff that was fdr corrected (i.e., only keep parts of the model (or only display) ones that are corrected)
-CT_emmpairs_lm_agesq_AG_matched_FDR_corrected <- CT_emmpairs_lm_agesq_AG_matched[c(CT_fdr_anova_lm_agesq)]
+volume_emmpairs_lm_agesq_AG_matched_FDR_corrected <- volume_emmpairs_lm_agesq_AG_matched[c(volume_fdr_anova_lm_agesq)]
 
 ######Make table of contrasts, rows are names of brain regions that are fdr corrected, columns are contrasts, values are pvalues
 
 #contrast names, -1 = controls, 1-3 are clusters
 contrast_names <- c("-1 - 1", "-1 - 2", "-1 - 3", "1 - 2", "1 - 3", "2 - 3")
 #go through each fdr corrected brain region, and extract p values
-contrast_table <- lapply(CT_emmpairs_lm_agesq_AG_matched_FDR_corrected, function(x) {round(summary(x)$p.value,3)})
+contrast_table <- lapply(volume_emmpairs_lm_agesq_AG_matched_FDR_corrected, function(x) {round(summary(x)$p.value,3)})
 #get the names of the brain regions that were fdr corrected
 fdr_corrected_brain_regions <- names(contrast_table)
 #build table that will hold the name of the brain region and the p values
@@ -579,29 +580,30 @@ for (region in fdr_corrected_brain_regions)
 }
 
 #get the mprage out of the name
-fdr_corrected_brain_regions_gsub <- gsub("mprage_jlf_ct_", "", fdr_corrected_brain_regions)
+fdr_corrected_brain_regions_gsub <- gsub("mprage_jlf_vol_", "", fdr_corrected_brain_regions)
+fdr_corrected_brain_regions_gsub <- gsub("Cerebell", "Crbl", fdr_corrected_brain_regions_gsub)
+fdr_corrected_brain_regions_gsub <- gsub("White_Matter", "WM", fdr_corrected_brain_regions_gsub)
+fdr_corrected_brain_regions_gsub <- gsub("Vermal_Lobules", "Verm_lob", fdr_corrected_brain_regions_gsub)
 rownames(pairwise_table) <- fdr_corrected_brain_regions_gsub
 
-#Add FDR Correction
+#Add FDR correction
 pairwise_table_with_fdr <- pairwise_table
-pairwise_table_with_fdr$p_FDR_corr <- CT_names_and_fdr_values_anova_lm_agesq$p_FDR_corr
+pairwise_table_with_fdr$p_FDR_corr <- volume_names_and_fdr_values_anova_lm_agesq$p_FDR_corr
 
 #print values
-print("LM Agesq pairwise contrasts for FDR corrected values, CORTICAL THICKNESS, (MPRAGE_JLF)")
+print("LM Agesq pairwise contrasts for FDR corrected values Cortical Volume (MPRAGE JLF)")
 print(pairwise_table)
 
-print("LM Agesq pairwise contrasts with FDR corrected values, CORTICAL THICKNESS, (MPRAGE_JLF)")
+print ("LM Agesq pairwise contrasts and FDR corr Cortical Volume (MPRAGE JLF)")
 print(pairwise_table_with_fdr)
 
-sapply(CT_emmpairs_lm_agesq_AG_matched_FDR_corrected, function(x) {print(x)})
-
+sapply(volume_emmpairs_lm_agesq_AG_matched_FDR_corrected, function(x) {print(x)})
 
 #########################################################
 #checkmodel with visreg, uncomment when want to check####
 #########################################################
-invisible(lapply(CT_score_cluster_stats_lm_AG_matched, function(x) {visreg(x)}))
+invisible(lapply(volume_score_cluster_stats_lm_AG_matched, function(x) {visreg(x)}))
 
 ```
 
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
