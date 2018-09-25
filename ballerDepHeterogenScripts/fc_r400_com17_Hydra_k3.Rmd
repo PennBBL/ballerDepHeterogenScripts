@@ -332,6 +332,7 @@ ggplot(data = all_mean_sd_sem, aes(x = network, y = mean, group = cl)) +  ylab("
   geom_line(aes(color=cl)) +
   geom_point(aes(color=cl)) + 
   geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   ggtitle("Hydra cluster by Network Connectivity")
 ```
 

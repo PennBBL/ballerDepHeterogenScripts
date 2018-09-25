@@ -1,7 +1,7 @@
 ---
-title: "Functional Connectivity, weighted removal, concatenated(rest+nback+idemo), r400, com17 communities, n 312, Hydra_k3"
+title: "Functional Connectivity, Rest ONLY r400, com17 communities, n 325, Hydra_k3"
 author: "Erica Baller"
-date: "7/31/18"
+date: "8/14/18"
 output:
   pdf_document: default
   html_document: default
@@ -65,13 +65,12 @@ Part 6 : FDR Correction
 num_communities <- 17
 num_clusters <- 3
 res <- 400
-exclusion <- "weighted"
 
-#old data location
+
+#data has the OLD files, that were not pearson correlated correctly
 #filename <- Sys.glob(paste0("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/output_of_fc/concatenate_rest_nback_idemo/fc_concat_", exclusion, "_r", res, "_com", num_communities, "/fc_concat_", exclusion, "_r", res, "_com", num_communities, ".csv"))
 
-
-filename <- Sys.glob(paste0("/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/output_of_fc/concatenate_rest_nback_idemo/fc_concat_", exclusion, "_r", res, "_com", num_communities, "/fc_concat_", exclusion, "_r", res, "_com", num_communities, ".csv"))
+filename <- Sys.glob(paste0("/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/output_of_fc/fc_r", res, "_com", num_communities, "/fc_r", res, "_com", num_communities, ".csv"))
 
 fc_networks_and_dem_clinical_psych_data <- read.csv(filename)
 #fc_networks_and_dem_clinical_psych_data <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/output_of_fc/fc_r400_com17/fc_r400_com17.csv")
@@ -80,7 +79,6 @@ fc_networks_and_dem_clinical_psych_data <- read.csv(filename)
 
 #subset_with_clusters_AG_matched - rename because this is what will be used for the rest of the script
 subset_with_clusters_AG_matched <- fc_networks_and_dem_clinical_psych_data
-subset_with_clusters_AG_matched_noTD <-eval(parse(text=as.name(paste0("subset_with_clusters_AG_matched[which(subset_with_clusters_AG_matched$Hydra_k", num_clusters, " != -1),]"))))
 
 #Get cluster and network names
 clusters <- names(fc_networks_and_dem_clinical_psych_data[grep ("Hydra", names(fc_networks_and_dem_clinical_psych_data))])
@@ -102,11 +100,12 @@ between <- networks[!is.element(networks, within)]
 #fc_networks_and_dem_clinical_psych_data[clusters] <- lapply(fc_networks_and_dem_clinical_psych_data[clusters], factor)
 subset_with_clusters_AG_matched[clusters] <- lapply(subset_with_clusters_AG_matched[clusters], factor)
 
+subset_with_clusters_AG_matched_noTD <-eval(parse(text=as.name(paste0("subset_with_clusters_AG_matched[which(subset_with_clusters_AG_matched$Hydra_k", num_clusters, " != -1),]"))))
+
 #get number of measures (to be used later on when trying to make graphs), for every different modality WILL HAVE TO CHANGE THIS
 num_measures <- length(networks)
 num_within <- length(within)
 num_between<- num_measures - num_within
-
 #get cluster titles 
 
 cluster_titles <- get_cluster_titles(hydra_cluster = num_clusters)
@@ -427,7 +426,7 @@ ggplot(data = all_mean_sd_sem, aes(x = network, y = mean, group = cl)) +  ylab("
   geom_line(aes(color=cl)) +
   geom_point(aes(color=cl)) + 
   geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1) +
-   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   ggtitle("Hydra cluster by Network Connectivity")
 
 ####################
@@ -581,7 +580,7 @@ ggplot(data = all_mean_sd_sem, aes(x = network, y = mean, group = cl)) +  ylab("
   geom_line(aes(color=cl)) +
   geom_point(aes(color=cl)) + 
   geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1) +
-  
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   ggtitle("Hydra cluster by Network Connectivity No TD")
 
 ####################
@@ -628,7 +627,7 @@ ggplot(data = all_mean_sd_sem_within, aes(x = network, y = mean, group = cl)) + 
   geom_line(aes(color=cl)) +
   geom_point(aes(color=cl)) + 
   geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +  
   ggtitle("Hydra cluster by WITHIN Network Connectivity No TD")
 
 ###################
@@ -681,6 +680,8 @@ ggplot(data = all_mean_sd_sem_between, aes(x = network, y = mean, group = cl)) +
 
 ```
 
+
+FDR correction 
 ```{r FDR Correction, echo = FALSE, fig.width=10}
 
 ###################################################
@@ -1196,3 +1197,4 @@ sapply(network_emmpairs_lm_agesq_AG_matched_noTD, function(x) {print(x)})
 #invisible(lapply(network_cluster_stats_lm_AG_matched_noTD, function(x) {visreg(x)}))
 
 ```
+
