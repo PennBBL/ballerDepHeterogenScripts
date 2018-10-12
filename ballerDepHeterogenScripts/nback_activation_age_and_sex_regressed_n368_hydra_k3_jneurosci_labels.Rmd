@@ -388,7 +388,8 @@ ggplot(data = all_mean_sd_sem, aes(x = parcellation, y = mean, group = cl)) +  y
   geom_point(aes(color=cl)) + 
   geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  ggtitle("Hydra cluster by Jneurosci Parcellation in Nback")
+   theme(axis.text.x = element_text(size = 15), axis.text.y = element_text(size = 20), title = element_text(size = 20), legend.text = element_text(size = 20)) + 
+  ggtitle(paste0("Hydra_k", num_clusters, " by Jneurosci Parcellation in Nback"))
 ```
 
 ##FDR correction 

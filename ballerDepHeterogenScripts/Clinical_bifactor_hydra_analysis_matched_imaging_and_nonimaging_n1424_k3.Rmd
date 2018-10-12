@@ -3,8 +3,8 @@ title: "Clinical_bifactor_hydra_analysis_matched_imaging_and_non_imaging_n1424_k
 author: "Erica Baller"
 date: "6/29/2018"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -400,13 +400,14 @@ all_mean_sd_sem$clinical <- gsub("_4factorv2", "", all_mean_sd_sem$clinical)
 
 #add sems to clinical_measures_for_plot
 #clinical_measures_for_plot$sem <- all_sem_one_col
-#names(clinical_measures_for_plot) <- c("cluster", "clinical", "z_score", "sem")
-ggplot(data = all_mean_sd_sem, aes(x = clinical, y = mean, group = cl)) +  ylab("Mean Z-score") +
-  geom_line(aes(color=cl)) +
-  geom_point(aes(color=cl)) + 
+names(all_mean_sd_sem) <- c("cluster", "clinical", "mean", "sd", "sem")
+ggplot(data = all_mean_sd_sem, aes(x = clinical, y = mean, group = cluster)) +  ylab("Mean Z-score") + 
+  geom_line(aes(color=cluster)) +
+  geom_point(aes(color=cluster)) + 
   geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1) +
   scale_x_discrete(limits=all_mean_sd_sem$clinical) +
-  ggtitle("Hydra_k3, clinical Measures")
+  theme(axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), title = element_text(size = 20), legend.text = element_text(size = 20)) + 
+  ggtitle("Hydra_k3 Clinical Measures: Bifactor Scores")
 
 ```
 
