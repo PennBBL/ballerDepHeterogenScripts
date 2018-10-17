@@ -10,7 +10,7 @@ set bblid_and_scanid_path = /data/jux/BBL/projects/ballerDepHeterogen/results/cs
 ## Parcellation and Template Paths
 set SchaeferPNC_path = /data/joy/BBL/studies/pnc/template/SchaeferPNC.nii.gz
 set pnc_2mm_path = /data/joy/BBL/studies/pnc/template/pnc_template_brain_2mm.nii.gz
-set SchaeferPNC_2mm_path = /data/jux/BBL/projects/ballerDepHeterogen/ballerDepHeterogenScripts/Imaging/matched/nback/activation_by_hydra_cluster_n368/Schaefer400PNC_2mm.nii.gz
+set SchaeferPNC_2mm_path = /data/jux/BBL/projects/ballerDepHeterogen/ballerDepHeterogenScripts/Imaging/matched/nback/20181015_schaefer400/Schaefer400PNC_2mm.nii.gz
 
 
 ####################
@@ -18,11 +18,11 @@ set SchaeferPNC_2mm_path = /data/jux/BBL/projects/ballerDepHeterogen/ballerDepHe
 ####################
 
 ## Define output directory for ROI values
-set outdir = /data/jux/BBL/projects/ballerDepHeterogen/ballerDepHeterogenScripts/Imaging/matched/nback/activation_by_hydra_cluster_n368
+set outdir = /data/jux/BBL/projects/ballerDepHeterogen/ballerDepHeterogenScripts/Imaging/matched/nback/20181015_schaefer400
 mkdir -p ${outdir}
 
-set nback_paths = ${outdir}/n368_2back-0backStd_paths.txt
-set tmp_output = ${outdir}/tmp_Schaefer400PNC_voxelwise_mean_n368_2back-0back_sigchange_regional_values.txt
+set nback_paths = ${outdir}/n368_2back0backStd_paths.txt
+set tmp_output = ${outdir}/tmp_Schaefer400PNC_voxelwise_mean_n368_2back0back_sigchange_regional_values.txt
 set final_output = ${outdir}/BBLID_SCANID_schaefer_parcellations_n368.txt
 echo -n "" >! ${nback_paths}
 
@@ -51,7 +51,7 @@ foreach bblid_and_scanid ("`cat ${bblid_and_scanid_path}`")
 	echo "BBLID AND SCANID ${bblid_and_scanid}"
 	set bblid = `echo ${bblid_and_scanid} | cut -d ' ' -f1`
 	set scanid = `echo ${bblid_and_scanid} | cut -d ' ' -f2`
-	set nback_path = `ls /data/joy/BBL/studies/pnc/n1601_dataFreeze/neuroimaging/nback/voxelwiseMaps_nback/${scanid}_sigchange_cope4_2back-0backStd.nii.gz`
+	set nback_path = `ls /data/joy/BBL/studies/pnc/n1601_dataFreeze/neuroimaging/nback/n1601_voxelwiseMaps_nback/*${scanid}_sigchange_contrast4_2back0backStd.nii.gz`
 	echo $nback_path >> ${nback_paths}
 	c3d "${nback_path}" "${SchaeferPNC_2mm_path}" -lstat >! $tmp_output
 	echo -n "${bblid} ${scanid}" >> $final_output
