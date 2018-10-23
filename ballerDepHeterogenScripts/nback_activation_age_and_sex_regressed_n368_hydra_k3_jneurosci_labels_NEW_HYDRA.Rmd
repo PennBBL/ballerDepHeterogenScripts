@@ -1,7 +1,7 @@
 ---
-title: "Nback Activation, matched age and sex, n368, Hydra K3, 13 jneurosci labels"
+title: "Nback Activation, matched age and sex, n368, Hydra K3, 13 jneurosci labels, NEW HYDRA"
 author: "Erica Baller"
-date: "8/31/2018"
+date: "10/17/2018"
 output:
   pdf_document: default
   html_document: default
@@ -72,7 +72,7 @@ cluster_titles <- get_cluster_titles(hydra_cluster = num_clusters)
 
 #read in csvs
 nback_Factors <- readRDS("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/neuroimaging/nback/nbackFactors_n1601_subjData_20150506.rds")
-dem_and_cluster_data <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/subset_with_T1_NbackFC_and_dem_with_clusters.csv", header = TRUE, sep = " ")
+dem_and_cluster_data <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/subset_with_T1_NbackFC_and_dem_with_clusters_NEW_HYDRA.csv", header = TRUE, sep = " ")
 
 
 #Get cluster and parcellation names
