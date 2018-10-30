@@ -228,6 +228,9 @@ data_frame_mean_sd_sem_no_TD <- function(data_frame, variable, hydra_cluster){
   return(df_mean_sd_sem)
 }
 
+
+
+###### Plotting #####
 multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
   library(grid)
   
@@ -319,6 +322,8 @@ plot_continuous_variables <- function(data_frame, var1, var2, hydra_cluster, opt
   
 }
 
+
+#### Stats#####
 fdr_anova <- function(data_frame) {
   models_anova <- lapply(data_frame, summary)
   
@@ -464,4 +469,59 @@ pairwise_contrasts_generic_num_clusters <- function(data_frame_lm, fdr_anova, nu
   pairwise <- list(empairs_df, empairs_FDR_corrected, pairwise_table, pairwise_table_with_fdr)
   return(pairwise)
   
+}
+
+
+
+############## Get community names #############
+get_community_names <- function(num_communities) {
+  #takes a number of communities, returns a list of each community, within, and between network labels
+  if (num_communities == 7) {
+    com_names <- c("visual", "somatomotor", "dorsalAttention", "salienceVentralAttention", "limbic", "frontoparietalControl", "default")
+    within <- c("visual_visual", "somatomotor_somatomotor", "dorsalAttention_dorsalAttention", "salienceVentralAttention_salienceVentralAttention", "limbic_limbic", "frontoparietalControl_frontoparietalControl", "default_default")
+    between <- c("visual_somatomotor", "visual_dorsalAttention", "somatomotor_dorsalAttention", "visual_salienceVentralAttention", "somatomotor_salienceVentralAttention", "dorsalAttention_salienceVentralAttention", "visual_limbic", "somatomotor_limbic", "dorsalAttention_limbic",                       
+    "salienceVentralAttention_limbic", "visual_frontoparietalControl",                  
+    "somatomotor_frontoparietalControl", "dorsalAttention_frontoparietalControl",         
+    "salienceVentralAttention_frontoparietalControl", "limbic_frontoparietalControl",                  
+    "visual_default", "somatomotor_default",                          
+    "dorsalAttention_default", "salienceVentralAttention_default",              
+    "limbic_default", "frontoparietalControl_default")     
+     } else if (num_communities == 17) {
+       networks <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/community_names.csv")
+       com_names <- networks[2]
+       com_names <- c(sapply(com_names, as.character))
+       within <- networks[2]
+       within <- c(sapply(within, as.character))
+      
+      #make list of between
+       num_between <- (num_communities * (num_communities -1))/2
+       between <- array(data = "NA", dim = num_between)
+       nrow <- 1
+       num_netA <- 1
+       num_netB <- 1
+       for (network_a in within) {
+         for (network_b in within) {
+           #make sure you aren't adding betworks that are either WITHIN, or have already been added to the matrix
+           if ((network_a != network_b) & (num_netA < num_netB)) {
+              between[nrow] <- paste0(network_a, "_", network_b)
+              nrow <- nrow + 1
+           }
+           num_netB <- num_netB + 1
+         }
+         num_netA <- num_netA + 1
+         num_netB <- 1
+       }
+       between <- c(sapply(between, as.character))
+       #make the character lists of within networks, aka visualCentral_visualCentral
+       for (row in 1:length(within)) {
+         within[row] <- paste0(within[row], "_", within[row])
+       }
+        
+  } else {
+    com_names <- c("error")
+    within <- c("error")
+    between <- c("error")
+  }
+  all_names<- list(com_names, within, between)
+  return(all_names)
 }

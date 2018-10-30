@@ -3,8 +3,8 @@ title: "Functional Connectivity, weighted removal, concatenated(rest+nback+idemo
 author: "Erica Baller"
 date: "10/21/18"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
