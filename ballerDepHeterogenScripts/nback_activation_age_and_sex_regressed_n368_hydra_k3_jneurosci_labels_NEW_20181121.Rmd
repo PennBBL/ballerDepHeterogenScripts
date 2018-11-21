@@ -1,5 +1,5 @@
 ---
-title: "Nback Activation, matched age and sex, n368, Hydra K3, 27 jneurosci labels, NEWLY extracted as of 11/21"
+title: "Nback Activation, matched age and sex, n368, Hydra K3, 27 jneurosci labels, Old Hydra, but done with Toni's new stuff"
 author: "Erica Baller"
 date: "11/21/2018"
 output:
@@ -71,15 +71,15 @@ num_clusters <- 3
 cluster_titles <- get_cluster_titles(hydra_cluster = num_clusters)
 
 #read in csvs
-nback_Factors <- readRDS("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/neuroimaging/nback/nbackFactors_n1601_subjData_20150506.rds")
+#nback_Factors <- readRDS("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/neuroimaging/nback/nbackFactors_n1601_subjData_20150506.rds")
 
-dem_and_cluster_data <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/subset_with_T1_NbackFC_and_dem_with_clusters.csv", header = TRUE, sep = " ")
+dem_and_cluster_data <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/subset_with_T1_NbackFC_and_dem_with_clusters_20181121_OLD_HYDRA_with_new_script_from_toni.csv", header = TRUE, sep = " ")
 
-nback_new_jneurosci_vals <- read.table("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/neuroimaging/nback/parcels/mean_activation_by_27roi_by_SCANID.csv", header = TRUE)
+new_nback_extracted_vals_from_jneurosci <- read.table("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/neuroimaging/nback/parcels/mean_activation_by_27roi_by_SCANID.csv", header = TRUE)
 
 #Get cluster and parcellation names
 clusters <- names(dem_and_cluster_data[grep ("Hydra", names(dem_and_cluster_data))])
-parcellations <- names(nback_Factors[grep ("nback_func_sc", names(nback_Factors))])
+parcellations <- names(new_nback_extracted_vals_from_jneurosci[grep ("nback_func_sc", names(new_nback_extracted_vals_from_jneurosci))])
 
 #get number of measures (to be used later on when trying to make graphs), for every different modality WILL HAVE TO CHANGE THIS
 num_measures <- length(parcellations)
@@ -91,19 +91,9 @@ dem_and_cluster_data[hydra_names] <- lapply(dem_and_cluster_data[clusters], fact
 dem_and_cluster_data$sex <- as.factor(dem_and_cluster_data$sex)
 dem_and_cluster_data$race <- as.factor(dem_and_cluster_data$race)
 
-#preprocessing
-#remove the nback factor parcellations- will be adding the ones from the new extraction 
-nback_factors_without_parcellations <- nback_Factors[, !(names(nback_Factors) %in% parcellations)]
-subset_with_clusters_AG_matched <- merge(dem_and_cluster_data, nback_new_jneurosci_vals, by="scanid")
-
-
-#subset nback_Factors because it is so big
-#nback_Factors_bblid_and_parcellations <-  merge(nback_factors_without_parcellations, new_jneurosci_vals_plus_dem_and_cluster_data, by="bblid")
-#colnames(nback_Factors_bblid_and_parcellations)[1] <- "bblid"
-
-
 #merge
-#subset_with_clusters_AG_matched <- merge(nback_Factors_bblid_and_parcellations, dem_and_cluster_data, by = "bblid")
+subset_with_clusters_AG_matched <- merge(dem_and_cluster_data, new_nback_extracted_vals_from_jneurosci, by="scanid")
+
 
 
 ```
