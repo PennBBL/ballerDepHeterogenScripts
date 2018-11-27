@@ -406,7 +406,8 @@ names(all_mean_sd_sem) <- c("cluster", "clinical", "mean", "sd", "sem")
 clinical_bifactor_TONI_names <- c("anxious-misery", "psychosis", "behavioral", "fear", "overall psychopathology")
 new_names <- rep(clinical_bifactor_TONI_names, each = 4)
 all_mean_sd_sem$new_names <- new_names
-
+upper_case <- gsub(pattern = "\\b([a-z])", replacement = "\\U\\1", all_mean_sd_sem$new_names, perl = TRUE)
+all_mean_sd_sem$new_names <- upper_case
 #plot
 #ggplot(data = all_mean_sd_sem, aes(x = clinical, y = mean, group = cluster)) +  ylab("Mean Z-score") + xlab("Clinical Factors") + 
  # geom_line(aes(color=cluster)) +

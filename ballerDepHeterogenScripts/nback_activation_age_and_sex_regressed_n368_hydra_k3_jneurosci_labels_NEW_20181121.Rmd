@@ -386,7 +386,22 @@ parcellations_newNames <- gsub(" r", " Right", parcellations_newNames) #converts
 parcellations_newNames <- gsub(" l", " Left", parcellations_newNames) #converts l to Left
 parcellations_newNames <- gsub("ant", "Anterior", parcellations_newNames) #converts ant to Anterior
 parcellations_newNames <- gsub("post", "Posterior", parcellations_newNames) #converts post to Posterior
+parcellations_newNames <- gsub("hipp", "hippocampus", parcellations_newNames)
+parcellations_newNames <- gsub("rusI", "rus I", parcellations_newNames)
+parcellations_newNames <- gsub("fp", "Frontal Pole", parcellations_newNames)
+parcellations_newNames <- gsub("mfg", "dorsal frontal", parcellations_newNames)
+parcellations_newNames <- gsub("precun", "precuneus", parcellations_newNames)
+parcellations_newNames <- gsub("pcc", "posterior cingulate cortex", parcellations_newNames)
+#parcellations_newNames <- gsub("pcc", "PCC", parcellations_newNames)
+#parcellations_newNames <- gsub("dacc", "dACC", parcellations_newNames)
+#parcellations_newNames <- gsub("dlpfc", "DLPFC", parcellations_newNames)
+#parcellations_newNames <- gsub("vmpfc", "VMPFC", parcellations_newNames)
+parcellations_newNames <- gsub("dacc", "anterior cingulate", parcellations_newNames)
+parcellations_newNames <- gsub("dlpfc", "DLPFC", parcellations_newNames)
+parcellations_newNames <- gsub("vmpfc", "vmPFC", parcellations_newNames)
+parcellations_newNames <- gsub("thal", "thalamus", parcellations_newNames)
 parcellations_newNames <- gsub(pattern = "\\b([a-z])", replacement = "\\U\\1", parcellations_newNames, perl = TRUE)
+parcellations_newNames <- gsub("Vmpfc", "vmPFC", parcellations_newNames)
 to_add <- rep(parcellations_newNames, each = 4)
 all_mean_sd_sem$newNames <- to_add
 
@@ -398,7 +413,7 @@ ggplot(data = all_mean_sd_sem, aes(x = newNames, y = mean, group = cl)) + ylab("
   geom_point(aes(color=cl)) + 
   geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1, size=1.5) +
  # geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1) +
-  scale_x_discrete(labels=parcellations_newNames, name = " ") + labs(colour = "cluster") +
+  scale_x_discrete(name = " ") + labs(colour = "cluster") +
   guides(colour = guide_legend(override.aes = list(size=10))) +
   theme(axis.text.x = element_text(size = 20, angle=60, hjust = 1), 
         axis.text.y = element_text(size = 30),
@@ -408,7 +423,7 @@ ggplot(data = all_mean_sd_sem, aes(x = newNames, y = mean, group = cl)) + ylab("
         legend.title=element_blank())
 
 #ggplot(data = all_mean_sd_sem, aes(x = newNames, y = mean, group = cl)) +  ylab("Percent signal change") + xlab("Region of Interest") +
- # geom_line(aes(color=cl)) +
+ #geom_line(aes(color=cl)) +
 #  geom_point(aes(color=cl)) + 
 #  geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1) +
 #  theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
