@@ -398,17 +398,48 @@ for(clinical in clinical_measure_names_list){
 
 #remove _4factorv2 from names
 all_mean_sd_sem$clinical <- gsub("_4factorv2", "", all_mean_sd_sem$clinical)
+all_mean_sd_sem$clinical <- gsub("_", " ", all_mean_sd_sem$clinical)
 
-#add sems to clinical_measures_for_plot
-#clinical_measures_for_plot$sem <- all_sem_one_col
 names(all_mean_sd_sem) <- c("cluster", "clinical", "mean", "sd", "sem")
-ggplot(data = all_mean_sd_sem, aes(x = clinical, y = mean, group = cluster)) +  ylab("Mean Z-score") + 
-  geom_line(aes(color=cluster)) +
+
+#change bifactor names to match Toni's
+clinical_bifactor_TONI_names <- c("anxious-misery", "psychosis", "behavioral", "fear", "overall psychopathology")
+new_names <- rep(clinical_bifactor_TONI_names, each = 4)
+all_mean_sd_sem$new_names <- new_names
+
+#plot
+#ggplot(data = all_mean_sd_sem, aes(x = clinical, y = mean, group = cluster)) +  ylab("Mean Z-score") + xlab("Clinical Factors") + 
+ # geom_line(aes(color=cluster)) +
+#  geom_point(aes(color=cluster)) + 
+#  geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1) +
+#  scale_x_discrete(limits=all_mean_sd_sem$clinical, labels=all_mean_sd_sem$new_names) +
+ # scale_x_discrete((limits=clinical_bifactor_TONI_names))+
+ # theme(axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), title = element_text(size = 20), legend.text = element_text(size = 20)) + 
+ # theme(axis.text.x = element_text(size = 20, colour = "yellow"),
+  #      axis.title.x = element_text(size = 20, colour = "yellow"),
+   #     axis.text.y = element_text(size = 20, colour = "yellow"), 
+    #    axis.title.y = element_text(size = 20, colour = "yellow"),
+     #   title = element_text(size = 20, colour = "yellow"), 
+      #  legend.text = element_text(size = 20, colour = "black"), 
+       # legend.title = element_text(size = 20, colour = "black"), 
+      #  plot.background = element_rect(fill = "darkblue"),
+      #  panel.grid.major = element_line(colour = "grey92"), 
+      #  panel.background = element_rect(fill = "white")) +
+#  ggtitle("Clinical Bifactor Scores")
+
+ggplot(data = all_mean_sd_sem, aes(x = clinical, y = mean, group = cluster)) + ylab("Mean Z-score")  +
+  ggtitle("Clinical Bifactor Scores") + 
+  geom_line(aes(color=cluster, size=.1), show.legend = F) +
   geom_point(aes(color=cluster)) + 
-  geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1) +
-  scale_x_discrete(limits=all_mean_sd_sem$clinical) +
-  theme(axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), title = element_text(size = 20), legend.text = element_text(size = 20)) + 
-  ggtitle("Hydra_k3 Clinical Measures: Bifactor Scores")
+  geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1, size=1.5) +
+  scale_x_discrete(limits=all_mean_sd_sem$clinical, labels=all_mean_sd_sem$new_names, name = " ") +
+  guides(colour = guide_legend(override.aes = list(size=10))) +
+  theme(axis.text.x = element_text(size = 20, hjust = 1, angle = 60), 
+        axis.text.y = element_text(size = 30),
+        title = element_text(size = 30), 
+        legend.text = element_text(size = 30), 
+        plot.title = element_text(size=35),
+        legend.title=element_blank())
 
 ```
 

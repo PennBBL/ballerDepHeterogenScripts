@@ -81,6 +81,8 @@ new_nback_extracted_vals_from_jneurosci <- read.table("/Users/eballer/BBL/from_c
 clusters <- names(dem_and_cluster_data[grep ("Hydra", names(dem_and_cluster_data))])
 parcellations <- names(new_nback_extracted_vals_from_jneurosci[grep ("nback_func_sc", names(new_nback_extracted_vals_from_jneurosci))])
 
+
+
 #get number of measures (to be used later on when trying to make graphs), for every different modality WILL HAVE TO CHANGE THIS
 num_measures <- length(parcellations)
 
@@ -377,17 +379,53 @@ for(parcellation in parcellations){
   }
 }
 
+#lets do some parcellation reorganization
+parcellations_newNames <- gsub("nback_func_sc_", "", parcellations) #removes the nback_func_sc_
+parcellations_newNames <- gsub("_", " ", parcellations_newNames) #converts underscores to spaces
+parcellations_newNames <- gsub(" r", " Right", parcellations_newNames) #converts r to Right
+parcellations_newNames <- gsub(" l", " Left", parcellations_newNames) #converts l to Left
+parcellations_newNames <- gsub("ant", "Anterior", parcellations_newNames) #converts ant to Anterior
+parcellations_newNames <- gsub("post", "Posterior", parcellations_newNames) #converts post to Posterior
+parcellations_newNames <- gsub(pattern = "\\b([a-z])", replacement = "\\U\\1", parcellations_newNames, perl = TRUE)
+to_add <- rep(parcellations_newNames, each = 4)
+all_mean_sd_sem$newNames <- to_add
 
-#add sems to parcellations_for_plot
-#parcellations_for_plot$sem <- all_sem_one_col
-#names(parcellations_for_plot) <- c("cluster", "parcellation", "z_score", "sem")
-ggplot(data = all_mean_sd_sem, aes(x = parcellation, y = mean, group = cl)) +  ylab("% signal change") +
-  geom_line(aes(color=cl)) +
+#plot
+ggplot(data = all_mean_sd_sem, aes(x = newNames, y = mean, group = cl)) + ylab("% Signal Change") +  
+  ggtitle("N-back Functional Regions of Interest") + 
+  geom_line(aes(color=cl, size=.1), show.legend = F) +
+#  geom_line(aes(color=cl), show.legend = F) +
   geom_point(aes(color=cl)) + 
-  geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1) +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-   theme(axis.text.x = element_text(size = 15), axis.text.y = element_text(size = 20), title = element_text(size = 20), legend.text = element_text(size = 20)) + 
-  ggtitle(paste0("Hydra_k", num_clusters, " by Jneurosci Parcellation in Nback"))
+  geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1, size=1.5) +
+ # geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1) +
+  scale_x_discrete(labels=parcellations_newNames, name = " ") + labs(colour = "cluster") +
+  guides(colour = guide_legend(override.aes = list(size=10))) +
+  theme(axis.text.x = element_text(size = 20, angle=60, hjust = 1), 
+        axis.text.y = element_text(size = 30),
+        title = element_text(size = 30), 
+        legend.text = element_text(size = 30), 
+        plot.title = element_text(size=35),
+        legend.title=element_blank())
+
+#ggplot(data = all_mean_sd_sem, aes(x = newNames, y = mean, group = cl)) +  ylab("Percent signal change") + xlab("Region of Interest") +
+ # geom_line(aes(color=cl)) +
+#  geom_point(aes(color=cl)) + 
+#  geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1) +
+#  theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
+#   theme(axis.text.x = element_text(size = 15), axis.text.y = element_text(size = 20), title = element_text(size = 20), legend.text = element_text(size = 20)) + labs(colour="cluster") +
+# scale_x_discrete(labels=newNames) + labs(colour = "cluster") +
+ # theme(axis.text.x = element_text(size = 20, colour = "yellow"),
+  #      axis.title.x = element_text(size = 20, colour = "yellow"),
+   #     axis.text.y = element_text(size = 20, colour = "yellow"), 
+    #    axis.title.y = element_text(size = 20, colour = "yellow"),
+     #   title = element_text(size = 20, colour = "yellow"), 
+      #  legend.text = element_text(size = 20, colour = "black"), 
+       # legend.title = element_text(size = 20, colour = "black"), 
+      #  plot.background = element_rect(fill = "darkblue"),
+      #  panel.grid.major = element_line(colour = "grey92"), 
+      #  panel.background = element_rect(fill = "white")) +
+ # ggtitle(paste0("Hydra_k", num_clusters, " by Jneurosci Parcellation in Nback"))
+ ggtitle("N-back Functional Regions of Interest")
 ```
 
 ##FDR correction 
