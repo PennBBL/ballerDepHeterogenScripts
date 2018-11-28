@@ -381,7 +381,7 @@ Results graphically presented
 ############################################
 ###Avg Z scores of clinical measures########
 ############################################
-groups_list <- data.frame(cbind(c("TD", "Cluster1", "Cluster2", "Cluster3"), c("-1", "1", "2", "3")))
+groups_list <- data.frame(cbind(c("TD", "Cluster 1", "Cluster 2", "Cluster 3"), c("-1", "1", "2", "3")))
 names(groups_list) <- c("cl", "numeric")
 all_mean_sd_sem <- data.frame(rep(groups_list$cl, 4), rep(clinical_measure_names, each = 4), rep(0, 1), rep(0, 1), rep(0,1))
 names(all_mean_sd_sem) <- c("cl", "clinical", "mean", "sd", "sem")

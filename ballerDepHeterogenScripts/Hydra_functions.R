@@ -8,7 +8,7 @@ require('tidyr')
 require('ggplot2')
 require('reshape')
 require('emmeans')
-
+require('cowplot')
 ## set directories ##
 #local_wkdir <- '~/Google Drive/TDSlab/SCZ_gene_imaging/'
 #remote_wkdir <- '~/Desktop/BBL/data/joy/BBL/studies/pnc/'
@@ -105,7 +105,7 @@ get_cluster_titles <- function(hydra_cluster){
   # build vector of titles
   cluster_titles <- c("TD")
   for (cluster_counter in 1:hydra_cluster){
-    title_to_add <- paste0("Cluster", cluster_counter)
+    title_to_add <- paste0("Cluster ", cluster_counter)
     cluster_titles <- c(cluster_titles, title_to_add)
   }
   return(cluster_titles)
@@ -115,7 +115,7 @@ get_cluster_titles_no_TD <- function(hydra_cluster){
   # build vector of titles
   cluster_titles <- NULL
   for (cluster_counter in 1:hydra_cluster){
-    title_to_add <- paste0("Cluster", cluster_counter)
+    title_to_add <- paste0("Cluster ", cluster_counter)
     cluster_titles <- c(cluster_titles, title_to_add)
   }
   return(cluster_titles)
