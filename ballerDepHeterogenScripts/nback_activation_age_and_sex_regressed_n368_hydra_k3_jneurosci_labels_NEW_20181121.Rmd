@@ -20,6 +20,7 @@ library(ggplot2)
 library(reshape)
 library(emmeans)
 library(MASS)
+require(cowplot)
 theme_update(plot.title = element_text(hjust = 0.5))
 source("~/BBL/from_chead/ballerDepHeterogen/ballerDepHeterogenScripts/Hydra_functions.R")
 
@@ -440,7 +441,7 @@ ggplot(data = all_mean_sd_sem, aes(x = newNames, y = mean, group = cl)) + ylab("
       #  panel.grid.major = element_line(colour = "grey92"), 
       #  panel.background = element_rect(fill = "white")) +
  # ggtitle(paste0("Hydra_k", num_clusters, " by Jneurosci Parcellation in Nback"))
- ggtitle("N-back Functional Regions of Interest")
+ #ggtitle("N-back Functional Regions of Interest")
 ```
 
 ##FDR correction 
@@ -686,3 +687,112 @@ contrast_names <- c("-1 - 1", "-1 - 2", "-1 - 3", "1 - 2", "1 - 3", "2 - 3")
 #invisible(lapply(parcellation_cluster_stats_lm_AG_matched, function(x) {visreg(x)}))
 
 ```
+
+```{r graphing_only_significant_brain_regions, echo = FALSE}
+parcellations <- row.names(pairwise_table_with_fdr)
+cluster_titles <- get_cluster_titles(hydra_cluster = num_clusters)
+cluster_vector <- get_cluster_numerical_vector(hydra_cluster = num_clusters)
+groups <- data.frame(cbind(cluster_titles, cluster_vector))
+names(groups) <- c("cl", "numeric")
+total_num_groups <- num_clusters + 1
+num_measures <- length(parcellations)
+
+#construct data frame of names of connectivity groups
+df_names <- data.frame(rep(groups$cl, num_measures), rep(parcellations, each = total_num_groups))
+names(df_names) <- c("cl", "parcellation")
+
+#construct mean_sd_sem data frame
+df_mean_sd_sem <- NULL
+for(parcellation in parcellations) {
+  mean_sd_sem <- data_frame_mean_sd_sem(data_frame = subset_with_clusters_AG_matched, variable = parcellation, hydra_cluster = num_clusters)
+  df_mean_sd_sem <- rbind(df_mean_sd_sem, mean_sd_sem)
+}
+
+#combine data frames and remove the extra cluster names
+all_mean_sd_sem <- data.frame(df_names, df_mean_sd_sem)
+all_mean_sd_sem <- subset(all_mean_sd_sem, select = -c(cl.1))
+                          
+for(parcellation in parcellations){
+  for(num in 1:total_num_groups) {
+    clst <- groups[num,1]
+    meas <- groups[num,2]
+    mean_for_eval <- paste("mean(subset_with_clusters_AG_matched$", parcellation, "[which(subset_with_clusters_AG_matched$Hydra_k", num_clusters, " == ", groups[num,2], ")])", sep="")
+    mean_grp <- eval(parse(text=as.name(mean_for_eval)))
+    all_mean_sd_sem$mean[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$parcellation == parcellation)] <- mean_grp
+    
+    sd_for_eval <- paste("sd(subset_with_clusters_AG_matched$", parcellation, "[which(subset_with_clusters_AG_matched$Hydra_k", num_clusters, " == ", groups[num,2], ")])", sep="")
+    sd_grp <- eval(parse(text=as.name(sd_for_eval)))
+    all_mean_sd_sem$sd[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$parcellation == parcellation)] <- sd_grp
+  #  all_mean_sd_sem$sem[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$parcellation == parcellation)] <- all_mean_sd_sem$sd[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$parcellation == parcellation)]/sqrt(nrow(subset_with_clusters_AG_matched))
+    
+    #THIS WAS CHANGED 8/8, sem should be based on the number of subjects in each group!
+    sem_calc <- paste0("all_mean_sd_sem$sem[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$parcellation == parcellation)] <- all_mean_sd_sem$sd[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$parcellation == parcellation)]/sqrt(length(which(subset_with_clusters_AG_matched$Hydra_k", num_clusters," == meas)))")
+    eval(parse(text=as.name(sem_calc)))
+  
+  }
+}
+
+#lets do some parcellation reorganization
+parcellations_newNames <- gsub("nback_func_sc_", "", parcellations) #removes the nback_func_sc_
+parcellations_newNames <- gsub("_", " ", parcellations_newNames) #converts underscores to spaces
+parcellations_newNames <- gsub(" r", " Right", parcellations_newNames) #converts r to Right
+parcellations_newNames <- gsub(" l", " Left", parcellations_newNames) #converts l to Left
+parcellations_newNames <- gsub("ant", "Anterior", parcellations_newNames) #converts ant to Anterior
+parcellations_newNames <- gsub("post", "Posterior", parcellations_newNames) #converts post to Posterior
+parcellations_newNames <- gsub("hipp", "hippocampus", parcellations_newNames)
+parcellations_newNames <- gsub("rusI", "rus I", parcellations_newNames)
+parcellations_newNames <- gsub("fp", "Frontal Pole", parcellations_newNames)
+parcellations_newNames <- gsub("mfg", "dorsal frontal", parcellations_newNames)
+parcellations_newNames <- gsub("precun", "precuneus", parcellations_newNames)
+parcellations_newNames <- gsub("pcc", "posterior cingulate cortex", parcellations_newNames)
+#parcellations_newNames <- gsub("pcc", "PCC", parcellations_newNames)
+#parcellations_newNames <- gsub("dacc", "dACC", parcellations_newNames)
+#parcellations_newNames <- gsub("dlpfc", "DLPFC", parcellations_newNames)
+#parcellations_newNames <- gsub("vmpfc", "VMPFC", parcellations_newNames)
+parcellations_newNames <- gsub("dacc", "anterior cingulate", parcellations_newNames)
+parcellations_newNames <- gsub("dlpfc", "DLPFC", parcellations_newNames)
+parcellations_newNames <- gsub("vmpfc", "vmPFC", parcellations_newNames)
+parcellations_newNames <- gsub("thal", "thalamus", parcellations_newNames)
+parcellations_newNames <- gsub(pattern = "\\b([a-z])", replacement = "\\U\\1", parcellations_newNames, perl = TRUE)
+parcellations_newNames <- gsub("Vmpfc", "vmPFC", parcellations_newNames)
+to_add <- rep(parcellations_newNames, each = 4)
+all_mean_sd_sem$newNames <- to_add
+
+#plot
+ggplot(data = all_mean_sd_sem, aes(x = newNames, y = mean, group = cl)) + ylab("% Signal Change") +  
+  ggtitle("N-back Functional Regions of Interest") + 
+  geom_line(aes(color=cl, size=.1), show.legend = F) +
+#  geom_line(aes(color=cl), show.legend = F) +
+  geom_point(aes(color=cl)) + 
+  geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1, size=1.5) +
+ # geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1) +
+  scale_x_discrete(name = " ") + labs(colour = "cluster") +
+  guides(colour = guide_legend(override.aes = list(size=10))) +
+  theme(axis.text.x = element_text(size = 20, angle=60, hjust = 1), 
+        axis.text.y = element_text(size = 30),
+        title = element_text(size = 30), 
+        legend.text = element_text(size = 30), 
+        plot.title = element_text(size=35),
+        legend.title=element_blank())
+
+#ggplot(data = all_mean_sd_sem, aes(x = newNames, y = mean, group = cl)) +  ylab("Percent signal change") + xlab("Region of Interest") +
+ #geom_line(aes(color=cl)) +
+#  geom_point(aes(color=cl)) + 
+#  geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1) +
+#  theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
+#   theme(axis.text.x = element_text(size = 15), axis.text.y = element_text(size = 20), title = element_text(size = 20), legend.text = element_text(size = 20)) + labs(colour="cluster") +
+# scale_x_discrete(labels=newNames) + labs(colour = "cluster") +
+ # theme(axis.text.x = element_text(size = 20, colour = "yellow"),
+  #      axis.title.x = element_text(size = 20, colour = "yellow"),
+   #     axis.text.y = element_text(size = 20, colour = "yellow"), 
+    #    axis.title.y = element_text(size = 20, colour = "yellow"),
+     #   title = element_text(size = 20, colour = "yellow"), 
+      #  legend.text = element_text(size = 20, colour = "black"), 
+       # legend.title = element_text(size = 20, colour = "black"), 
+      #  plot.background = element_rect(fill = "darkblue"),
+      #  panel.grid.major = element_line(colour = "grey92"), 
+      #  panel.background = element_rect(fill = "white")) +
+ # ggtitle(paste0("Hydra_k", num_clusters, " by Jneurosci Parcellation in Nback"))
+ #ggtitle("N-back Functional Regions of Interest")
+```
+

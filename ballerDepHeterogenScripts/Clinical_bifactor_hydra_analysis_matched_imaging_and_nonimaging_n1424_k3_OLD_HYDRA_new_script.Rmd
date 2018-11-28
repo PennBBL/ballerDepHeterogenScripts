@@ -19,6 +19,7 @@ library(tidyr)
 library(ggplot2)
 library(reshape)
 library(emmeans)
+require(cowplot)
 theme_update(plot.title = element_text(hjust = 0.5))
 source("~/BBL/from_chead/ballerDepHeterogen/ballerDepHeterogenScripts/Hydra_functions.R")
 ```

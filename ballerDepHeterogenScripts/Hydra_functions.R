@@ -37,7 +37,7 @@ make_demographics_table<- function(data_frame, hydra_cluster) {
 
   #Define Categorical Variables
   cat_variables <- c("Race", "Depression", "Sex", "Cluster")
-  title <- c("Hydra_k3 demographics")
+  title <- c(paste0("Hydra_k", hydra_cluster, "demographics"))
 
   #create demographics table
   demo_table <- CreateTableOne(vars = listVars, data = demo, factorVars = cat_variables, strata = c("Cluster"))

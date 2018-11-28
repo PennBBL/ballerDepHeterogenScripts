@@ -19,6 +19,7 @@ library(tidyr)
 library(ggplot2)
 library(reshape)
 library(emmeans)
+require(cowplot)
 theme_update(plot.title = element_text(hjust = 0.5))
 source("~/BBL/from_chead/ballerDepHeterogen/ballerDepHeterogenScripts/Hydra_functions.R")
 ```
@@ -408,14 +409,31 @@ all_mean_sd_sem$clinical <- gsub("_corrtraitsv2", "", all_mean_sd_sem$clinical)
 
 #add sems to clinical_measures_for_plot
 #clinical_measures_for_plot$sem <- all_sem_one_col
+#names(all_mean_sd_sem) <- c("cluster", "clinical", "mean", "sd", "sem")
+#ggplot(data = all_mean_sd_sem, aes(x = clinical, y = mean, group = cluster)) +  ylab("Mean Z-score") + 
+#  geom_line(aes(color=cluster)) +
+#  geom_point(aes(color=cluster)) + 
+#  geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1) +
+#  scale_x_discrete(limits=all_mean_sd_sem$clinical) +
+#  theme(axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), title = element_text(size = 20), legend.text = element_text(size = 20)) + 
+#  ggtitle("Hydra_k3 Clinical Measures: Correlated Traits") 
+
 names(all_mean_sd_sem) <- c("cluster", "clinical", "mean", "sd", "sem")
-ggplot(data = all_mean_sd_sem, aes(x = clinical, y = mean, group = cluster)) +  ylab("Mean Z-score") + 
-  geom_line(aes(color=cluster)) +
+ggplot(data = all_mean_sd_sem, aes(x = clinical, y = mean, group = cluster)) + ylab("Mean Z-score")  +
+  ggtitle(paste0("Clinical Measures: Correlated Traits for Hydra-", num_clusters, " cluster solution")) + 
+  geom_line(aes(color=cluster, size=.1), show.legend = F) +
   geom_point(aes(color=cluster)) + 
-  geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1) +
-  scale_x_discrete(limits=all_mean_sd_sem$clinical) +
-  theme(axis.text.x = element_text(size = 20), axis.text.y = element_text(size = 20), title = element_text(size = 20), legend.text = element_text(size = 20)) + 
-  ggtitle("Hydra_k3 Clinical Measures: Correlated Traits") 
+  geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1, size=1.5) +
+ # scale_x_discrete(limits=all_mean_sd_sem$clinical, labels=all_mean_sd_sem$new_names, name = " ") +
+  scale_x_discrete(limits=all_mean_sd_sem$clinical, name = "") +
+  guides(colour = guide_legend(override.aes = list(size=10))) +
+  theme(axis.text.x = element_text(size = 20, hjust = 1, angle = 60), 
+        axis.text.y = element_text(size = 30),
+        title = element_text(size = 30), 
+        legend.text = element_text(size = 30), 
+        plot.title = element_text(size=35),
+        legend.title=element_blank())
+
 ```
 
 FDR Correction
