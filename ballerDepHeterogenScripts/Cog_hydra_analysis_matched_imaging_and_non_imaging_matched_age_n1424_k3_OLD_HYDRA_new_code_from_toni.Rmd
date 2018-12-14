@@ -433,6 +433,7 @@ ggplot(data = all_mean_sd_sem, aes(x = factor(newNames, level = summary_scores_f
   geom_point(aes(color=cluster)) + 
   geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1, size=1.5) +
   scale_x_discrete(name = " ") +
+  scale_y_continuous(limits=c(-1.5,1.5)) + 
   guides(colour = guide_legend(override.aes = list(size=10))) +
   theme(axis.text.x = element_text(size = 30), 
         axis.text.y = element_text(size = 30),
@@ -481,6 +482,7 @@ ggplot(data = all_mean_sd_sem, aes(x = cnb, y = mean, group = cluster)) + ylab("
   geom_point(aes(color=cluster)) + 
   geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1, size=1.5) +
   scale_x_discrete(name = " ") +
+  scale_y_continuous(limits=c(-1.5,1.5)) + 
   guides(colour = guide_legend(override.aes = list(size=10))) +
   theme(axis.text.x = element_text(size = 30, angle=60, hjust = 1), 
         axis.text.y = element_text(size = 30),
@@ -527,6 +529,7 @@ accuracy_full_names <- extended_names[1:12,2]
   geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1, size=1.5) +
  # scale_x_discrete(labels=accuracy_names_no_z) +
   scale_x_discrete(labels=accuracy_full_names, name = " ") +
+  scale_y_continuous(limits=c(-1.5,1.5)) + 
   guides(colour = guide_legend(override.aes = list(size=10))) +
   theme(axis.text.x = element_text(size = 20, angle=60, hjust = 1), 
         axis.text.y = element_text(size = 30),
@@ -574,6 +577,7 @@ ggplot(data = all_mean_sd_sem, aes(x = factor(cnb, level = cnb_speed_names), y =
   geom_point(aes(color=cluster)) + 
   geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1, size=1.5) +
   scale_x_discrete(labels=speed_full_names, name = " ") +
+  scale_y_continuous(limits=c(-1.5,1.5)) + 
   guides(colour = guide_legend(override.aes = list(size=10))) +
   theme(axis.text.x = element_text(size = 20, angle=60, hjust = 1), 
         axis.text.y = element_text(size = 30),
