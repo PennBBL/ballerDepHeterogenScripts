@@ -422,14 +422,17 @@ for(cnb in summary_factor_scores){
 }
 names(all_mean_sd_sem) <- c("cluster", "cnb", "mean", "sd", "sem")
 
+#remove the NAR_Overall from everything
 summary_scores_first_letter_cap <- c("Accuracy", "Speed", "Efficiency")
+newNames<- rep(summary_scores_first_letter_cap, each = num_clusters + 1)
+all_mean_sd_sem$newNames <- newNames
 
-ggplot(data = all_mean_sd_sem, aes(x = cnb, y = mean, group = cluster)) + ylab("Mean Z-score") + xlab("Summary Scores") + 
+ggplot(data = all_mean_sd_sem, aes(x = factor(newNames, level = summary_scores_first_letter_cap), y = mean, group = cluster)) + ylab("Mean Z-score") + xlab("Summary Scores") + 
   ggtitle("CNB Summary Factor Scores") +
   geom_line(aes(color=cluster, size=.1), show.legend = F) +
   geom_point(aes(color=cluster)) + 
   geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1, size=1.5) +
-  scale_x_discrete(labels= summary_scores_first_letter_cap, name = " ") +
+  scale_x_discrete(name = " ") +
   guides(colour = guide_legend(override.aes = list(size=10))) +
   theme(axis.text.x = element_text(size = 30), 
         axis.text.y = element_text(size = 30),
@@ -517,7 +520,7 @@ names(all_mean_sd_sem) <- c("cluster", "cnb", "mean", "sd", "sem")
 accuracy_names_no_z <- gsub("_z", "", cnb_accuracy_names)
 accuracy_full_names <- extended_names[1:12,2]
 
-  ggplot(data = all_mean_sd_sem, aes(x = cnb, y = mean, group = cluster)) + ylab("Mean Z-score") + xlab("Accuracy") + 
+  ggplot(data = all_mean_sd_sem, aes(x = factor(cnb, level = cnb_accuracy_names), y = mean, group = cluster)) + ylab("Mean Z-score") + xlab("Accuracy") + 
   ggtitle("CNB Accuracy Measures") + 
   geom_line(aes(color=cluster, size=.1), show.legend = F) +
   geom_point(aes(color=cluster)) + 
@@ -565,12 +568,11 @@ names(all_mean_sd_sem) <- c("cluster", "cnb", "mean", "sd", "sem")
 speed_names_no_s_z <- gsub("_s_z", "", cnb_speed_names)
 speed_full_names <- extended_names[13:26,2]
 
-ggplot(data = all_mean_sd_sem, aes(x = cnb, y = mean, group = cluster)) + ylab("Mean Z-score") + xlab("Summary Scores") + 
+ggplot(data = all_mean_sd_sem, aes(x = factor(cnb, level = cnb_speed_names), y = mean, group = cluster)) + ylab("Mean Z-score") + xlab("Summary Scores") + 
   ggtitle("CNB Speed Measures") + 
   geom_line(aes(color=cluster, size=.1), show.legend = F) +
   geom_point(aes(color=cluster)) + 
   geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1, size=1.5) +
-  #scale_x_discrete(labels=speed_names_no_s_z) +
   scale_x_discrete(labels=speed_full_names, name = " ") +
   guides(colour = guide_legend(override.aes = list(size=10))) +
   theme(axis.text.x = element_text(size = 20, angle=60, hjust = 1), 

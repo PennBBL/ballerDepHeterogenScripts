@@ -403,7 +403,7 @@ parcellations_newNames <- gsub("vmpfc", "vmPFC", parcellations_newNames)
 parcellations_newNames <- gsub("thal", "thalamus", parcellations_newNames)
 parcellations_newNames <- gsub(pattern = "\\b([a-z])", replacement = "\\U\\1", parcellations_newNames, perl = TRUE)
 parcellations_newNames <- gsub("Vmpfc", "vmPFC", parcellations_newNames)
-to_add <- rep(parcellations_newNames, each = 4)
+to_add <- rep(parcellations_newNames, each = num_clusters + 1)
 all_mean_sd_sem$newNames <- to_add
 
 #plot
@@ -755,7 +755,7 @@ parcellations_newNames <- gsub("vmpfc", "vmPFC", parcellations_newNames)
 parcellations_newNames <- gsub("thal", "thalamus", parcellations_newNames)
 parcellations_newNames <- gsub(pattern = "\\b([a-z])", replacement = "\\U\\1", parcellations_newNames, perl = TRUE)
 parcellations_newNames <- gsub("Vmpfc", "vmPFC", parcellations_newNames)
-to_add <- rep(parcellations_newNames, each = 4)
+to_add <- rep(parcellations_newNames, each = num_clusters + 1)
 all_mean_sd_sem$newNames <- to_add
 
 #plot
