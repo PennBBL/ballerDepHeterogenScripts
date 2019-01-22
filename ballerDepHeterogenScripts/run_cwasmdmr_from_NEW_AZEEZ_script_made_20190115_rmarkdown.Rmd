@@ -3,8 +3,8 @@ title: "CWASMDMR"
 author: "Erica Baller"
 date: "January 22, 2019"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
   word_document: default
 ---
 

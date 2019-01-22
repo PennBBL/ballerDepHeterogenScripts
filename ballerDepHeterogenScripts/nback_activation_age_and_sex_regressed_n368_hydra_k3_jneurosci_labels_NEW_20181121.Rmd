@@ -3,8 +3,8 @@ title: "Nback Activation, matched age and sex, n368, Hydra K3, 27 jneurosci labe
 author: "Erica Baller"
 date: "11/21/2018"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
