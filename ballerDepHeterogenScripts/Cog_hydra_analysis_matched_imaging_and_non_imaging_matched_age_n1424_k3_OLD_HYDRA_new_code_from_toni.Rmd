@@ -3,8 +3,8 @@ title: "Cog_hydra_analysis_matched_imaging_and_non_imaging_n1424_k3, old hydra w
 author: "Erica Baller"
 date: "11/21/2018"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
