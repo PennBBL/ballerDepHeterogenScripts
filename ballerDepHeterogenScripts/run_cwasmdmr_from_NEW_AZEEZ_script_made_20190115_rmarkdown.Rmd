@@ -1,0 +1,62 @@
+---
+title: "CWASMDMR"
+author: "Erica Baller"
+date: "January 22, 2019"
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#source("/data/jux/BBL/projects/ballerDepHeterogen/ballerDepHeterogenScripts/Imaging/cwasmdmr/cwasmdmr_NEW_FROM_AZEEZ_20190109.R")
+```
+
+## Uses
+
+This script displays output of CWASMDMR 
+
+#Num subjects: n= 312
+
+#Preprocessing before this script:
+Script: combine_rest_nback_idemo_volumes_weighted_n312_20181218.sh
+Uses: Concatenated rest, nback and idemo
+
+Script: extract_timeseries_from_concatenated_files_20190118_NOTRANSPOSE.csh
+Uses: extracted the timeseries from the concatenated files and output them: row (27) by col (555)
+- extracted from 27 functional parcellations from Nback
+
+Script: run_cwasmdmr_from_NEW_AZEEZ_script_made_20190115.R
+Inputs: 
+ modelfile = '/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/subject_lists/subj_list_concat_weighted_n312_with_header
+s_just_covs_and_Hydra_k3_order_by_scanid.csv'
+subjectlist = '/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/subject_lists/subj_list_n312_concat_rest_nback_idemo_4
+mm_27parcels.csv'
+Uses: gives an output of P and Z scores
+Output: "/data/jux/BBL/projects/ballerDepHeterogen/results/csvs/cwas_output_from_R_script_20190122_pandz.csv" 
+
+
+## Stats
+
+```{r stats, echo=FALSE}
+pandz <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/cwas_output_from_R_script_20190122_pandz.csv")
+names_of_parcels <- read.table("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/neuroimaging/nback/parcels/roi27_dictionary.txt", header=FALSE)
+
+#switch order of z and p
+names(pandz) <- c("parcel_num", "pval", "z")
+zandp <- data.frame(cbind(pandz$parcel_num, pandz$z, pandz$pval))
+names_of_parcels<-gsub("nback_func_sc_", "", names_of_parcels$V2)
+parcels_plus_stats <- data.frame(cbind(names_of_parcels, zandp))
+names(parcels_plus_stats) <- c("brain_region", "num_parcel", "z", "pval")
+parcels_plus_stats_sig <- data.frame(parcels_plus_stats[which(parcels_plus_stats$pval < 0.05), ])
+
+print(parcels_plus_stats)
+names(parcels_plus_stats_sig) <- c("brain_region", "num_parcel", "z", "pval<0.05")
+print(parcels_plus_stats_sig)
+
+```
+
+
+
+
