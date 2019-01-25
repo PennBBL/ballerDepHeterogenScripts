@@ -1,7 +1,7 @@
 ---
-title: "FC Task active/DMN, matched age and sex, n312, Hydra K3, 27 jneurosci labels"
+title: "FC Task active/DMN, matched age and sex, n312, Hydra K3, 8 jneurosci labels"
 author: "Erica Baller"
-date: "1/23/2019"
+date: "1/25/2019"
 output:
   pdf_document: default
   html_document: default
@@ -65,7 +65,7 @@ Part 6 : FDR Correction
 
 #read in csvs, CHANGE THINGS HERE
 
-num_communities <- 2
+num_communities <- 8
 num_clusters <- 3
 #exclusion <- "weighted"
 
@@ -108,7 +108,6 @@ subset_with_clusters_AG_matched <- merge(subset_with_clusters_AG_matched, nback_
 subset_with_clusters_AG_matched <- merge(subset_with_clusters_AG_matched, idemo_QA, by = c("bblid", "scanid"))
 
 subset_with_clusters_AG_matched$ageSq <- as.numeric(I(scale(subset_with_clusters_AG_matched$age_in_years, scale = FALSE, center = TRUE)^2))
-subset_with_clusters_AG_matched$dep_binarized <- subset_with_clusters_AG_matched$Hydra_k1
 
 #set up within/between networks
 within <- c("Task_active_Task_active", "Default_mode_Default_mode")
