@@ -3,8 +3,8 @@ title: "CWASMDMR"
 author: "Erica Baller"
 date: "January 22, 2019"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
   word_document: default
 ---
 
@@ -66,10 +66,9 @@ print(parcels_plus_stats_sig)
 
 
 #Pull p-values
-p_vals <- as.data.frame(parcels_plus_stats_sig$`pval<0.05`)
+p_vals <- as.data.frame(parcels_plus_stats$pval)
 names(p_vals) <- c("pval")
 print(p_vals)
-
 #Print original p-values to three decimal places
 p_round <- round(p_vals,3)
 
@@ -78,7 +77,7 @@ pfdr_vals <- p.adjust(p_vals[,1],method="fdr")
 
 #Convert to data frame
 pfdr_vals <- as.data.frame(pfdr_vals)
-row.names(pfdr_vals) <- row.names(parcels_plus_stats_sig$brain_region)
+row.names(pfdr_vals) <- row.names(parcels_plus_stats$brain_region)
 
 #To print fdr-corrected p-values to three decimal places
 pfdr_vals_round <- round(pfdr_vals,3)
@@ -86,14 +85,9 @@ pfdr_vals_round <- round(pfdr_vals,3)
 #List the components that survive FDR correction
 survived_fdr<- row.names(pfdr_vals_round)[pfdr_vals<0.05]
 
-#make a data frame with names and fdr values (rounded to 3 decimals)
-network_names_and_fdr_values_anova_lm_agesq <- data.frame(cbind(network_fdr_anova_lm_agesq, round(pfdr_anova_lm_agesq[pfdr_anova_lm_agesq<0.05],3)))
 
-#add titles to names_and_fdr tables
-names(network_names_and_fdr_values_anova_lm_agesq) <- c("network", "p_FDR_corr")
-
-print("LM Agesq- Mean centered age that was then squared, FDR corrected")
-print(network_names_and_fdr_values_anova_lm_agesq)
+print("MDMR- 27 parcels- FDR corrected")
+print(survived_fdr)
 
 ```
 
