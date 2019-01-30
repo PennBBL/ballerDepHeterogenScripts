@@ -3,7 +3,7 @@ require('R.matlab')
 require('mgcv')
 require('visreg')
 require('rasterVis')
-
+require('lattice')
 ## set directories ##
 #local_wkdir <- '/home/eballer/from_cedric/'
 remote_wkdir <- '/data/joy/BBL/studies/pnc/'
@@ -29,7 +29,7 @@ get_abs_and_weighted_sample <- function(sample_from_HYDRA) {
 
   #load qa for each different scan type
   rest_qa <- read.csv(paste0(remote_wkdir,'n1601_dataFreeze/neuroimaging/rest/n1601_RestQAData_20170714.csv'))
-  nback_qa <- read.csv(paste0(remote_wkdir,'n1601_dataFreeze/neuroimaging/nback/n1601_NbackConnectQAData_20170718.csv'))
+  nback_qa <- read.csv(paste0(remote_wkdir,'n1601_dataFreeze/neuroimaging/nback/nbackConnectTaskRegress/n1601_NbackConnectTaskRegressQAData_2018-10-21.csv'))
   idemo_qa <- read.csv(paste0(remote_wkdir,'n1601_dataFreeze/neuroimaging/idemo/n1601_IdemoConnectQAData_20170718.csv'))
   
   #set num volumes  
@@ -266,6 +266,56 @@ get_glasser_node_info <- function(){
   out <- list(CommunityAffiliation = CommunityAffiliation, CommunityName = CommunityName, NodeName= NodeName)
 }
 
+#############################
+####                     ####
+#### 27 Funcional ROIS   ####
+####                     ####
+#############################
+get_27roi_concat_netpath <- function(scanid) {
+  netpath <- Sys.glob(paste0('/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/for_cwasmdmr_concat_4mm/weighted_n312_rest_nback_idemo_tr_20181218/ts_files_from_3dROIstats/', scanid, '*.txt'))
+}
+
+get_27roi_concat_node_info <- function() {
+  CommunityAffiliation <- read.csv2("/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/nback27FunctionalROIs/nback27parcelNodeAffiliations.txt", header=FALSE)$V1
+  CommunityName<-read.csv2("/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/nback27FunctionalROIs/nback27parcelCommunityNames.txt", header
+                           =FALSE)$V1
+  NodeName <- read.csv2("/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/nback27FunctionalROIs/nback27parcelNodeNames.txt", header=FALSE)
+  out <- list(CommunityAffiliation=CommunityAffiliation, CommunityName=CommunityName, NodeName = NodeName)
+}
+
+
+#############################
+####                     ####
+#### 8 Funcional ROIS   ####
+####                     ####
+#############################
+get_8roi_concat_netpath <- function(scanid) {
+  netpath <- Sys.glob(paste0('/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/rest_nback_idemo_8FunctionalROIs/ts_files_from_3dROIstats_8rois/', scanid, '*.txt'))
+}
+
+get_8roi_concat_node_info <- function() {
+  CommunityAffiliation <- read.csv2("/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/rest_nback_idemo_8FunctionalROIs/roi8_CommunityAffiliation.txt", header=FALSE)$V1
+  CommunityName<-read.csv2("/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/rest_nback_idemo_8FunctionalROIs/roi8_CommunityName.txt", header
+                           =FALSE)$V1
+  NodeName <- read.csv2("/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/rest_nback_idemo_8FunctionalROIs/roi8_justnames.txt", header=FALSE)
+  out <- list(CommunityAffiliation=CommunityAffiliation, CommunityName=CommunityName, NodeName = NodeName)
+}
+
+#############################
+####                     ####
+#### 14 Funcional ROIS   ####
+####                     ####
+#############################
+get_14roi_concat_netpath <- function(scanid) {
+  netpath <- Sys.glob(paste0('/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/rest_nback_idemo_14FunctionalROIs/ts_files_from_3dROIstats_14rois/', scanid, '*.txt'))
+}
+
+get_14roi_concat_node_info <- function() {
+  CommunityAffiliation <- read.csv2("/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/rest_nback_idemo_14FunctionalROIs/nback14parcelNodeAffiliations.txt", header=FALSE)$V1
+  CommunityName<-read.csv2("/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/rest_nback_idemo_14FunctionalROIs/nback14parcelCommunityNames.txt", header=FALSE)$V1
+  NodeName <- read.csv2("/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/rest_nback_idemo_14FunctionalROIs/nback14parcelNodeNames.txt", header=FALSE)
+  out <- list(CommunityAffiliation=CommunityAffiliation, CommunityName=CommunityName, NodeName = NodeName)
+}
 ##############################
 ####                      ####
 #### grab network matrix  ####
@@ -300,6 +350,14 @@ get_net_from_sample <- function(sample,parcellation,resolution,modality) {
       print(paste0(i,"/",n_sample,": copying ",bblid,'_',scanid, ' of ',parcellation,' atlas'))
       netpath <- get_power_netpath(scanid)
       sample_net[[i]] <- grab_net_from_path(netpath)
+    } else if (parcellation == '27roi') {
+      print(paste0(i,"/",n_sample,": copying ",bblid,'_',scanid, ' of ',parcellation, ' atlas'))
+      netpath <- get_27roi_concat_netpath(scanid)
+      sample_net[[i]] <- grab_net_from_path(netpath)
+    } else if (parcellation == '14roi') {
+        print(paste0(i,"/",n_sample,": copying ",bblid,'_',scanid, ' of ',parcellation, ' atlas'))
+        netpath <- get_14roi_concat_netpath(scanid)
+        sample_net[[i]] <- grab_net_from_path(netpath)
     } else if (parcellation == 'gordon') {
       print(paste0(i,"/",n_sample,": copying ",bblid,'_',scanid, ' of ',parcellation,' atlas'))
       netpath <- get_gordon_netpath(scanid)
@@ -348,8 +406,6 @@ get_net_from_sample_concat <- function(sample,parcellation,resolution,modality) 
     bblid = sample[i,'bblid']
     scanid = sample[i,'scanid']
     
-    # set up the correct path by modality, and resolution#
-    #### THIS WAS ADDED 8/17
     
     # import the network data #
     
@@ -357,6 +413,46 @@ get_net_from_sample_concat <- function(sample,parcellation,resolution,modality) 
       print(paste0(i,"/",n_sample,": copying ",bblid,'_',scanid, ' of ',parcellation,' atlas'))
       netpath <- get_power_netpath_concat(scanid)
       sample_net[[i]] <- grab_net_from_path(netpath)
+    } else if (parcellation == '27roi') {
+      print(paste0(i,"/",n_sample,": copying ",bblid,'_',scanid, ' of ',parcellation, ' atlas'))
+      netpath <- get_27roi_concat_netpath(scanid)
+      ts <- read.table(netpath)
+      print(paste0(netpath," ts dim", dim(ts)[2]))
+      net_from_ts <- get_net_from_ts(ts = ts)
+      print(paste0("output dim", dim(net_from_ts)[1], " by", dim(net_from_ts)[2]))
+      sample_net[[i]] <- net_from_ts
+    } else if (parcellation == '8roi') {
+      print(paste0(i,"/",n_sample,": copying ",bblid,'_',scanid, ' of ',parcellation, ' atlas'))
+      netpath <- get_8roi_concat_netpath(scanid)
+      ts <- read.table(netpath)
+      print(paste0(netpath," ts dim", dim(ts)[2]))
+      net_from_ts <- get_net_from_ts(ts = ts)
+      print(paste0("output dim", dim(net_from_ts)[1], " by", dim(net_from_ts)[2]))
+      sample_net[[i]] <- net_from_ts
+    }else if (parcellation == '14roi') {
+      print(paste0(i,"/",n_sample,": copying ",bblid,'_',scanid, ' of ',parcellation, ' atlas'))
+      netpath <- get_14roi_concat_netpath(scanid)
+      ts <- read.table(netpath)
+      print(paste0(netpath," ts dim", dim(ts)[2]))
+      net_from_ts <- get_net_from_ts(ts = ts)
+      print(paste0("output dim", dim(net_from_ts)[1], " by", dim(net_from_ts)[2]))
+      sample_net[[i]] <- net_from_ts
+    } else if (parcellation == '8x27roi') {
+      print(paste0(i,"/",n_sample,": copying ",bblid,'_',scanid, ' of ',parcellation, ' atlas'))
+      
+      #copy in 27 ROItable
+      netpath <- get_27roi_concat_netpath(scanid)
+      ts <- read.table(netpath)
+      print(paste0(netpath," ts dim", dim(ts)[2]))
+     
+       #get 27x27 matrix
+      net_from_ts <- get_net_from_ts(ts = ts)
+      print(paste0("output dim", dim(net_from_ts)[1], " by", dim(net_from_ts)[2]))
+      
+      #remove rows not part of 8 functional networks to make 8x27
+      roi8_justnumbers <- read.table("/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/rest_nback_idemo_8FunctionalROIs/roi8_justnumbers.txt")
+      net_from_ts_8x27 <- net_from_ts[roi8_justnumbers$V1,]
+      sample_net[[i]] <- net_from_ts_8x27
     } else if (parcellation == 'gordon') {
       print(paste0(i,"/",n_sample,": copying ",bblid,'_',scanid, ' of ',parcellation,' atlas'))
       netpath <- get_gordon_netpath_concat(scanid)
@@ -447,6 +543,68 @@ get_community_net<-function(netmat,com_name_vector,node_aff_vector){
   community_net
 }
 
+get_node_names_edge_analysis <- function(node_names){
+ #gets back an array of node names for edge analysis, exludes diagonal
+  node_names <- c(sapply(node_names[1], as.character))
+  node_names<- gsub("nback_func_sc_", "", node_names)
+ # print(node_names)
+  num_nodes <- length(node_names)
+ # print(num_nodes)
+  length_array <- (num_nodes * (num_nodes -1))/2
+#  print(length_array)
+  name_array <- array(NA,length_array)
+  nrow <- 1
+  num_node_a <- 1
+  num_node_b<- 1
+  for (node_a in node_names) {
+    for (node_b in node_names) {
+      #goes by columns, then rows, but writes out row_col, this is to match the upper.tri output
+      if (num_node_b < num_node_a) {
+        name_array[nrow] <- paste0(node_b, "_", node_a)
+        nrow <- nrow + 1
+      }
+      num_node_b <- num_node_b + 1
+    }
+    num_node_a <- num_node_a + 1
+    num_node_b <- 1
+  }
+  return(name_array)
+}
+
+get_node_names_edge_analysis_diff_dim <- function(node_names_col, node_names_row){
+  #gets back an array of node names for edge analysis, exludes diagonal
+  node_names_col <- c(sapply(node_names_col[1], as.character))
+  node_names_row <- c(sapply(node_names_row[1], as.character))
+  node_names_col<- gsub("nback_func_sc_", "", node_names_col)
+  node_names_row <- gsub("nback_func_sc_", "", node_names_row)
+  # print(node_names)
+  num_nodes_col <- length(node_names_col)
+  num_nodes_row <- length(node_names_row)
+  # print(num_nodes)
+  length_array <- (num_nodes_col * (num_nodes_row - num_nodes_col)) + (num_nodes_col * (num_nodes_col - 1))/2 
+  #  print(length_array)
+  name_array <- array(NA,length_array)
+  nrow <- 1
+  num_node_r <- 1
+  num_node_c<- 1
+  for (c in node_names_col) {
+    for (r in node_names_row) {
+      #goes by columns, then rows, but writes out row_col, this is to match the upper.tri output
+      name_to_add <- paste0(c, "_", r)
+      reverse <- paste0(r, "_", c)
+      
+      if ((c != r) & !(reverse %in% name_array)) {
+      
+        name_array[nrow] <- paste0(c, "_", r)
+        nrow <- nrow + 1
+      }
+      num_node_r <- num_node_r + 1
+    }
+    num_node_r <- 1
+    num_node_c <- num_node_c + 1
+  }
+  return(name_array)
+}
 
 ##############################
 ####                      ####
@@ -503,6 +661,72 @@ get_gams <- function(community_info,sample_net, sample,modality){
   out <- list(gam = prs_gams, data = com_net_flat)
 }
 
+matrix_to_flat_for_edge_analysis <- function(net_mat, col_name, row_name) {
+ # makes a flat list, goes down columns
+  
+  node_names_col <- c(sapply(col_name[1], as.character))
+  node_names_row <- c(sapply(row_name[1], as.character))
+  node_names_col<- gsub("nback_func_sc_", "", node_names_col)
+  node_names_row <- gsub("nback_func_sc_", "", node_names_row)
+
+  num_nodes_col <- length(node_names_col)
+  num_nodes_row <- length(node_names_row)
+
+  length_array <- (num_nodes_col * (num_nodes_row - num_nodes_col)) + (num_nodes_col * (num_nodes_col - 1))/2 
+ 
+  name_array <- array(NA,length_array)
+  new_flat <- array(NA,length_array)
+  nrow <- 1
+  num_node_r <- 1
+  num_node_c<- 1
+  
+  for (c in node_names_col) {
+    for (r in node_names_row) {
+      #goes by columns, then rows, but writes out row_col, this is to match the upper.tri output
+      name_to_add <- paste0(c, "_", r)
+      reverse <- paste0(r, "_", c)
+    #  print(paste0(num_node_r, " ", num_node_c))
+      if ((c != r) & !(reverse %in% name_array)) {
+        
+        name_array[nrow] <- paste0(c, "_", r)
+        new_flat[nrow] <- net_mat[num_node_c,num_node_r]
+        nrow <- nrow + 1
+      }
+      num_node_r <- num_node_r + 1
+    }
+    num_node_r <- 1
+    num_node_c <- num_node_c + 1
+  }
+  
+  #nrow <- dim(net_mat)[1]
+  #ncol <- dim(net_mat)[2]
+  
+  #node_names_row <- c(sapply(row_name[1], as.character))
+  #node_names_col <- c(sapply(col_name[1], as.character))
+  
+  #colnames(net_mat) <- node_names_col
+  #rownames(net_mat) <- node_names_row
+  
+  #cnt <- 1
+  #total_length_flat <- (nrow* (ncol-nrow)) + (nrow * (nrow-1))/2
+  #final_array <- array(NA, dim = total_length_flat)
+  #names_array <- array(NA, dim = total_length_flat)
+  
+  
+  #for(c in 1:ncol) {
+   # for (r in 1:nrow) {
+    
+    #  if (c!=r & ) {
+    
+     #   final_array[cnt] <- net_mat[r,c]
+      #  cnt <- cnt + 1
+      #}
+    #}
+  #}
+  return(new_flat)
+  #return(final_array)
+  
+}
 #################################
 ####                         ####
 #### run sample and get pval ####
@@ -576,6 +800,20 @@ list_to_matrix <- function(list){
   return(mat_out)
 }
 
+
+list_to_matrix_edge_analysis <- function(list) {
+  dim1 <- length(list)
+  dim2 <- length(list[[1]])
+  mat_out <- array(NA, c(dim1,dim2))
+  for(i in 1:dim1){
+    mat_out[i,] <- list[[i]]
+    print(paste("Processing.....",i," out of ", dim1))
+  }
+  print(paste("Conversion Successful. Converted matrix has dimensions of",dim(mat_out)))
+  return(mat_out)
+  
+}
+
 ## better_level_plot ##
 better_levelplot <- function(adj, node_names, title) {
   adj_norm <- adj/max(abs(adj))
@@ -588,6 +826,17 @@ better_levelplot <- function(adj, node_names, title) {
   return(plot)
 }
 
+## better_level_plot ##
+better_levelplot_edge <- function(adj, node_names_x, node_names_y, title) {
+  adj_norm <- adj/max(abs(adj))
+  limit = max(abs(adj_norm))
+  keycol=c('#FFFDE7','#FFFF00', '#F57F17', '#D50000',"#212121","#311B92","#2979FF","#B2EBF2")
+  plot<-levelplot(adj_norm, par.settings = BuRdTheme(), 
+                  at = seq(limit,-limit,length.out = 12),xlab="",ylab = "", strip = F, contour = F, region= T,main=title,
+                  scales=list(x=list(at = 1:length(node_names_x), labels=node_names_x,rot=90, tck = 0),
+                              y=list(at = 1:length(node_names_y),labels=node_names_y, tck = 0)))
+  return(plot)
+}
 get_net_all_cat_tasks <- function(bblid,scanid,parcellation) {
   #concatenates all three types of scans
   
@@ -624,3 +873,34 @@ get_net_from_ts <-function(ts) {
   net
 }
 
+###############################################
+###    Get 8rois from 27 roi textfile       ###
+###############################################
+write_new_ts_file_with_8_rois <- function(ts) {
+  rois_to_keep <- read.table("/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/rest_nback_idemo_8FunctionalROIs/roi8_justnumbers.txt")
+  timeseries <- read.table(ts)
+  timeseries_8rois <- timeseries[,rois_to_keep$V1]
+ # timeseries_8rois <- timeseries[,c(1,3,7,11,12,18,19,20)]
+  write.table(x = timeseries_8rois, file = ts, row.names = F, col.names = F)
+}
+
+
+#######################################################
+###    Get subset of ROIs from textfile, generic    ###
+#######################################################
+write_new_ts_file_generic_rois <- function(ts, rois_to_keep) {
+  rois_to_keep <- read.table(rois_to_keep)
+  timeseries <- read.table(ts)
+  timeseries_rois <- timeseries[,rois_to_keep$V1]
+  write.table(x = timeseries_rois, file = ts, row.names = F, col.names = F)
+}
+###############################################
+###    Get 14rois from 27 roi textfile       ###
+###############################################
+write_new_ts_file_with_14_rois <- function(ts) {
+  rois_to_keep <- read.table("/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/rest_nback_idemo_14FunctionalROIs/roi14_justnumbers.txt")
+  timeseries <- read.table(ts)
+  timeseries_14rois <- timeseries[,rois_to_keep$V1]
+  # timeseries_8rois <- timeseries[,c(1,3,7,11,12,18,19,20)]
+  write.table(x = timeseries_14rois, file = ts, row.names = F, col.names = F)
+}

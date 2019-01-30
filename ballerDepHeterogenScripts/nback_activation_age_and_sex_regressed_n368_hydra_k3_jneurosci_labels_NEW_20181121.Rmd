@@ -796,3 +796,44 @@ ggplot(data = all_mean_sd_sem, aes(x = newNames, y = mean, group = cl)) + ylab("
  #ggtitle("N-back Functional Regions of Interest")
 ```
 
+```{r cool_graph}
+#write.csv(all_mean_sd_sem, "/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/all_mean_sd_sem_nback.csv")
+new_order <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/all_mean_sd_sem_nback.csv")
+new_order_desc <- new_order[nrow(new_order):1, ]
+#plot
+ggplot(data = new_order, aes(x = newNames, y = mean, group = cl)) + ylab("% Signal Change") +  
+  ggtitle("N-back Functional Regions of Interest") + 
+  geom_line(aes(color=cl, size=.1), show.legend = F) +
+#  geom_line(aes(color=cl), show.legend = F) +
+  geom_point(aes(color=cl)) + 
+  geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1, size=1.5) +
+ # geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1) +
+  scale_x_discrete(name = " ", limits=new_order$newNames) + labs(colour = "cluster") +
+  guides(colour = guide_legend(override.aes = list(size=10))) +
+  theme(axis.text.x = element_text(size = 20, angle=60, hjust = 1), 
+        axis.text.y = element_text(size = 30),
+        title = element_text(size = 30), 
+        legend.text = element_text(size = 30), 
+        plot.title = element_text(size=35),
+        legend.title=element_blank())
+
+ggplot(data = new_order_desc, aes(x = newNames, y = mean, group = cl)) + ylab("% Signal Change") +  
+  ggtitle("N-back Functional Regions of Interest") + 
+  geom_line(aes(color=cl, size=.1), show.legend = F) +
+#  geom_line(aes(color=cl), show.legend = F) +
+  geom_point(aes(color=cl)) + 
+  geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1, size=1.5) +
+ # geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1) +
+  scale_x_discrete(name = " ", limits=new_order_desc$newNames) + labs(colour = "cluster") +
+  guides(colour = guide_legend(override.aes = list(size=10))) +
+  theme(axis.text.x = element_text(size = 20, angle=60, hjust = 1), 
+        axis.text.y = element_text(size = 30),
+        title = element_text(size = 30), 
+        legend.text = element_text(size = 30), 
+        plot.title = element_text(size=35),
+        legend.title=element_blank())
+
+
+```
+
+
