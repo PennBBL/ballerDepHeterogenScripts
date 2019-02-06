@@ -3,8 +3,8 @@ title: "FC Task active/DMN, matched age and sex, n312, Hydra K3, 27 jneurosci la
 author: "Erica Baller"
 date: "2/5/2019"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
