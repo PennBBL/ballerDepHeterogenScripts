@@ -316,6 +316,29 @@ get_14roi_concat_node_info <- function() {
   NodeName <- read.csv2("/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/rest_nback_idemo_14FunctionalROIs/nback14parcelNodeNames.txt", header=FALSE)
   out <- list(CommunityAffiliation=CommunityAffiliation, CommunityName=CommunityName, NodeName = NodeName)
 }
+
+#############################
+####                     ####
+#### Netpath 2mm 27/8/14 ####
+####                     ####
+#############################
+
+get_27roi_concat_netpath_2mm <- function(scanid) {
+  netpath <- Sys.glob(paste0('/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/concat_rest_nback_idemo_2mm/ts_files_from_3dROIstats/', scanid, 
+                             '*.txt'))
+}
+
+get_8roi_concat_netpath_2mm <- function(scanid) {
+  netpath <- Sys.glob(paste0('/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/rest_nback_idemo_8FunctionalROIs_2mm/ts_files_from_3dROIstats_8rois_2mm/', scanid, '*.txt'))
+}
+
+get_14roi_concat_netpath_2mm <- function(scanid) {
+  netpath <- Sys.glob(paste0('/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/rest_nback_idemo_14FunctionalROIs_2mm/ts_files_from_3dROIstats_14rois_2mm/', scanid, '*.txt'))
+}
+
+
+
+
 ##############################
 ####                      ####
 #### grab network matrix  ####
@@ -415,7 +438,11 @@ get_net_from_sample_concat <- function(sample,parcellation,resolution,modality) 
       sample_net[[i]] <- grab_net_from_path(netpath)
     } else if (parcellation == '27roi') {
       print(paste0(i,"/",n_sample,": copying ",bblid,'_',scanid, ' of ',parcellation, ' atlas'))
-      netpath <- get_27roi_concat_netpath(scanid)
+      if (resolution == '2mm') {
+        netpath <- get_27roi_concat_netpath_2mm(scanid)
+      } else { 
+        netpath <- get_27roi_concat_netpath(scanid)
+      }
       ts <- read.table(netpath)
       print(paste0(netpath," ts dim", dim(ts)[2]))
       net_from_ts <- get_net_from_ts(ts = ts)
@@ -423,7 +450,11 @@ get_net_from_sample_concat <- function(sample,parcellation,resolution,modality) 
       sample_net[[i]] <- net_from_ts
     } else if (parcellation == '8roi') {
       print(paste0(i,"/",n_sample,": copying ",bblid,'_',scanid, ' of ',parcellation, ' atlas'))
-      netpath <- get_8roi_concat_netpath(scanid)
+      if (resolution == '2mm') {
+        netpath <- get_8roi_concat_netpath_2mm(scanid) 
+      } else {
+        netpath <- get_8roi_concat_netpath(scanid)
+      }
       ts <- read.table(netpath)
       print(paste0(netpath," ts dim", dim(ts)[2]))
       net_from_ts <- get_net_from_ts(ts = ts)
@@ -431,7 +462,11 @@ get_net_from_sample_concat <- function(sample,parcellation,resolution,modality) 
       sample_net[[i]] <- net_from_ts
     }else if (parcellation == '14roi') {
       print(paste0(i,"/",n_sample,": copying ",bblid,'_',scanid, ' of ',parcellation, ' atlas'))
-      netpath <- get_14roi_concat_netpath(scanid)
+      if (resolution == '2mm') {
+        netpath <- get_14roi_concat_netpath_2mm(scanid)
+      } else {
+        netpath <- get_14roi_concat_netpath(scanid)
+      }
       ts <- read.table(netpath)
       print(paste0(netpath," ts dim", dim(ts)[2]))
       net_from_ts <- get_net_from_ts(ts = ts)
@@ -441,7 +476,7 @@ get_net_from_sample_concat <- function(sample,parcellation,resolution,modality) 
       print(paste0(i,"/",n_sample,": copying ",bblid,'_',scanid, ' of ',parcellation, ' atlas'))
       
       #copy in 27 ROItable
-      netpath <- get_27roi_concat_netpath(scanid)
+      netpath <- get_27roi_concat_netpath_2mm(scanid)
       ts <- read.table(netpath)
       print(paste0(netpath," ts dim", dim(ts)[2]))
      
@@ -899,8 +934,34 @@ write_new_ts_file_generic_rois <- function(ts, rois_to_keep) {
 ###############################################
 write_new_ts_file_with_14_rois <- function(ts) {
   rois_to_keep <- read.table("/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/rest_nback_idemo_14FunctionalROIs/roi14_justnumbers.txt")
+  print(paste0("rois to keep -->>> ", rois_to_keep))
+  print(paste0("timeseries --->>> ", ts))
   timeseries <- read.table(ts)
   timeseries_14rois <- timeseries[,rois_to_keep$V1]
   # timeseries_8rois <- timeseries[,c(1,3,7,11,12,18,19,20)]
   write.table(x = timeseries_14rois, file = ts, row.names = F, col.names = F)
+}
+
+#########################
+### make_new_textfiles ##
+#########################
+write_2mm_text_files <- function(x) {
+rois_to_keep_14 <- read.table("/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/rest_nback_idemo_14FunctionalROIs/roi14_justnumbers.txt")
+rois_to_keep_8 <- read.table("/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/rest_nback_idemo_8FunctionalROIs/roi8_justnumbers.txt")
+indir <- "/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/concat_rest_nback_idemo_2mm/ts_files_from_3dROIstats/"
+outdir_14 <- "/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/rest_nback_idemo_14FunctionalROIs_2mm/ts_files_from_3dROIstats_14rois_2mm/"
+outdir_8 <- "/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/rest_nback_idemo_8FunctionalROIs_2mm/ts_files_from_3dROIstats_8rois_2mm/"
+files <-  list.files(path=indir, pattern = "*.txt", recursive = FALSE)
+lapply(files, function(file) {
+  print(file)
+   timeseries <- read.table(paste0("/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/concat_rest_nback_idemo_2mm/ts_files_from_3dROIstats/", file))
+   timeseries_14rois <- timeseries[,rois_to_keep_14$V1]
+   timeseries_8rois <- timeseries[,rois_to_keep_8$V1]
+   newName_14 <- gsub(pattern = "emo", replacement = "emo_14", x = file)
+   newName_8 <- gsub(pattern = "emo", replacement = "emo_8", x = file)
+   newFile_14 <- paste0(outdir_14, "/", newName_14)
+   newFile_8 <- paste0(outdir_8, "/", newName_8)
+   write.table(x = timeseries_14rois, file = newFile_14, row.names = F, col.names = F)
+   write.table(x = timeseries_8rois, file = newFile_8, row.names = F, col.names = F)
+  })
 }

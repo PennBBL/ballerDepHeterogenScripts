@@ -1,5 +1,5 @@
 ---
-title: "Functional connectivity, matched age and sex, n312, Hydra K3, 27 jneurosci labels edge analysis, 2mm"
+title: "Functional connectivity, matched age and sex, n312, Hydra K3, 8 x 27 jneurosci labels edge analysis, 2mm"
 author: "Erica Baller"
 date: "02/05/2019"
 output:
@@ -71,7 +71,7 @@ Part 7 : FDR Correction
 num_clusters <- 3
 cluster_titles <- get_cluster_titles(hydra_cluster = num_clusters)
 
-dem_and_cluster_data <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/df_27roi_edge_analysis_20190130_2mm.csv")
+dem_and_cluster_data <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/df_8x27roi_20190205_2mm.csv")
 
 rest_QA <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/neuroimaging/rest/n1601_RestQAData_20170714.csv")
 nback_QA <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/neuroimaging/nback/n1601_NbackConnectQAData_20170718.csv")
@@ -84,7 +84,7 @@ subset_with_clusters_AG_matched <- dem_and_cluster_data
 
 #Get cluster and parcellation names
 clusters <- names(subset_with_clusters_AG_matched[grep ("Hydra", names(subset_with_clusters_AG_matched))])
-parcellations <- names(subset_with_clusters_AG_matched[10:360])
+parcellations <- names(subset_with_clusters_AG_matched[10:189])
 
 
 ####New as of 10/21/2018 ####
@@ -423,13 +423,9 @@ print(p_anova_lm_agesq)
 
 print("LM agesq anova scores, BEFORE FDR correction, p <0.05")
 anova_before_correction_p05 <- as.data.frame(p_anova_lm_agesq[p_anova_lm_agesq <0.05])
-anova_before_correction_p001 <- as.data.frame(p_anova_lm_agesq[p_anova_lm_agesq <0.001])
-
 row.names(anova_before_correction_p05) <- row.names(p_anova_lm_agesq)[p_anova_lm_agesq<0.05]
-row.names(anova_before_correction_p001) <- row.names(p_anova_lm_agesq)[p_anova_lm_agesq<0.001]
-
 print(anova_before_correction_p05)
-print(anova_before_correction_p001)
+
 #Print original p-values to three decimal places
 p_round_anova_lm_agesq <- round(p_anova_lm_agesq,3)
 
