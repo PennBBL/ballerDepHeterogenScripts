@@ -34,7 +34,11 @@ make_demographics_table<- function(data_frame, hydra_cluster) {
   demo$Depression <- ifelse(demo$Depression == 1, "Depressed", "Non-depressed")
   demo$Race <- ifelse(demo$Race == 1, "Caucasian", "Non-caucasian")
   demo$Sex <- ifelse(demo$Sex == 1, "Male", "Female")
-
+ # demo$Cluster <- ifthen(demo$Cluster == -1, "TD")
+#  demo$Cluster <- ifthen(demo$Cluster == 1, "Cluster 1")
+#  demo$Cluster <- ifthen(demo$Cluster == 2, "Cluster 2")
+#  demo$Cluster <- ifthen(demo$Cluster == 1, "Cluster 3")
+  
   #Define Categorical Variables
   cat_variables <- c("Race", "Depression", "Sex", "Cluster")
   title <- c(paste0("Hydra_k", hydra_cluster, "demographics"))
@@ -105,12 +109,20 @@ get_cluster_titles <- function(hydra_cluster){
   # build vector of titles
   cluster_titles <- c("TD")
   for (cluster_counter in 1:hydra_cluster){
-    title_to_add <- paste0("Cluster ", cluster_counter)
+    title_to_add <- paste0("Subtype ", cluster_counter)
     cluster_titles <- c(cluster_titles, title_to_add)
   }
   return(cluster_titles)
 }
-
+#get_cluster_titles <- function(hydra_cluster){
+  # build vector of titles
+ # cluster_titles <- c("TD")
+  #for (cluster_counter in 1:hydra_cluster){
+   # title_to_add <- paste0("Cluster ", cluster_counter)
+    #cluster_titles <- c(cluster_titles, title_to_add)
+#  }
+ # return(cluster_titles)
+#}
 get_cluster_titles_no_TD <- function(hydra_cluster){
   # build vector of titles
   cluster_titles <- NULL
