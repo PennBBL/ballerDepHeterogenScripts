@@ -10,7 +10,6 @@ require('reshape')
 require('emmeans')
 require('cowplot')
 require('stringr')
-require('R.matlab')
 require('visreg')
 require('rasterVis')
 require('lattice')
@@ -363,12 +362,26 @@ better_levelplot_edge <- function(adj, node_names_x, node_names_y, title) {
   return(plot)
 }
 
-better_chorDiagram <- function(adj, node_names) {
+better_chorDiagram_norm <- function(adj, node_names) {
   circos.clear()
+  model_color=c('#FFFDE7','#FFFF00', '#F57F17', '#D50000',"#212121","#311B92","#2979FF","#B2EBF2")
+  #names(model_color) <- model_color
   adj_norm <- adj/max(abs(adj))
   rownames(adj_norm) = node_names
   colnames(adj_norm) = node_names
-  chordDiagram(adj_norm, directional = TRUE, transparency = 0.5) 
+  chordDiagram(adj_norm, directional = TRUE, transparency = 0.5, self.link = TRUE, grid.col = model_color) 
+  #standardized colors, let side warm color, right side cold color
+}
+
+better_chorDiagram <- function(adj, node_names) {
+  circos.clear()
+  model_color=c('#FFFDE7','#FFFF00', '#F57F17', '#D50000',"#212121","#311B92","#2979FF","#B2EBF2")
+  #names(model_color) <- model_color
+
+  rownames(adj) = node_names
+  colnames(adj) = node_names
+  chordDiagram(adj, directional = TRUE, transparency = 0.5, self.link = TRUE, grid.col = model_color) 
+  #standardized colors, let side warm color, right side cold color
 }
 #### Stats#####
 fdr_anova <- function(data_frame) {

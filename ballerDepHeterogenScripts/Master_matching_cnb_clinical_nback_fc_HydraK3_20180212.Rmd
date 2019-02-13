@@ -3,8 +3,8 @@ title: "Master file"
 author: "Erica Baller"
 date: "2/12/2019"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
