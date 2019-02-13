@@ -21,6 +21,9 @@ library(reshape)
 library(emmeans)
 library(MASS)
 require(cowplot)
+require(stringr)
+require(rasterVis)
+require(lattice)
 theme_update(plot.title = element_text(hjust = 0.5))
 source("~/BBL/from_chead/ballerDepHeterogen/ballerDepHeterogenScripts/Hydra_functions.R")
 ```
@@ -88,10 +91,6 @@ Steps:
   -Nodal strength differed by subtype for the following areas (P(unc) < 0.05)
     -right crus I (P= 0.03)		
     -right crus II (P= 0.03)
-  
-  
-  
-
 
 
 ```{r sample_construction}
@@ -470,7 +469,7 @@ expand_limits(y=.5) +
 scale_x_continuous(breaks=c(1,2,3,4,5,6,7,8,9,10)) +
 labs(x = "Number of Subtypes") +
 geom_segment(aes(x = 3, y = 0, xend = 3, yend = .39), linetype="dashed", color = "red", size=1.5) +
-annotate(geom="text", x=3, y=.415, label="0.39", color="red", size=7.5) 
+annotate(geom="text", x=3, y=.42, label="0.39", color="red", size=7.5) 
  
 
 
@@ -1383,6 +1382,426 @@ ggplot(data = new_order_desc, aes(x = newNames, y = mean, group = cl)) + ylab("%
 ```
 
 ```{r Functional_connectivity}
+
+#Make sample
+dem_and_cluster_data <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/df_task_active_node_strength_8roi_20190206.csv")
+
+rest_QA <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/neuroimaging/rest/n1601_RestQAData_20170714.csv")
+nback_QA <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/neuroimaging/nback/n1601_NbackConnectQAData_20170718.csv")
+idemo_QA <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/neuroimaging/idemo/n1601_idemo_FinalQA_092817.csv")
+
+#fc_networks_and_dem_clinical_psych_data <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/output_of_fc/fc_r400_com17/fc_r400_com17.csv")
+
+#subset_with_clusters_AG_matched - rename because this is what will be used for the rest of the script
+subset_with_clusters_AG_matched <- dem_and_cluster_data
+
+#Get cluster and parcellation names
+clusters <- names(subset_with_clusters_AG_matched[grep ("Hydra", names(subset_with_clusters_AG_matched))])
+parcellations <- names(subset_with_clusters_AG_matched[2:9])
+subset_with_clusters_AG_matched$network_strength <- rowSums(dem_and_cluster_data[,2:9])
+#parcellations <- "network_strength"
+
+####New as of 10/21/2018 ####
+#read in new hydra clusters
+new_hydra_clusters <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/hydra_output_from_cbica/hydra_matched/20181121_OLD_HYDRA_with_new_script_from_toni/CogData_age_and_sex_n1424_matched_imaging_plus_non_imaging_replication_20181121_HydraSubtypes.csv", header = TRUE, sep = ",")
+
+# remove old hydra clusters
+subset_with_clusters_AG_matched <- subset_with_clusters_AG_matched[, !(colnames(subset_with_clusters_AG_matched) %in% c(clusters))]
+
+#add new hydra clusters 
+subset_with_clusters_AG_matched <- merge(subset_with_clusters_AG_matched, new_hydra_clusters, by = "bblid")
+
+#merge with the QA measures
+subset_with_clusters_AG_matched <- merge(subset_with_clusters_AG_matched, rest_QA, by = c("bblid", "scanid"))
+subset_with_clusters_AG_matched <- merge(subset_with_clusters_AG_matched, nback_QA, by = c("bblid", "scanid"))
+subset_with_clusters_AG_matched <- merge(subset_with_clusters_AG_matched, idemo_QA, by = c("bblid", "scanid"))
+
+subset_with_clusters_AG_matched$ageSq <- as.numeric(I(scale(subset_with_clusters_AG_matched$age_in_years, scale = FALSE, center = TRUE)^2))
+subset_with_clusters_AG_matched$dep_binarized <- subset_with_clusters_AG_matched$Hydra_k1
+
+subset_with_clusters_AG_matched[clusters] <- lapply(subset_with_clusters_AG_matched[clusters], factor)
+
+subset_with_clusters_AG_matched_noTD <-eval(parse(text=as.name(paste0("subset_with_clusters_AG_matched[which(subset_with_clusters_AG_matched$Hydra_k", num_clusters, " != -1),]"))))
+
+#get number of measures (to be used later on when trying to make graphs), for every different modality WILL HAVE TO CHANGE THIS
+num_measures <- length(parcellations)
+
+cluster_titles <- get_cluster_titles(hydra_cluster = num_clusters)
+
+#Coerce values into factor format
+hydra_names <- clusters
+
+subset_with_clusters_AG_matched[hydra_names] <- lapply(subset_with_clusters_AG_matched[clusters], factor)
+subset_with_clusters_AG_matched$sex <- as.factor(subset_with_clusters_AG_matched$sex)
+subset_with_clusters_AG_matched$race <- as.factor(subset_with_clusters_AG_matched$race)
+
+
+#demographics
+make_demographics_table(data_frame = subset_with_clusters_AG_matched, hydra_cluster = num_clusters)
+
+#################################
+# Linear Model for each measure #
+##### Results stored in list ####
+#################################
+
+
+
+##### Just Hydra_3 clusters ######
+
+#lm ageSq and mean centered
+parcellation_cluster_stats_lm_agesq_AG_matched <- lapply(parcellations, function(parcellation) 
+{
+  lm(substitute(i ~ Hydra_k3 + sex + age_in_years + ageSq + restRelMeanRMSMotion + nbackRelMeanRMSMotion + idemoRelMeanRMSMotion, list(i = as.name(parcellation))), data = subset_with_clusters_AG_matched)
+})
+names(parcellation_cluster_stats_lm_agesq_AG_matched) <- parcellations
+
+#network_strength_overall
+network_strength_lm <- lm(network_strength~Hydra_k3 + sex + age_in_years + ageSq + restRelMeanRMSMotion + nbackRelMeanRMSMotion + idemoRelMeanRMSMotion, data = subset_with_clusters_AG_matched)
+
+##############################
+####### Statistics ###########
+##############################
+
+
+#####Just Hydra 3 clusters ANOVA ########
+
+#lm Hydra K3 Anova
+parcellation_cluster_stats_anova_lm_agesq_AG_matched <- lapply(parcellation_cluster_stats_lm_agesq_AG_matched, anova) 
+names(parcellation_cluster_stats_anova_lm_agesq_AG_matched) <- parcellations
+
+#lm age sq network strength
+network_strength_lm_anova <- anova(network_strength_lm)
+network_strength_overall_p <- round(network_strength_lm_anova$`Pr(>F)`,3)
+
+#####################################
+###### By FC Connectivity Measure ###############
+#####################################
+
+cluster_titles <- get_cluster_titles(hydra_cluster = num_clusters)
+cluster_vector <- get_cluster_numerical_vector(hydra_cluster = num_clusters)
+groups <- data.frame(cbind(cluster_titles, cluster_vector))
+names(groups) <- c("cl", "numeric")
+total_num_groups <- num_clusters + 1
+
+#construct data frame of names of connectivity groups
+df_names <- data.frame(rep(groups$cl, num_measures), rep(parcellations, each = total_num_groups))
+names(df_names) <- c("cl", "parcellation")
+
+#construct mean_sd_sem data frame
+df_mean_sd_sem <- NULL
+for(parcellation in parcellations) {
+  mean_sd_sem <- data_frame_mean_sd_sem(data_frame = subset_with_clusters_AG_matched, variable = parcellation, hydra_cluster = num_clusters)
+  df_mean_sd_sem <- rbind(df_mean_sd_sem, mean_sd_sem)
+}
+
+#combine data frames and remove the extra cluster names
+all_mean_sd_sem <- data.frame(df_names, df_mean_sd_sem)
+all_mean_sd_sem <- subset(all_mean_sd_sem, select = -c(cl.1))
+                          
+for(parcellation in parcellations){
+  for(num in 1:total_num_groups) {
+    clst <- groups[num,1]
+    meas <- groups[num,2]
+    mean_for_eval <- paste("mean(subset_with_clusters_AG_matched$", parcellation, "[which(subset_with_clusters_AG_matched$Hydra_k", num_clusters, " == ", groups[num,2], ")])", sep="")
+    mean_grp <- eval(parse(text=as.name(mean_for_eval)))
+    all_mean_sd_sem$mean[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$parcellation == parcellation)] <- mean_grp
+    
+    sd_for_eval <- paste("sd(subset_with_clusters_AG_matched$", parcellation, "[which(subset_with_clusters_AG_matched$Hydra_k", num_clusters, " == ", groups[num,2], ")])", sep="")
+    sd_grp <- eval(parse(text=as.name(sd_for_eval)))
+    all_mean_sd_sem$sd[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$parcellation == parcellation)] <- sd_grp
+    
+    #THIS WAS CHANGED 8/8, sem should be based on the number of subjects in each group!
+    sem_calc <- paste0("all_mean_sd_sem$sem[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$parcellation == parcellation)] <- all_mean_sd_sem$sd[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$parcellation == parcellation)]/sqrt(length(which(subset_with_clusters_AG_matched$Hydra_k", num_clusters," == meas)))")
+    eval(parse(text=as.name(sem_calc)))
+  
+  }
+}
+
+#lets do some parcellation reorganization
+parcellations_newNames <- gsub("nback_func_sc_", "", parcellations) #removes the nback_func_sc_
+parcellations_newNames <- gsub("_", " ", parcellations_newNames) #converts underscores to spaces
+parcellations_newNames <- gsub(" r", " Right", parcellations_newNames) #converts r to Right
+parcellations_newNames <- gsub(" l", " Left", parcellations_newNames) #converts l to Left
+parcellations_newNames <- gsub("ant", "Anterior", parcellations_newNames) #converts ant to Anterior
+parcellations_newNames <- gsub("post", "Posterior", parcellations_newNames) #converts post to Posterior
+parcellations_newNames <- gsub("hipp", "hippocampus", parcellations_newNames)
+parcellations_newNames <- gsub("rusI", "rus I", parcellations_newNames)
+parcellations_newNames <- gsub("fp", "Frontal Pole", parcellations_newNames)
+parcellations_newNames <- gsub("mfg", "dorsal frontal", parcellations_newNames)
+parcellations_newNames <- gsub("precun", "precuneus", parcellations_newNames)
+parcellations_newNames <- gsub("pcc", "posterior cingulate cortex", parcellations_newNames)
+#parcellations_newNames <- gsub("pcc", "PCC", parcellations_newNames)
+#parcellations_newNames <- gsub("dacc", "dACC", parcellations_newNames)
+#parcellations_newNames <- gsub("dlpfc", "DLPFC", parcellations_newNames)
+#parcellations_newNames <- gsub("vmpfc", "VMPFC", parcellations_newNames)
+parcellations_newNames <- gsub("dacc", "anterior cingulate", parcellations_newNames)
+parcellations_newNames <- gsub("dlpfc", "DLPFC", parcellations_newNames)
+parcellations_newNames <- gsub("vmpfc", "vmPFC", parcellations_newNames)
+parcellations_newNames <- gsub("thal", "thalamus", parcellations_newNames)
+parcellations_newNames <- gsub(pattern = "\\b([a-z])", replacement = "\\U\\1", parcellations_newNames, perl = TRUE)
+parcellations_newNames <- gsub("Vmpfc", "vmPFC", parcellations_newNames)
+to_add <- rep(parcellations_newNames, each = num_clusters + 1)
+all_mean_sd_sem$newNames <- to_add
+
+#plot
+
+ggplot(data = all_mean_sd_sem, aes(x = newNames, y = mean, group = cl)) + ylab("Node Strength") +  
+  ggtitle(paste0("Node Strength in Significant Areas: Overall Network Strength = ", network_strength_overall_p)) + 
+  geom_line(aes(color=cl, size=.1), show.legend = F) +
+  geom_point(aes(color=cl)) + 
+  geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1, size=1.5) +
+  scale_x_discrete(name = " ") + labs(colour = "cluster") +
+  guides(colour = guide_legend(override.aes = list(size=10))) +
+  theme(axis.text.x = element_text(size = 20, angle=60, hjust = 1), 
+        axis.text.y = element_text(size = 30),
+        title = element_text(size = 30), 
+        legend.text = element_text(size = 30), 
+        plot.title = element_text(size=35),
+        legend.title=element_blank())
+
+
+new_order <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/fc_task_active.csv")
+
+
+ggplot(data = new_order, aes(x = newNames, y = mean, group = cl)) + ylab("Nodal Strength") +  
+  ggtitle("Nodal Strength- Overall Network Strength P=0.043") + 
+  geom_line(aes(color=cl, size=.1), show.legend = F) +
+#  geom_line(aes(color=cl), show.legend = F) +
+  geom_point(aes(color=cl)) + 
+  geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1, size=1.5) +
+ # geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1) +
+  scale_x_discrete(name = " ", limits=new_order$newNames) + labs(colour = "cluster") +
+  guides(colour = guide_legend(override.aes = list(size=10))) +
+  theme(axis.text.x = element_text(size = 20, angle=60, hjust = 1), 
+        axis.text.y = element_text(size = 30),
+        title = element_text(size = 30), 
+        legend.text = element_text(size = 30), 
+        plot.title = element_text(size=35),
+        legend.title=element_blank())
+
+all_mean_sd_sem_network <- data_frame_mean_sd_sem(data_frame = subset_with_clusters_AG_matched, variable = "network_strength", hydra_cluster = 3)
+
+ggplot(all_mean_sd_sem_network, aes(x = cl, y = mean, fill = cl)) + geom_col() + 
+    geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem),width=.2,position=position_dodge(.9)) + 
+    xlab("Clusters") + ylab(paste0("Network Strength")) + 
+    ggtitle(paste0("Network Strength by Cluster, P=0.043"))  
+
+###################################################
+## Extracting anovas with significant p values ####
+###################################################
+
+#lm agesq
+#Looking at Hydra_k3
+#Look at model summaries
+models_anova_lm_agesq <- lapply(parcellation_cluster_stats_anova_lm_agesq_AG_matched, summary)
+
+#Pull p-values
+p_anova_lm_agesq <- sapply(parcellation_cluster_stats_anova_lm_agesq_AG_matched, function(v) v$"Pr(>F)"[1]) #$coef[,"Pr(>F)"][2]) #get the p value for dep binarized
+
+#Convert to data frame
+p_anova_lm_agesq <- as.data.frame(p_anova_lm_agesq)
+
+#print BEFORE FDR correction 
+print("LM Agesq anova scores, BEFORE FDR correction: i.e., uncorrected")
+print(p_anova_lm_agesq)
+
+#print("LM agesq anova scores, BEFORE FDR correction, p <0.05")
+#anova_before_correction_p05 <- as.data.frame(p_anova_lm_agesq[p_anova_lm_agesq <0.05])
+#row.names(anova_before_correction_p05) <- row.names(anova_before_correction_p05)[p_round_anova_lm_agesq<0.05]
+
+
+#Print original p-values to three decimal places
+p_round_anova_lm_agesq <- round(p_anova_lm_agesq,3)
+
+#FDR correct p-values
+pfdr_anova_lm_agesq <- p.adjust(p_anova_lm_agesq[,1],method="fdr")
+
+#Convert to data frame
+pfdr_anova_lm_agesq <- as.data.frame(pfdr_anova_lm_agesq)
+row.names(pfdr_anova_lm_agesq) <- parcellations
+
+#To print fdr-corrected p-values to three decimal places
+pfdr_round_anova_lm_agesq <- round(pfdr_anova_lm_agesq,3)
+
+#List the components that survive FDR correction
+parcellation_fdr_anova_lm_agesq <- row.names(pfdr_anova_lm_agesq)[pfdr_anova_lm_agesq<0.05]
+
+#make a data frame with names and fdr values (rounded to 3 decimals)
+parcellation_names_and_fdr_values_anova_lm_agesq <- data.frame(cbind(parcellation_fdr_anova_lm_agesq, round(pfdr_anova_lm_agesq[pfdr_anova_lm_agesq<0.05],3)))
+
+#add titles to names_and_fdr tables
+names(parcellation_names_and_fdr_values_anova_lm_agesq) <- c("parcellation", "p_FDR_corr")
+
+print("LM Agesq- Mean centered age that was then squared, FDR corrected")
+print(parcellation_names_and_fdr_values_anova_lm_agesq)
+
+######################################################
+####Pairwise t-tests for anova-corrected lm means ####
+######################################################
+#######THIS ONLY WORKS FOR 3 CLUSTERS
+
+#put lm model into emmeans format
+parcellation_emmodel_lm_agesq_AG_matched <- lapply(parcellation_cluster_stats_lm_agesq_AG_matched, function(x) {as.list(ref_grid(x))})
+parcellation_emmgrid_lm_agesq_AG_matched <- lapply(parcellation_emmodel_lm_agesq_AG_matched, function(x) {as.emmGrid(x)})
+
+#run emmeans
+parcellation_emmeans_lm_agesq_AG_matched <- lapply(parcellation_emmgrid_lm_agesq_AG_matched, function(x) {emmeans(x, "Hydra_k3")})
+
+#run pairwise contrasts
+parcellation_emmpairs_lm_agesq_AG_matched <- lapply(parcellation_emmeans_lm_agesq_AG_matched, function(x) {pairs(x)})
+
+#Only include stuff that was fdr corrected (i.e., only keep parts of the model (or only display) ones that are corrected),this will be null if nothing was corrected
+parcellation_emmpairs_lm_agesq_AG_matched_FDR_corrected <- parcellation_emmpairs_lm_agesq_AG_matched[c(parcellation_fdr_anova_lm_agesq)]
+
+
+################
+  ####Corrected #######
+######Make table of contrasts, rows are names of brain regions that are fdr corrected, columns are contrasts, values are pvalues
+
+#contrast names, -1 = controls, 1-3 are clusters
+contrast_names <- c("-1 - 1", "-1 - 2", "-1 - 3", "1 - 2", "1 - 3", "2 - 3")
+
+#go through each fdr corrected brain region, and extract p values
+contrast_table <- lapply(parcellation_emmpairs_lm_agesq_AG_matched_FDR_corrected, function(x) {round(summary(x)$p.value,3)})
+
+#get the names of the brain regions that were fdr corrected
+fdr_corrected_brain_regions <- names(contrast_table)
+
+#build table that will hold the name of the brain region and the p values
+pairwise_table <- data.frame(matrix(nrow = length(fdr_corrected_brain_regions), ncol = 6))
+
+#give the appropriate names
+rownames(pairwise_table) <- fdr_corrected_brain_regions
+colnames(pairwise_table) <- contrast_names
+
+#loop through each brain region, and manually assign the columns to be the p values
+for (region in fdr_corrected_brain_regions)
+{
+  pair_pval <- contrast_table[[region]]
+  pairwise_table[region,] <- pair_pval
+}
+
+#Add FDR correction
+pairwise_table_with_fdr <- pairwise_table
+pairwise_table_with_fdr$p_FDR_corr <- parcellation_names_and_fdr_values_anova_lm_agesq$p_FDR_corr
+
+
+print ("LM Agesq pairwise contrasts and FDR corrrected values Jneurosci parcellations")
+print(pairwise_table_with_fdr)
+
+sapply(parcellation_emmpairs_lm_agesq_AG_matched_FDR_corrected, function(x) {print(x)})
+
+
+#### Plotting only significant FDR stuff ####
+if(dim(pairwise_table_with_fdr)[1] > 0 ){
+  
+
+parcellations <- row.names(pairwise_table_with_fdr)
+cluster_titles <- get_cluster_titles(hydra_cluster = num_clusters)
+cluster_vector <- get_cluster_numerical_vector(hydra_cluster = num_clusters)
+groups <- data.frame(cbind(cluster_titles, cluster_vector))
+names(groups) <- c("cl", "numeric")
+total_num_groups <- num_clusters + 1
+num_measures <- length(parcellations)
+
+#construct data frame of names of connectivity groups
+df_names <- data.frame(rep(groups$cl, num_measures), rep(parcellations, each = total_num_groups))
+names(df_names) <- c("cl", "parcellation")
+
+#construct mean_sd_sem data frame
+df_mean_sd_sem <- NULL
+for(parcellation in parcellations) {
+  mean_sd_sem <- data_frame_mean_sd_sem(data_frame = subset_with_clusters_AG_matched, variable = parcellation, hydra_cluster = num_clusters)
+  df_mean_sd_sem <- rbind(df_mean_sd_sem, mean_sd_sem)
+}
+
+#combine data frames and remove the extra cluster names
+all_mean_sd_sem <- data.frame(df_names, df_mean_sd_sem)
+all_mean_sd_sem <- subset(all_mean_sd_sem, select = -c(cl.1))
+                          
+for(parcellation in parcellations){
+  for(num in 1:total_num_groups) {
+    clst <- groups[num,1]
+    meas <- groups[num,2]
+    mean_for_eval <- paste("mean(subset_with_clusters_AG_matched$", parcellation, "[which(subset_with_clusters_AG_matched$Hydra_k", num_clusters, " == ", groups[num,2], ")])", sep="")
+    mean_grp <- eval(parse(text=as.name(mean_for_eval)))
+    all_mean_sd_sem$mean[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$parcellation == parcellation)] <- mean_grp
+    
+    sd_for_eval <- paste("sd(subset_with_clusters_AG_matched$", parcellation, "[which(subset_with_clusters_AG_matched$Hydra_k", num_clusters, " == ", groups[num,2], ")])", sep="")
+    sd_grp <- eval(parse(text=as.name(sd_for_eval)))
+    all_mean_sd_sem$sd[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$parcellation == parcellation)] <- sd_grp
+    
+    #THIS WAS CHANGED 8/8, sem should be based on the number of subjects in each group!
+    sem_calc <- paste0("all_mean_sd_sem$sem[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$parcellation == parcellation)] <- all_mean_sd_sem$sd[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$parcellation == parcellation)]/sqrt(length(which(subset_with_clusters_AG_matched$Hydra_k", num_clusters," == meas)))")
+    eval(parse(text=as.name(sem_calc)))
+  
+  }
+}
+
+#lets do some parcellation reorganization
+parcellations_newNames <- gsub("nback_func_sc_", "", parcellations) #removes the nback_func_sc_
+parcellations_newNames <- gsub("_", " ", parcellations_newNames) #converts underscores to spaces
+parcellations_newNames <- gsub(" r", " Right", parcellations_newNames) #converts r to Right
+parcellations_newNames <- gsub(" l", " Left", parcellations_newNames) #converts l to Left
+parcellations_newNames <- gsub("ant", "Anterior", parcellations_newNames) #converts ant to Anterior
+parcellations_newNames <- gsub("post", "Posterior", parcellations_newNames) #converts post to Posterior
+parcellations_newNames <- gsub("hipp", "hippocampus", parcellations_newNames)
+parcellations_newNames <- gsub("rusI", "rus I", parcellations_newNames)
+parcellations_newNames <- gsub("fp", "Frontal Pole", parcellations_newNames)
+parcellations_newNames <- gsub("mfg", "dorsal frontal", parcellations_newNames)
+parcellations_newNames <- gsub("precun", "precuneus", parcellations_newNames)
+parcellations_newNames <- gsub("pcc", "posterior cingulate cortex", parcellations_newNames)
+#parcellations_newNames <- gsub("pcc", "PCC", parcellations_newNames)
+#parcellations_newNames <- gsub("dacc", "dACC", parcellations_newNames)
+#parcellations_newNames <- gsub("dlpfc", "DLPFC", parcellations_newNames)
+#parcellations_newNames <- gsub("vmpfc", "VMPFC", parcellations_newNames)
+parcellations_newNames <- gsub("dacc", "anterior cingulate", parcellations_newNames)
+parcellations_newNames <- gsub("dlpfc", "DLPFC", parcellations_newNames)
+parcellations_newNames <- gsub("vmpfc", "vmPFC", parcellations_newNames)
+parcellations_newNames <- gsub("thal", "thalamus", parcellations_newNames)
+parcellations_newNames <- gsub(pattern = "\\b([a-z])", replacement = "\\U\\1", parcellations_newNames, perl = TRUE)
+parcellations_newNames <- gsub("Vmpfc", "vmPFC", parcellations_newNames)
+to_add <- rep(parcellations_newNames, each = num_clusters + 1)
+all_mean_sd_sem$newNames <- to_add
+#plot
+ggplot(data = all_mean_sd_sem, aes(x = newNames, y = mean, group = cl)) + ylab("% Signal Change") +  
+  ggtitle("N-back Functional Regions of Interest") + 
+  geom_line(aes(color=cl, size=.1), show.legend = F) +
+  geom_point(aes(color=cl)) + 
+  geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1, size=1.5) +
+  scale_x_discrete(name = " ") + labs(colour = "cluster") +
+  guides(colour = guide_legend(override.aes = list(size=10))) +
+  theme(axis.text.x = element_text(size = 20, angle=60, hjust = 1), 
+        axis.text.y = element_text(size = 30),
+        title = element_text(size = 30), 
+        legend.text = element_text(size = 30), 
+        plot.title = element_text(size=35),
+        legend.title=element_blank())
+
+}
+
+
+
+#######Plotting average adj matrices by Subtype ###########
+names_of_subtypes <- c("Typically Developing", "Subtype 1", "Subtype 2", "Subtype 3")
+node_names <- c("Crus I Right", "Crus II Right", "DLPFC Anterior Left", "Anterior Cingulate", "Medial Frontal Gyrus Left", "Parietal Left", "Precuneus Left", "Precuneus Right")
+
+averages <- readRDS("/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/rds/averages.rds")
+td <- averages[[1]]
+s1 <- averages[[2]]
+s2 <- averages[[3]]
+s3 <- averages[[4]]
+
+better_levelplot(adj = td, node_names = node_names, title = "Typically Developing")
+better_levelplot(adj = s1, node_names = node_names, title = "Subtype 1")
+better_levelplot(adj = s2, node_names = node_names, title = "Subtype 2")
+better_levelplot(adj = s3, node_names = node_names, title = "Subtype 3")
+
+mats <- list(td, s1, s2, s3)
+lapply(mats, function(mat) {
+  better_chorDiagram(adj = mat, node_names = node_names)
+})
+
 
 ```
 

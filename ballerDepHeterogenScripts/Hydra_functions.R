@@ -9,6 +9,12 @@ require('ggplot2')
 require('reshape')
 require('emmeans')
 require('cowplot')
+require('stringr')
+require('R.matlab')
+require('visreg')
+require('rasterVis')
+require('lattice')
+require('circlize')
 ## set directories ##
 #local_wkdir <- '~/Google Drive/TDSlab/SCZ_gene_imaging/'
 #remote_wkdir <- '~/Desktop/BBL/data/joy/BBL/studies/pnc/'
@@ -334,7 +340,36 @@ plot_continuous_variables <- function(data_frame, var1, var2, hydra_cluster, opt
   
 }
 
+better_levelplot <- function(adj, node_names, title) {
+  adj_norm <- adj/max(abs(adj))
+  limit = max(abs(adj_norm))
+  keycol=c('#FFFDE7','#FFFF00', '#F57F17', '#D50000',"#212121","#311B92","#2979FF","#B2EBF2")
+  plot<-levelplot(adj_norm, par.settings = BuRdTheme(), 
+                  at = seq(limit,-limit,length.out = 12),xlab="",ylab = "", strip = F, contour = F, region= T,main=title,
+                  scales=list(x=list(at = 1:length(node_names), labels=node_names,rot=90, tck = 0),
+                              y=list(at = 1:length(node_names),labels=node_names, tck = 0)))
+  return(plot)
+}
 
+## better_level_plot ##
+better_levelplot_edge <- function(adj, node_names_x, node_names_y, title) {
+  adj_norm <- adj/max(abs(adj))
+  limit = max(abs(adj_norm))
+  keycol=c('#FFFDE7','#FFFF00', '#F57F17', '#D50000',"#212121","#311B92","#2979FF","#B2EBF2")
+  plot<-levelplot(adj_norm, par.settings = BuRdTheme(), 
+                  at = seq(limit,-limit,length.out = 12),xlab="",ylab = "", strip = F, contour = F, region= T,main=title,
+                  scales=list(x=list(at = 1:length(node_names_x), labels=node_names_x,rot=90, tck = 0),
+                              y=list(at = 1:length(node_names_y),labels=node_names_y, tck = 0)))
+  return(plot)
+}
+
+better_chorDiagram <- function(adj, node_names) {
+  circos.clear()
+  adj_norm <- adj/max(abs(adj))
+  rownames(adj_norm) = node_names
+  colnames(adj_norm) = node_names
+  chordDiagram(adj_norm, directional = TRUE, transparency = 0.5) 
+}
 #### Stats#####
 fdr_anova <- function(data_frame) {
   models_anova <- lapply(data_frame, summary)
