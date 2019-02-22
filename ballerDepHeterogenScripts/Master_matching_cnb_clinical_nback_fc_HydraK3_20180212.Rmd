@@ -1207,14 +1207,14 @@ fs_fdr_corrected_with0s <- f_anova_lm_agesq
 fs_fdr_corrected_with0s[which(pfdr_anova_lm_agesq >= 0.05),] <- 0 
 fs_fdr_corrected_index <- which(fs_fdr_corrected_with0s > 0)
 fs_fdr_corrected_vals <- fs_fdr_corrected_with0s[which(fs_fdr_corrected_with0s > 0),]
-fs_fdr_corrected <- data.frame(cbind(fs_fdr_corrected_index, fs_fdr_corrected_vals))
+fs_fdr_corrected <- data.frame(cbind(fs_fdr_corrected_vals, fs_fdr_corrected_index))
 
 #write csv for BrainNet
 write.table(pfdr_anova_lm_agesq, '/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/nback_fdr_corr_forBrainNet.csv', col.names = FALSE, quote=FALSE, sep=",")
 
 write.table(fs_fdr_corrected_with0s$f_anova_lm_agesq,'/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/nback_f_fdr_corr0s_forBrainNet.csv', col.names = FALSE, quote=FALSE, sep=",")
 
-write.table(fs_fdr_corrected, '/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/nback_f_fdr_corr_forBrainNet.csv', col.names = FALSE, quote=FALSE, sep=",")
+write.table(fs_fdr_corrected, '/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/nback_f_fdr_corr_forBrainNet.csv', col.names = FALSE, quote=FALSE, sep=",", row.names = FALSE)
 
 
 #change row names
