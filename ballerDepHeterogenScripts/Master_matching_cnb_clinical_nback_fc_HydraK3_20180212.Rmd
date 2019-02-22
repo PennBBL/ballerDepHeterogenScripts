@@ -1174,10 +1174,14 @@ ggplot(data = all_mean_sd_sem, aes(x = newNames, y = mean, group = cl)) + ylab("
 models_anova_lm_agesq <- lapply(parcellation_cluster_stats_anova_lm_agesq_AG_matched, summary)
 
 #Pull p-values
-p_anova_lm_agesq <- sapply(parcellation_cluster_stats_anova_lm_agesq_AG_matched, function(v) v$"Pr(>F)"[1]) #$coef[,"Pr(>F)"][2]) #get the p value for dep binarized
+p_anova_lm_agesq <- sapply(parcellation_cluster_stats_anova_lm_agesq_AG_matched, function(v) v$"Pr(>F)"[1]) 
+f_anova_lm_agesq <- sapply(parcellation_cluster_stats_anova_lm_agesq_AG_matched, function(v) v$"F value"[1])
+
+#$coef[,"Pr(>F)"][2]) #get the p value for dep binarized
 
 #Convert to data frame
 p_anova_lm_agesq <- as.data.frame(p_anova_lm_agesq)
+f_anova_lm_agesq <- as.data.frame(f_anova_lm_agesq)
 
 #print BEFORE FDR correction 
 print("LM Agesq anova scores, BEFORE FDR correction: i.e., uncorrected")
@@ -1196,6 +1200,24 @@ pfdr_anova_lm_agesq <- p.adjust(p_anova_lm_agesq[,1],method="fdr")
 
 #Convert to data frame
 pfdr_anova_lm_agesq <- as.data.frame(pfdr_anova_lm_agesq)
+
+#keep Fs only for p's that were FDR corrected and less than 0.05 and zero out the rest
+
+fs_fdr_corrected_with0s <- f_anova_lm_agesq
+fs_fdr_corrected_with0s[which(pfdr_anova_lm_agesq >= 0.05),] <- 0 
+fs_fdr_corrected_index <- which(fs_fdr_corrected_with0s > 0)
+fs_fdr_corrected_vals <- fs_fdr_corrected_with0s[which(fs_fdr_corrected_with0s > 0),]
+fs_fdr_corrected <- data.frame(cbind(fs_fdr_corrected_index, fs_fdr_corrected_vals))
+
+#write csv for BrainNet
+write.table(pfdr_anova_lm_agesq, '/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/nback_fdr_corr_forBrainNet.csv', col.names = FALSE, quote=FALSE, sep=",")
+
+write.table(fs_fdr_corrected_with0s$f_anova_lm_agesq,'/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/nback_f_fdr_corr0s_forBrainNet.csv', col.names = FALSE, quote=FALSE, sep=",")
+
+write.table(fs_fdr_corrected, '/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/nback_f_fdr_corr_forBrainNet.csv', col.names = FALSE, quote=FALSE, sep=",")
+
+
+#change row names
 row.names(pfdr_anova_lm_agesq) <- parcellations
 
 #To print fdr-corrected p-values to three decimal places
