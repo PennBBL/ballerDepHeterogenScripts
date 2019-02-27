@@ -3,8 +3,8 @@ title: "Master file"
 author: "Erica Baller"
 date: "2/27/2019"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -1067,7 +1067,6 @@ clinical_scores <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/da
 health <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_health_20170405.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_health_20170405.csv
 psych_summary <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_goassess_psych_summary_vars_20131014.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_goassess_psych_summary_vars_20131014.csv
 
-#from /data/joy/BBL/studies/pnc/n1601_dataFreeze/clinical/n1601_stai_pre_post_itemwise_smry_factors_20170131.csv
 
 #read in Hydra cluster data -> AG (all_gender), M(males), F(females) 
 hydra_AG_matched_clusters <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/hydra_output_from_cbica/hydra_matched/20181121_OLD_HYDRA_with_new_script_from_toni/CogData_age_and_sex_n1424_matched_imaging_plus_non_imaging_replication_20181121_HydraSubtypes.csv", header = TRUE, sep = ",")
@@ -1092,10 +1091,6 @@ psych_summary_no_NA_dep_and_smry_psych_overall <- psych_summary_no_NA_dep[!is.na
 
 #subset clinical scores
 clinical_scores <- clinical_scores[,1:4]
-
-#convert clinical scores into numeric and not factor
-as.numeric(clinical_scores$staiPreState)
-as.numeric(clinical_scores$staiPreTrait)
 
 #merge demographics and clinical #this is if we want to include people without full demographic data
 dem_clinical <- merge(demographics_noNA_race_age_sex, clinical_scores, by = "bblid") #merge demographics and clinical, N = 9350
@@ -1126,7 +1121,6 @@ subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$ageSq <- as.nume
 
 #remove people with NA in their clinical measures
 subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED <- subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED[complete.cases(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED[14:39]),]
-
 subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$staiPreTrait <- as.numeric(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$staiPreTrait)
 ################################################
 ### Merge clustering data with subsetted data ##
