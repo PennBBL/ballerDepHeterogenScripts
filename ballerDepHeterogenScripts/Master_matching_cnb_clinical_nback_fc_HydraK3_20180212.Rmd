@@ -1194,9 +1194,6 @@ for(clinical in clinical_measure_names){
   }
 }
 
-#remove _4factorv2 from names
-all_mean_sd_sem$clinical <- gsub("_4factorv2", "", all_mean_sd_sem$clinical)
-all_mean_sd_sem$clinical <- gsub("_", " ", all_mean_sd_sem$clinical)
 
 names(all_mean_sd_sem) <- c("cluster", "clinical", "mean", "sd", "sem")
 
@@ -1204,8 +1201,6 @@ names(all_mean_sd_sem) <- c("cluster", "clinical", "mean", "sd", "sem")
 clinical_bifactor_TONI_names <- c("State Anxiety", "Trait Anxiety")
 new_names <- rep(clinical_bifactor_TONI_names, each = 4)
 all_mean_sd_sem$new_names <- new_names
-upper_case <- gsub(pattern = "\\b([a-z])", replacement = "\\U\\1", all_mean_sd_sem$new_names, perl = TRUE)
-all_mean_sd_sem$new_names <- upper_case
 
 ggplot(data = all_mean_sd_sem, aes(x = clinical, y = mean, group = cluster)) + ylab("Mean Anxiety Score")  +
   ggtitle("State and Trait Anxiety Scores") + 
