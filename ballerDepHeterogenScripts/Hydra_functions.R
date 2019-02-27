@@ -375,7 +375,8 @@ better_chorDiagram_norm <- function(adj, node_names) {
 
 better_chorDiagram <- function(adj, node_names) {
   circos.clear()
-  model_color=c('#FFFDE7','#FFFF00', '#F57F17', '#D50000',"#212121","#311B92","#2979FF","#B2EBF2")
+#  model_color=c('#FFFDE7','#FFFF00', '#F57F17', '#D50000',"#212121","#311B92","#2979FF","#B2EBF2")
+  model_color=c('#CC2626','#CC7926', '#CCC326', '#26CCB8',"#2689CC","#3126CC","#A526CC","#CC2665")
   #names(model_color) <- model_color
 
   rownames(adj) = node_names
