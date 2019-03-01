@@ -1676,10 +1676,8 @@ all_mean_sd_sem$newNames <- to_add
 ggplot(data = all_mean_sd_sem, aes(x = newNames, y = mean, group = cl)) + ylab("% Signal Change") +  
   ggtitle("N-back Functional Regions of Interest") + 
   geom_line(aes(color=cl, size=.1), show.legend = F) +
-#  geom_line(aes(color=cl), show.legend = F) +
   geom_point(aes(color=cl)) + 
   geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1, size=1.5) +
- # geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1) +
   scale_x_discrete(name = " ") + labs(colour = "cluster") +
   guides(colour = guide_legend(override.aes = list(size=10))) +
   theme(axis.text.x = element_text(size = 20, angle=60, hjust = 1), 
@@ -1693,12 +1691,11 @@ new_order <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/
 new_order_desc <- new_order[nrow(new_order):1, ]
 new_order_desc$cl <- all_mean_sd_sem$cl
 ggplot(data = new_order_desc, aes(x = newNames, y = mean, group = cl)) + ylab("% Signal Change") +  
+ 
   ggtitle("N-back Functional Regions of Interest") + 
   geom_line(aes(color=cl, size=.1), show.legend = F) +
-#  geom_line(aes(color=cl), show.legend = F) +
   geom_point(aes(color=cl)) + 
   geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1, size=1.5) +
- # geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1) +
   scale_x_discrete(name = " ", limits=new_order_desc$newNames) + labs(colour = "cluster") +
   guides(colour = guide_legend(override.aes = list(size=10))) +
   theme(axis.text.x = element_text(size = 20, angle=60, hjust = 1), 
@@ -1707,6 +1704,7 @@ ggplot(data = new_order_desc, aes(x = newNames, y = mean, group = cl)) + ylab("%
         legend.text = element_text(size = 30), 
         plot.title = element_text(size=35),
         legend.title=element_blank())
+  
 ```
 
 ```{r Functional_connectivity}
@@ -1910,7 +1908,7 @@ all_mean_sd_sem_network <- data_frame_mean_sd_sem(data_frame = subset_with_clust
 
 ggplot(all_mean_sd_sem_network, aes(x = cl, y = mean, fill = cl)) +  geom_col() + 
     geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem),width=.2,position=position_dodge(.9)) + 
-    xlab("Clusters") + ylab(paste0("Network Strength")) +
+    xlab("Clusters") + ylab(paste0("r (correlation)")) +
     theme(legend.position = "none",
           axis.text.x = element_text(size=30),
           axis.text.y = element_text(size = 20),
@@ -1926,8 +1924,9 @@ subset_for_violin$Hydra_k3 <- gsub(pattern = "1", replacement = "Subtype 1", x =
 subset_for_violin$Hydra_k3 <- gsub(pattern = "2", replacement = "Subtype 2", x = subset_for_violin$Hydra_k3)
 subset_for_violin$Hydra_k3 <- gsub(pattern = "3", replacement = "Subtype 3", x = subset_for_violin$Hydra_k3)
 
-ggplot(subset_for_violin, aes(x = Hydra_k3, y = network_strength, fill = Hydra_k3)) +  geom_violin() + 
-   xlab("Clusters") + ylab(paste0("Network Strength")) +
+ggplot(subset_for_violin, aes(x = Hydra_k3, y = network_strength, fill = Hydra_k3)) +  
+   geom_violin(trim = TRUE) + 
+   xlab("Clusters") + ylab(paste0("r (correlation)")) +
    scale_y_continuous(limits=c(0, 30)) + 
    theme(legend.position = "none",
           axis.text.x = element_text(size=30),
@@ -1935,7 +1934,11 @@ ggplot(subset_for_violin, aes(x = Hydra_k3, y = network_strength, fill = Hydra_k
           axis.title.y = element_text(size = 30),
           axis.title.x = element_blank(),
           plot.title = element_text(size = 35)) +
+   # geom_boxplot(width=0.1, fill="grey") +
+    stat_summary(fun.data=mean_se, 
+                 geom="pointrange") + 
     ggtitle(paste0("Network Strength, P=0.043"))  
+  
 
 visreg(network_strength_lm)
 ###################################################

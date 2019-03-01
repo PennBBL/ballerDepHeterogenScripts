@@ -342,11 +342,13 @@ plot_continuous_variables <- function(data_frame, var1, var2, hydra_cluster, opt
 better_levelplot <- function(adj, node_names, title) {
   adj_norm <- adj/max(abs(adj))
   limit = max(abs(adj_norm))
-  keycol=c('#FFFDE7','#FFFF00', '#F57F17', '#D50000',"#212121","#311B92","#2979FF","#B2EBF2")
-  plot<-levelplot(adj_norm, par.settings = BuRdTheme(), 
-                  at = seq(limit,-limit,length.out = 12),xlab="",ylab = "", strip = F, contour = F, region= T,main=title,
-                  scales=list(x=list(at = 1:length(node_names), labels=node_names,rot=90, tck = 0),
-                              y=list(at = 1:length(node_names),labels=node_names, tck = 0)))
+  #keycol=c('#FFFDE7','#FFFF00', '#F57F17', '#D50000',"#212121","#311B92","#2979FF","#B2EBF2")
+  #keycol=c("d11225", "", "", "", "", "", "", "")
+  plot<-levelplot(adj_norm, par.settings = RdBuTheme(region = brewer.pal(9, 'Reds')), #RdBuTheme(), 
+                  colorkey=list(labels=list(cex=2,font=1,col="black")),
+                  at = seq(limit,0,length.out = 12),xlab="",ylab = "", strip = F, contour = F, region= T,main=list(label=title,cex=3),
+                  scales=list(x=list(at = 1:length(node_names), labels=node_names,rot=90, tck = 0, cex = 2),
+                              y=list(at = 1:length(node_names),labels=node_names, tck = 0, cex = 2)))
   return(plot)
 }
 
@@ -365,25 +367,22 @@ better_levelplot_edge <- function(adj, node_names_x, node_names_y, title) {
 better_chorDiagram_norm <- function(adj, node_names) {
   circos.clear()
   model_color=c('#FFFDE7','#FFFF00', '#F57F17', '#D50000',"#212121","#311B92","#2979FF","#B2EBF2")
-  #names(model_color) <- model_color
   adj_norm <- adj/max(abs(adj))
   rownames(adj_norm) = node_names
   colnames(adj_norm) = node_names
   chordDiagram(adj_norm, directional = TRUE, transparency = 0.5, self.link = TRUE, grid.col = model_color) 
-  #standardized colors, let side warm color, right side cold color
 }
 
 better_chorDiagram <- function(adj, node_names) {
   circos.clear()
-#  model_color=c('#FFFDE7','#FFFF00', '#F57F17', '#D50000',"#212121","#311B92","#2979FF","#B2EBF2")
   model_color=c('#CC2626','#CC7926', '#CCC326', '#26CCB8',"#2689CC","#3126CC","#A526CC","#CC2665")
-  #names(model_color) <- model_color
-
   rownames(adj) = node_names
   colnames(adj) = node_names
+  par(cex=2)
   chordDiagram(adj, directional = TRUE, transparency = 0.5, self.link = TRUE, grid.col = model_color) 
-  #standardized colors, let side warm color, right side cold color
 }
+
+
 #### Stats#####
 fdr_anova <- function(data_frame) {
   models_anova <- lapply(data_frame, summary)
