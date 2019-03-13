@@ -1,7 +1,7 @@
 ---
-title: "Master file"
+title: "Master file with RDS "
 author: "Erica Baller"
-date: "3/6/2019"
+date: "3/13/2019"
 output:
   pdf_document: default
   html_document: default
@@ -380,82 +380,14 @@ write.csv(subset_bblidAndCog_cov, file="/Users/eballer/BBL/from_chead/ballerDepH
 num_clusters <- 3
 cluster_titles <- get_cluster_titles(hydra_cluster = num_clusters)
 
-#read in csvs
-demographics <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_demographics_go1_20161212.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_demographics_go1_20161212.csv
-cnb_scores <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_cnb_zscores_fr_20170202.csv", header = TRUE, sep = ",") 
-health <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_health_20170405.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_health_20170405.csv
-psych_summary <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_goassess_psych_summary_vars_20131014.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_goassess_psych_summary_vars_20131014.csv
-cnb_factor_scores <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_cnb_factor_scores_fr_20170202.csv", header = TRUE, sep = ",")
-extended_names <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/dictionaries/cnb_scores_and_names.csv", header = TRUE) #reads a 2 column table with mappings of cnb scores to actual names
+subset_with_clusters_AG_matched <- readRDS("/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/rds/cnb_results.rds")
 
-#read in Hydra cluster data -> AG (all_gender), M(males), F(females) 
-#hydra_AG_matched_clusters <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/hydra_output_from_cbica/hydra_matched/matched_imaging_plus_non_imaging/CogData_matched_age_and_sex_n1424_matched_imaging_plus_non_imaging_HydraSubtypes.csv", header = TRUE, sep = ",")
-
-hydra_AG_matched_clusters <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/hydra_output_from_cbica/hydra_matched/20181121_OLD_HYDRA_with_new_script_from_toni/CogData_age_and_sex_n1424_matched_imaging_plus_non_imaging_replication_20181121_HydraSubtypes.csv", header = TRUE, sep = ",")
 
 hydra_aris <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/hydra_output_from_cbica/hydra_matched/20181121_OLD_HYDRA_with_new_script_from_toni/CogData_age_and_sex_n1424_matched_imaging_plus_non_imaging_replication_20181121_ARI.csv", header = FALSE, sep = ",")
-
-#Coerce hydra values into factor format
-hydra_names <- names(hydra_AG_matched_clusters[2:11])
-hydra_AG_matched_clusters[hydra_names] <- lapply(hydra_AG_matched_clusters[hydra_names], factor)
-
-
-############
-#prepping and merging big CNB and demographics stuff
-############
-
-#remove people with NA for race, age, or sex.  START WITH N = 9498
-demographics_noNA_race <- demographics[!is.na(demographics$race),] #everyone has a race, N = 9498
-demographics_noNA_race_age <- demographics_noNA_race[!is.na(demographics_noNA_race$ageAtClinicalAssess1),] # 86 people do not have age at clinical assessment.  N = 9412
-demographics_noNA_race_age_sex <- demographics_noNA_race_age[!is.na(demographics_noNA_race_age$sex),] #everyone has a sex, N = 9412
-demographics_noNA_race_age_andCNBage_sex <- demographics_noNA_race_age_sex[!is.na(demographics_noNA_race_age_sex$ageAtCnb1),] #6 people do not have ageAtCnb1, N = 9406
-
-#remove people with NA for depression or total psych score, START WITH N = 9498
-psych_summary_no_NA_dep <- psych_summary[!is.na(psych_summary$smry_dep),] #take out those with NA for depression, 87 people N = 9411
-psych_summary_no_NA_dep_and_smry_psych_overall <- psych_summary_no_NA_dep[!is.na(psych_summary_no_NA_dep$smry_psych_overall_rtg),] #take out those with NA for overall psych rtg, no additional people lost, N = 9411
-
-#merge demographics and cnb #this is if we want to include people without full demographic data
-dem_cnb <- merge(demographics_noNA_race_age_andCNBage_sex, cnb_scores, by = "bblid") #merge demographics and cnb, N = 9406
-psych_health <- merge(psych_summary_no_NA_dep_and_smry_psych_overall, health, by = "bblid") #merge psych and health, N = 9411
-dem_cnb_psych_health_merged <- merge (dem_cnb, psych_health, by = "bblid") #merge all 4 csvs, lost 1 person [134716] (had demographics, but no psych ratings): N = 9405
-dem_cnb_psych_health_factor_scores_merged <- merge(dem_cnb_psych_health_merged, cnb_factor_scores, by = "bblid")
-
-#make subsets
-subset_just_dep_and_no_medicalratingExclude <- subset.data.frame(dem_cnb_psych_health_factor_scores_merged, (medicalratingExclude == 0) & (smry_dep == 4), select = "bblid") #subset people who were not medically excluded and who are depressed, N = 776
-subset_no_psych_no_medicalratingExclude <- subset.data.frame(dem_cnb_psych_health_factor_scores_merged, (medicalratingExclude == 0) & (smry_psych_overall_rtg < 4), select = "bblid") #subset people who are psychiatrically healthy, N = 2508
-subset_dep_or_no_psych_and_no_medicalratingExclude <- subset.data.frame(dem_cnb_psych_health_factor_scores_merged, (medicalratingExclude == 0) & ((smry_dep == 4) | (smry_psych_overall_rtg <4))) #subset including both depressed and healthies, good for regressions, N = 3284
-
-#would binarize depression smry score to -1 (less than 4, not depressed) and 1 (score 4 , depressed)
-dep_binarized <- ifelse(subset_dep_or_no_psych_and_no_medicalratingExclude$smry_dep == 4, 1, -1)
-subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED <- cbind(subset_dep_or_no_psych_and_no_medicalratingExclude, dep_binarized) #N = 3284
-
-#make depression and gender into factor scores
-subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$dep_binarized <- as.factor(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$dep_binarized)
-subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$sex <- as.factor(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$sex)
-
-#divide ageAtCNB by 12 for age
-subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$age_in_years <- subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$ageAtCnb1/12
-
-#race binarized for plotting purposes, caucasian 1, non-caucasion 0
-subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$race_binarized <- ifelse(as.factor(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$race) == 1, 1, 0)
-
-#add age squared mean-centered term for use in LM
-subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$ageSq <- as.numeric(I(scale(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$age_in_years, scale = FALSE, center = TRUE)^2))
-
-#remove people with NA in their cognitive measures
-subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED <- subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED[complete.cases(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED[14:39]),]
-
-################################################
-### Merge clustering data with subsetted data ##
-################################################
-
-#AG (all gender), M (males), F (females) 
-#AG Matched - n 1424
-
-subset_with_clusters_AG_matched <- merge(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED, hydra_AG_matched_clusters, by = "bblid")
 clusters <- names(subset_with_clusters_AG_matched[grep ("Hydra", names(subset_with_clusters_AG_matched))])
 summary_factor_scores <- names(subset_with_clusters_AG_matched[grep ("NAR_Overall", names(subset_with_clusters_AG_matched))])
-saveRDS(subset_with_clusters_AG_matched, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/rds/cnb_results.rds")
+extended_names <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/dictionaries/cnb_scores_and_names.csv", header = TRUE) #reads a 2 column table with mappings of cnb scores to actual names
+
 #######Matched group all clusters ##############
 
 make_demographics_table(data_frame = subset_with_clusters_AG_matched, hydra_cluster = num_clusters)
@@ -605,15 +537,12 @@ for(x in 1:length(plot_list)){
 #################################
 
 #get CNB measure names
-cnb_measure_names <- names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED)[grep("_z", names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED))] #get the names of all the columns with _z in the name
+cnb_measure_names <- names(subset_with_clusters_AG_matched)[grep("_z", names(subset_with_clusters_AG_matched))] #get the names of all the columns with _z in the name
 
 cnb_speed_names <- cnb_measure_names[grep(pattern = "s_z", x = cnb_measure_names)]
 cnb_accuracy_names <- cnb_measure_names[grep(pattern = "s_z", x = cnb_measure_names, invert = TRUE)]
 
-cluster_names <- colnames(hydra_AG_matched_clusters[,2:11])
-
 cnb_measure_names_list <- names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED)[grep("_z", names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED))] #get the names of all the columns with _z in the name
-cluster_names_list <- colnames(hydra_AG_matched_clusters[,2:11])
 
 
 #lm ageSq and mean centered
@@ -923,76 +852,9 @@ sapply(cnb_emmpairs_lm_agesq_AG_matched_FDR_corrected, function(x) {print(x)})
 num_clusters <- 3
 cluster_titles <- get_cluster_titles(hydra_cluster = num_clusters)
 
-#read in csvs
-demographics <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_demographics_go1_20161212.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_demographics_go1_20161212.csv
-#clinical_scores <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_goassess_itemwise_bifactor_scores_20161219.csv", header = TRUE, sep = ",") 
-clinical_scores <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/GOA_factor_scores_NO_DEPRESSION.csv", header = TRUE, sep = ",") 
-health <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_health_20170405.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_health_20170405.csv
-psych_summary <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_goassess_psych_summary_vars_20131014.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_goassess_psych_summary_vars_20131014.csv
+subset_with_clusters_AG_matched <- readRDS("/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/rds/clinical_bifactor_results.rds")
 
-#from /data/joy/BBL/studies/pnc/n1601_dataFreeze/clinical/n1601_stai_pre_post_itemwise_smry_factors_20170131.csv
-
-#read in Hydra cluster data -> AG (all_gender), M(males), F(females) 
-hydra_AG_matched_clusters <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/hydra_output_from_cbica/hydra_matched/20181121_OLD_HYDRA_with_new_script_from_toni/CogData_age_and_sex_n1424_matched_imaging_plus_non_imaging_replication_20181121_HydraSubtypes.csv", header = TRUE, sep = ",")
-
-#Coerce hydra values into factor format
-hydra_names <- names(hydra_AG_matched_clusters[2:11])
-hydra_AG_matched_clusters[hydra_names] <- lapply(hydra_AG_matched_clusters[hydra_names], factor)
-
-
-############
-#prepping and merging big clinical and demographics stuff
-############
-
-#remove people with NA for race, age, or sex.  START WITH N = 9498
-demographics_noNA_race <- demographics[!is.na(demographics$race),] #everyone has a race, N = 9498
-demographics_noNA_race_age <- demographics_noNA_race[!is.na(demographics_noNA_race$ageAtClinicalAssess1),] # 86 people do not have age at clinical assessment.  N = 9412
-demographics_noNA_race_age_sex <- demographics_noNA_race_age[!is.na(demographics_noNA_race_age$sex),] #everyone has a sex, N = 9412
-
-#remove people with NA for depression or total psych score, START WITH N = 9498
-psych_summary_no_NA_dep <- psych_summary[!is.na(psych_summary$smry_dep),] #take out those with NA for depression, 87 people N = 9411
-psych_summary_no_NA_dep_and_smry_psych_overall <- psych_summary_no_NA_dep[!is.na(psych_summary_no_NA_dep$smry_psych_overall_rtg),] #take out those with NA for overall psych rtg, no additional people lost, N = 9411
-
-#merge demographics and clinical #this is if we want to include people without full demographic data
-dem_clinical <- merge(demographics_noNA_race_age_sex, clinical_scores, by = "bblid") #merge demographics and clinical, N = 9350
-psych_health <- merge(psych_summary_no_NA_dep_and_smry_psych_overall, health, by = "bblid") #merge psych and health, N = 9411
-dem_clinical_psych_health_merged <- merge (dem_clinical, psych_health, by = "bblid") #merge all 3 csvs, lost 1 person [134716] (had demographics, but no psych ratings): N = 9350
-
-#make subsets
-subset_just_dep_and_no_medicalratingExclude <- subset.data.frame(dem_clinical_psych_health_merged, (medicalratingExclude == 0) & (smry_dep == 4), select = "bblid") #subset people who were not medically excluded and who are depressed, N = 776
-subset_no_psych_no_medicalratingExclude <- subset.data.frame(dem_clinical_psych_health_merged, (medicalratingExclude == 0) & (smry_psych_overall_rtg < 4), select = "bblid") #subset people who are psychiatrically healthy, N = 2508
-subset_dep_or_no_psych_and_no_medicalratingExclude <- subset.data.frame(dem_clinical_psych_health_merged, (medicalratingExclude == 0) & ((smry_dep == 4) | (smry_psych_overall_rtg <4))) #subset including both depressed and healthies, good for regressions, N = 3284
-
-#would binarize depression smry score to -1 (less than 4, not depressed) and 1 (score 4 , depressed)
-dep_binarized <- ifelse(subset_dep_or_no_psych_and_no_medicalratingExclude$smry_dep == 4, 1, -1)
-subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED <- cbind(subset_dep_or_no_psych_and_no_medicalratingExclude, dep_binarized) #N = 3284
-
-#make depression and gender into factor scores
-subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$dep_binarized <- as.factor(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$dep_binarized)
-subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$sex <- as.factor(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$sex)
-
-#divide ageAtclinical by 12 for age
-subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$age_in_years <- subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$ageAtClinicalAssess1/12
-
-#race binarized for plotting purposes, caucasian 1, non-caucasion 0
-subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$race_binarized <- ifelse(as.factor(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$race) == 1, 1, 0)
-
-#add age squared mean-centered term for use in LM
-subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$ageSq <- as.numeric(I(scale(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$age_in_years, scale = FALSE, center = TRUE)^2))
-
-#remove people with NA in their clinical measures
-subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED <- subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED[complete.cases(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED[14:39]),]
-
-################################################
-### Merge clustering data with subsetted data ##
-################################################
-
-#AG (all gender), M (males), F (females) 
-#AG Matched - n 1424
-
-subset_with_clusters_AG_matched <- merge(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED, hydra_AG_matched_clusters, by = "bblid")
 clusters <- names(subset_with_clusters_AG_matched[grep ("Hydra", names(subset_with_clusters_AG_matched))])
-saveRDS(subset_with_clusters_AG_matched, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/rds/clinical_bifactor_results.rds")
 
 #### Demographics
 make_demographics_table(data_frame = subset_with_clusters_AG_matched, hydra_cluster = num_clusters)
@@ -1005,13 +867,8 @@ make_demographics_table(data_frame = subset_with_clusters_AG_matched, hydra_clus
 #################################
 
 #get clinical measure names
-clinical_measure_names <- names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED)[grep("Bifactor", names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED))] #get the names of all the columns with factorv2 in the name
+clinical_measure_names <- names(subset_with_clusters_AG_matched)[grep("Bifactor", names(subset_with_clusters_AG_matched))] #get the names of all the columns with factorv2 in the name
 clinical_measure_names <- clinical_measure_names[-grep("_ar", clinical_measure_names)] #only look at NON-age regressed
-cluster_names <- colnames(hydra_AG_matched_clusters[,2:11])
-
-# <- names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED)[grep("Bifactor", #names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED))]  #get the names of all the columns with factorv2 in the name
-#clinical_measure_names_list <- clinical_measure_names_list[-grep("_ar", clinical_measure_names_list)]
-#cluster_names_list <- colnames(hydra_AG_matched_clusters[,2:11])
 
 #lm ageSq and mean centered
 clinical_score_cluster_stats_lm_agesq_AG_matched <- lapply(clinical_measure_names, function(x) 
@@ -1189,79 +1046,8 @@ sapply(clinical_emmpairs_lm_agesq_AG_matched_FDR_corrected, function(x) {print(x
 num_clusters <- 3
 cluster_titles <- get_cluster_titles(hydra_cluster = num_clusters)
 
-#read in csvs
-demographics <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_demographics_go1_20161212.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_demographics_go1_20161212.csv
-#clinical_scores <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_goassess_itemwise_bifactor_scores_20161219.csv", header = TRUE, sep = ",") 
-#from /data/joy/BBL/studies/pnc/n1601_dataFreeze/clinical/n1601_stai_pre_post_itemwise_smry_factors_20170131.csv
-clinical_scores <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n1601_stai_pre_post_itemwise_smry_factors_20170131.csv", header=TRUE, na.strings="")
-health <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_health_20170405.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_health_20170405.csv
-psych_summary <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/n9498_goassess_psych_summary_vars_20131014.csv", header = TRUE, sep = ",") #from /data/joy/BBL/projects/ballerDepHeterogen/data/n9498_goassess_psych_summary_vars_20131014.csv
-
-
-#read in Hydra cluster data -> AG (all_gender), M(males), F(females) 
-hydra_AG_matched_clusters <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/hydra_output_from_cbica/hydra_matched/20181121_OLD_HYDRA_with_new_script_from_toni/CogData_age_and_sex_n1424_matched_imaging_plus_non_imaging_replication_20181121_HydraSubtypes.csv", header = TRUE, sep = ",")
-
-#Coerce hydra values into factor format
-hydra_names <- names(hydra_AG_matched_clusters[2:11])
-hydra_AG_matched_clusters[hydra_names] <- lapply(hydra_AG_matched_clusters[hydra_names], factor)
-
-
-############
-#prepping and merging big clinical and demographics stuff
-############
-
-#remove people with NA for race, age, or sex.  START WITH N = 9498
-demographics_noNA_race <- demographics[!is.na(demographics$race),] #everyone has a race, N = 9498
-demographics_noNA_race_age <- demographics_noNA_race[!is.na(demographics_noNA_race$ageAtClinicalAssess1),] # 86 people do not have age at clinical assessment.  N = 9412
-demographics_noNA_race_age_sex <- demographics_noNA_race_age[!is.na(demographics_noNA_race_age$sex),] #everyone has a sex, N = 9412
-
-#remove people with NA for depression or total psych score, START WITH N = 9498
-psych_summary_no_NA_dep <- psych_summary[!is.na(psych_summary$smry_dep),] #take out those with NA for depression, 87 people N = 9411
-psych_summary_no_NA_dep_and_smry_psych_overall <- psych_summary_no_NA_dep[!is.na(psych_summary_no_NA_dep$smry_psych_overall_rtg),] #take out those with NA for overall psych rtg, no additional people lost, N = 9411
-
-#subset clinical scores
-clinical_scores <- clinical_scores[,1:4]
-
-#merge demographics and clinical #this is if we want to include people without full demographic data
-dem_clinical <- merge(demographics_noNA_race_age_sex, clinical_scores, by = "bblid") #merge demographics and clinical, N = 9350
-psych_health <- merge(psych_summary_no_NA_dep_and_smry_psych_overall, health, by = "bblid") #merge psych and health, N = 9411
-dem_clinical_psych_health_merged <- merge (dem_clinical, psych_health, by = "bblid") #merge all 3 csvs, lost 1 person [134716] (had demographics, but no psych ratings): N = 9350
-
-#make subsets
-subset_just_dep_and_no_medicalratingExclude <- subset.data.frame(dem_clinical_psych_health_merged, (medicalratingExclude == 0) & (smry_dep == 4), select = "bblid") #subset people who were not medically excluded and who are depressed, N = 776
-subset_no_psych_no_medicalratingExclude <- subset.data.frame(dem_clinical_psych_health_merged, (medicalratingExclude == 0) & (smry_psych_overall_rtg < 4), select = "bblid") #subset people who are psychiatrically healthy, N = 2508
-subset_dep_or_no_psych_and_no_medicalratingExclude <- subset.data.frame(dem_clinical_psych_health_merged, (medicalratingExclude == 0) & ((smry_dep == 4) | (smry_psych_overall_rtg <4))) #subset including both depressed and healthies, good for regressions, N = 3284
-
-#would binarize depression smry score to -1 (less than 4, not depressed) and 1 (score 4 , depressed)
-dep_binarized <- ifelse(subset_dep_or_no_psych_and_no_medicalratingExclude$smry_dep == 4, 1, -1)
-subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED <- cbind(subset_dep_or_no_psych_and_no_medicalratingExclude, dep_binarized) #N = 3284
-
-#make depression and gender into factor scores
-subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$dep_binarized <- as.factor(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$dep_binarized)
-subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$sex <- as.factor(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$sex)
-
-#divide ageAtclinical by 12 for age
-subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$age_in_years <- subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$ageAtClinicalAssess1/12
-
-#race binarized for plotting purposes, caucasian 1, non-caucasion 0
-subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$race_binarized <- ifelse(as.factor(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$race) == 1, 1, 0)
-
-#add age squared mean-centered term for use in LM
-subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$ageSq <- as.numeric(I(scale(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$age_in_years, scale = FALSE, center = TRUE)^2))
-
-#remove people with NA in their clinical measures
-subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED <- subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED[complete.cases(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED[14:39]),]
-subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$staiPreTrait <- as.numeric(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED$staiPreTrait)
-################################################
-### Merge clustering data with subsetted data ##
-################################################
-
-#AG (all gender), M (males), F (females) 
-#AG Matched - n 1424
-
-subset_with_clusters_AG_matched <- merge(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED, hydra_AG_matched_clusters, by = "bblid")
+subset_with_clusters_AG_matched <- readRDS("/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/rds/anxious_misery_results.rds")
 clusters <- names(subset_with_clusters_AG_matched[grep ("Hydra", names(subset_with_clusters_AG_matched))])
-saveRDS(subset_with_clusters_AG_matched, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/rds/anxious_misery_results.rds")
 
 #### Demographics
 make_demographics_table(data_frame = subset_with_clusters_AG_matched, hydra_cluster = num_clusters)
@@ -1272,15 +1058,8 @@ make_demographics_table(data_frame = subset_with_clusters_AG_matched, hydra_clus
 ##### Results stored in list ####
 #################################
 
-#get clinical measure names
-#clinical_measure_names <- names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED)[grep("Bifactor", names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED))] #get the names of all the columns with factorv2 in the name
-#clinical_measure_names <- clinical_measure_names[-grep("_ar", clinical_measure_names)] #only look at NON-age regressed
 clinical_measure_names <- c("staiPreState", "staiPreTrait")
-cluster_names <- colnames(hydra_AG_matched_clusters[,2:11])
 
-# <- names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED)[grep("Bifactor", #names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED))]  #get the names of all the columns with factorv2 in the name
-#clinical_measure_names_list <- clinical_measure_names_list[-grep("_ar", clinical_measure_names_list)]
-#cluster_names_list <- colnames(hydra_AG_matched_clusters[,2:11])
 
 #lm ageSq and mean centered
 clinical_score_cluster_stats_lm_agesq_AG_matched <- lapply(clinical_measure_names, function(x) 
@@ -1451,33 +1230,14 @@ sapply(clinical_emmpairs_lm_agesq_AG_matched_FDR_corrected, function(x) {print(x
 
 num_clusters <- 3
 cluster_titles <- get_cluster_titles(hydra_cluster = num_clusters)
-
-#read in csvs
-#nback_Factors <- readRDS("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/neuroimaging/nback/nbackFactors_n1601_subjData_20150506.rds")
-
-dem_and_cluster_data <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/subset_with_T1_NbackFC_and_dem_with_clusters_20181121_OLD_HYDRA_with_new_script_from_toni.csv", header = TRUE, sep = " ")
-
-new_nback_extracted_vals_from_jneurosci <- read.table("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/neuroimaging/nback/parcels/mean_activation_by_27roi_by_SCANID.csv", header = TRUE)
-
-#Get cluster and parcellation names
-clusters <- names(dem_and_cluster_data[grep ("Hydra", names(dem_and_cluster_data))])
-parcellations <- names(new_nback_extracted_vals_from_jneurosci[grep ("nback_func_sc", names(new_nback_extracted_vals_from_jneurosci))])
+subset_with_clusters_AG_matched <- readRDS("/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/rds/nback_results.rds")
+clusters <- names(subset_with_clusters_AG_matched[grep ("Hydra", names(subset_with_clusters_AG_matched))])
+parcellations <- names(subset_with_clusters_AG_matched[grep ("nback_func_sc", names(subset_with_clusters_AG_matched))])
 
 
-
-#get number of measures (to be used later on when trying to make graphs), for every different modality WILL HAVE TO CHANGE THIS
+#get number of measures (to be used later on when trying to make graphs)
 num_measures <- length(parcellations)
 
-#Coerce values into factor format
-hydra_names <- clusters
-
-dem_and_cluster_data[hydra_names] <- lapply(dem_and_cluster_data[clusters], factor)
-dem_and_cluster_data$sex <- as.factor(dem_and_cluster_data$sex)
-dem_and_cluster_data$race <- as.factor(dem_and_cluster_data$race)
-
-#merge
-subset_with_clusters_AG_matched <- merge(dem_and_cluster_data, new_nback_extracted_vals_from_jneurosci, by="scanid")
-saveRDS(subset_with_clusters_AG_matched, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/rds/nback_results.rds")
 
 #### demographics ###
 make_demographics_table(data_frame = subset_with_clusters_AG_matched, hydra_cluster = num_clusters)
@@ -1823,59 +1583,18 @@ ggplot(data = new_order_desc, aes(x = newNames, y = mean, group = cl)) + ylab("%
 
 ```{r Functional_connectivity}
 set.seed(1)
-#Make sample
-dem_and_cluster_data <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/df_task_active_node_strength_8roi_20190206.csv")
-
-rest_QA <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/neuroimaging/rest/n1601_RestQAData_20170714.csv")
-nback_QA <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/neuroimaging/nback/n1601_NbackConnectQAData_20170718.csv")
-idemo_QA <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/neuroimaging/idemo/n1601_idemo_FinalQA_092817.csv")
-
-#fc_networks_and_dem_clinical_psych_data <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/output_of_fc/fc_r400_com17/fc_r400_com17.csv")
-
-#subset_with_clusters_AG_matched - rename because this is what will be used for the rest of the script
-subset_with_clusters_AG_matched <- dem_and_cluster_data
+subset_with_clusters_AG_matched <- readRDS("/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/rds/network_results.rds")
 
 #Get cluster and parcellation names
 clusters <- names(subset_with_clusters_AG_matched[grep ("Hydra", names(subset_with_clusters_AG_matched))])
-parcellations <- names(subset_with_clusters_AG_matched[2:9])
-subset_with_clusters_AG_matched$network_strength <- rowSums(dem_and_cluster_data[,2:9])
+parcellations <- names(subset_with_clusters_AG_matched[4:11])
+subset_with_clusters_AG_matched$network_strength <- rowSums(subset_with_clusters_AG_matched[,4:11])
 #parcellations <- "network_strength"
 
-####New as of 10/21/2018 ####
-#read in new hydra clusters
-new_hydra_clusters <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/hydra_output_from_cbica/hydra_matched/20181121_OLD_HYDRA_with_new_script_from_toni/CogData_age_and_sex_n1424_matched_imaging_plus_non_imaging_replication_20181121_HydraSubtypes.csv", header = TRUE, sep = ",")
-
-# remove old hydra clusters
-subset_with_clusters_AG_matched <- subset_with_clusters_AG_matched[, !(colnames(subset_with_clusters_AG_matched) %in% c(clusters))]
-
-#add new hydra clusters 
-subset_with_clusters_AG_matched <- merge(subset_with_clusters_AG_matched, new_hydra_clusters, by = "bblid")
-
-
-#merge with the QA measures
-subset_with_clusters_AG_matched <- merge(subset_with_clusters_AG_matched, rest_QA, by = c("bblid", "scanid"))
-subset_with_clusters_AG_matched <- merge(subset_with_clusters_AG_matched, nback_QA, by = c("bblid", "scanid"))
-subset_with_clusters_AG_matched <- merge(subset_with_clusters_AG_matched, idemo_QA, by = c("bblid", "scanid"))
-
-subset_with_clusters_AG_matched$ageSq <- as.numeric(I(scale(subset_with_clusters_AG_matched$age_in_years, scale = FALSE, center = TRUE)^2))
-subset_with_clusters_AG_matched$dep_binarized <- subset_with_clusters_AG_matched$Hydra_k1
-
-subset_with_clusters_AG_matched[clusters] <- lapply(subset_with_clusters_AG_matched[clusters], factor)
-
-subset_with_clusters_AG_matched_noTD <-eval(parse(text=as.name(paste0("subset_with_clusters_AG_matched[which(subset_with_clusters_AG_matched$Hydra_k", num_clusters, " != -1),]"))))
 
 #get number of measures (to be used later on when trying to make graphs), for every different modality WILL HAVE TO CHANGE THIS
 num_measures <- length(parcellations)
-
 cluster_titles <- get_cluster_titles(hydra_cluster = num_clusters)
-
-#Coerce values into factor format
-hydra_names <- clusters
-
-subset_with_clusters_AG_matched[hydra_names] <- lapply(subset_with_clusters_AG_matched[clusters], factor)
-subset_with_clusters_AG_matched$sex <- as.factor(subset_with_clusters_AG_matched$sex)
-subset_with_clusters_AG_matched$race <- as.factor(subset_with_clusters_AG_matched$race)
-saveRDS(subset_with_clusters_AG_matched, file = "/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/rds/network_results.rds")
 
 #demographics
 make_demographics_table(data_frame = subset_with_clusters_AG_matched, hydra_cluster = num_clusters)
