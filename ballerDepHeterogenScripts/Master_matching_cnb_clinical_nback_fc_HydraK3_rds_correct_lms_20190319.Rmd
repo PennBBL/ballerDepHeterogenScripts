@@ -1,10 +1,10 @@
 ---
-title: "Master file with RDS "
+title: "Master file with RDS, and CORRECT lms "
 author: "Erica Baller"
-date: "3/13/2019"
+date: "3/19/2019"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -542,13 +542,15 @@ cnb_measure_names <- names(subset_with_clusters_AG_matched)[grep("_z", names(sub
 cnb_speed_names <- cnb_measure_names[grep(pattern = "s_z", x = cnb_measure_names)]
 cnb_accuracy_names <- cnb_measure_names[grep(pattern = "s_z", x = cnb_measure_names, invert = TRUE)]
 
-cnb_measure_names_list <- names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED)[grep("_z", names(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED))] #get the names of all the columns with _z in the name
+cnb_measure_names_list <- names(subset_with_clusters_AG_matched)[grep("_z", names(subset_with_clusters_AG_matched))] #get the names of all the columns with _z in the name
 
 
 #lm ageSq and mean centered
 cnb_score_cluster_stats_lm_agesq_AG_matched <- lapply(cnb_measure_names, function(x) 
 {
-  lm(substitute(i ~ Hydra_k3 + sex + age_in_years + ageSq , list(i = as.name(x))), data = subset_with_clusters_AG_matched)
+#  lm(substitute(i ~   Hydra_k3 + age_in_years + ageSq + sex, list(i = as.name(x))), data = subset_with_clusters_AG_matched)
+  lm(substitute(i ~   Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_AG_matched)
+
 })
 names(cnb_score_cluster_stats_lm_agesq_AG_matched) <- cnb_measure_names
 
@@ -873,7 +875,7 @@ clinical_measure_names <- clinical_measure_names[-grep("_ar", clinical_measure_n
 #lm ageSq and mean centered
 clinical_score_cluster_stats_lm_agesq_AG_matched <- lapply(clinical_measure_names, function(x) 
 {
-  lm(substitute(i ~ Hydra_k3 + sex + age_in_years + ageSq , list(i = as.name(x))), data = subset_with_clusters_AG_matched)
+  lm(substitute(i ~ sex + age_in_years + ageSq + Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_AG_matched)
 })
 names(clinical_score_cluster_stats_lm_agesq_AG_matched) <- clinical_measure_names
 
@@ -1064,7 +1066,9 @@ clinical_measure_names <- c("staiPreState", "staiPreTrait")
 #lm ageSq and mean centered
 clinical_score_cluster_stats_lm_agesq_AG_matched <- lapply(clinical_measure_names, function(x) 
 {
-  lm(substitute(i ~ Hydra_k3 + sex + age_in_years + ageSq , list(i = as.name(x))), data = subset_with_clusters_AG_matched)
+  #lm(substitute(i ~ sex + age_in_years + ageSq + Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_AG_matched)
+  lm(substitute(i ~ Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_AG_matched)
+
 })
 names(clinical_score_cluster_stats_lm_agesq_AG_matched) <- clinical_measure_names
 
@@ -1250,7 +1254,8 @@ make_demographics_table(data_frame = subset_with_clusters_AG_matched, hydra_clus
 #lm ageSq and mean centered
 parcellation_cluster_stats_lm_agesq_AG_matched <- lapply(parcellations, function(parcellation) 
 {
-  lm(substitute(i ~ Hydra_k3 + sex + age_in_years + ageSq + nbackRelMeanRMSMotion, list(i = as.name(parcellation))), data = subset_with_clusters_AG_matched)
+ # lm(substitute(i ~ sex + age_in_years + ageSq + nbackRelMeanRMSMotion + Hydra_k3, list(i = as.name(parcellation))), data = subset_with_clusters_AG_matched)
+   lm(substitute(i ~ nbackRelMeanRMSMotion + Hydra_k3, list(i = as.name(parcellation))), data = subset_with_clusters_AG_matched)
 })
 names(parcellation_cluster_stats_lm_agesq_AG_matched) <- parcellations
 
@@ -1258,6 +1263,8 @@ names(parcellation_cluster_stats_lm_agesq_AG_matched) <- parcellations
 parcellation_cluster_stats_anova_lm_agesq_AG_matched <- lapply(parcellation_cluster_stats_lm_agesq_AG_matched, anova) 
 names(parcellation_cluster_stats_anova_lm_agesq_AG_matched) <- parcellations
 
+#TEST just task active areas
+#parcellation_cluster_stats_anova_lm_agesq_AG_matched <- parcellation_cluster_stats_anova_lm_agesq_AG_matched[-c(22:27)]
 #####################################
 ###### By FC Connectivity Measure ###############
 #####################################
@@ -1400,7 +1407,7 @@ write.table(fs_fdr_corrected, '/Users/eballer/BBL/from_chead/ballerDepHeterogen/
 
 #change row names
 row.names(pfdr_anova_lm_agesq) <- parcellations
-
+#row.names(pfdr_anova_lm_agesq) <- parcellations[1:21]
 #To print fdr-corrected p-values to three decimal places
 pfdr_round_anova_lm_agesq <- round(pfdr_anova_lm_agesq,3)
 
@@ -1611,12 +1618,12 @@ make_demographics_table(data_frame = subset_with_clusters_AG_matched, hydra_clus
 #lm ageSq and mean centered
 parcellation_cluster_stats_lm_agesq_AG_matched <- lapply(parcellations, function(parcellation) 
 {
-  lm(substitute(i ~ Hydra_k3 + sex + age_in_years + ageSq + restRelMeanRMSMotion + nbackRelMeanRMSMotion + idemoRelMeanRMSMotion, list(i = as.name(parcellation))), data = subset_with_clusters_AG_matched)
+  lm(substitute(i ~ sex + age_in_years + ageSq + restRelMeanRMSMotion + nbackRelMeanRMSMotion + idemoRelMeanRMSMotion + Hydra_k3, list(i = as.name(parcellation))), data = subset_with_clusters_AG_matched)
 })
 names(parcellation_cluster_stats_lm_agesq_AG_matched) <- parcellations
 
 #network_strength_overall
-network_strength_lm <- lm(network_strength~Hydra_k3 + sex + age_in_years + ageSq + restRelMeanRMSMotion + nbackRelMeanRMSMotion + idemoRelMeanRMSMotion, data = subset_with_clusters_AG_matched)
+network_strength_lm <- lm(network_strength~sex + age_in_years + ageSq + restRelMeanRMSMotion + nbackRelMeanRMSMotion + idemoRelMeanRMSMotion + Hydra_k3, data = subset_with_clusters_AG_matched)
 
 ##############################
 ####### Statistics ###########
@@ -2125,12 +2132,12 @@ make_demographics_table(data_frame = subset_with_clusters_AG_matched, hydra_clus
 #lm ageSq and mean centered
 parcellation_cluster_stats_lm_agesq_AG_matched <- lapply(parcellations, function(parcellation) 
 {
-  lm(substitute(i ~ Hydra_k3 + sex + age_in_years + ageSq + restRelMeanRMSMotion + nbackRelMeanRMSMotion + idemoRelMeanRMSMotion, list(i = as.name(parcellation))), data = subset_with_clusters_AG_matched)
+  lm(substitute(i ~ sex + age_in_years + ageSq + restRelMeanRMSMotion + nbackRelMeanRMSMotion + idemoRelMeanRMSMotion + Hydra_k3, list(i = as.name(parcellation))), data = subset_with_clusters_AG_matched)
 })
 names(parcellation_cluster_stats_lm_agesq_AG_matched) <- parcellations
 
 #network_strength_overall
-network_strength_lm <- lm(network_strength~Hydra_k3 + sex + age_in_years + ageSq + restRelMeanRMSMotion + nbackRelMeanRMSMotion + idemoRelMeanRMSMotion, data = subset_with_clusters_AG_matched)
+network_strength_lm <- lm(network_strength~sex + age_in_years + ageSq + restRelMeanRMSMotion + nbackRelMeanRMSMotion + idemoRelMeanRMSMotion + Hydra_k3, data = subset_with_clusters_AG_matched)
 
 ##############################
 ####### Statistics ###########
