@@ -379,9 +379,17 @@ better_chorDiagram <- function(adj, node_names) {
   rownames(adj) = node_names
   colnames(adj) = node_names
   par(cex=2)
-  chordDiagram(adj, directional = TRUE, transparency = 0.5, self.link = TRUE, grid.col = model_color) 
+  chordDiagram(adj, directional = TRUE, transparency = 0.5, self.link = TRUE)#, grid.col = model_color) 
 }
 
+better_chorDiagram_13 <- function(adj, node_names) {
+  circos.clear()
+  model_color=c('#CC2626','#CC6D26', '#CCA526', '#C9CC26', '#8FCC26', '#36CC26', '#26CC8F', '#268CCC', '#262EEC', '#8426CC', '#CC26CC', '#CC2676', '#75696F')
+  rownames(adj) = node_names
+  colnames(adj) = node_names
+  par(cex=1.5)
+  chordDiagram(adj, directional = TRUE, transparency = 0.5, self.link = TRUE, grid.col = model_color) 
+}
 
 #### Stats#####
 fdr_anova <- function(data_frame) {
