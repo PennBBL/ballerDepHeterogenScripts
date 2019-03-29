@@ -155,8 +155,8 @@ subset_with_clusters_AG_matched <- merge(subset_dep_or_no_psych_and_no_medicalra
 #############################
 ####### Demographics ########
 #############################
+subset_with_clusters_AG_matched <- merge(subset_dep_or_no_psych_and_no_medicalratingExclude_DEPBINARIZED, hydra_AG_matched_clusters, by = "bblid")
 
-make_demographics_table(data_frame = subset_with_clusters_AG_matched, hydra_cluster = num_clusters)
 
 
 ```

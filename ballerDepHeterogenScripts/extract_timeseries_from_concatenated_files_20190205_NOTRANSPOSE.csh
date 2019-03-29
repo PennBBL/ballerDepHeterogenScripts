@@ -4,9 +4,9 @@
 
 set cwdir = `pwd`
 set parceldir = "/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/nback/parcels"
-set parcels_2mm = `ls ${parceldir}/frac2back_n951_parametric_27roi_thr20_2mm.nii.gz`
-set wkdir = "/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/concat_rest_nback_idemo_2mm/"
-set outdir = "/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/concat_rest_nback_idemo_2mm/ts_files_from_3dROIstats"
+set parcels_2mm = `ls ${parceldir}/frac2back_n951_parametric_27roi_thr20_2mm.nii`
+set wkdir = "/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/rest_idemo/rest_idemo_concat_2mm"
+set outdir = "/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/rest_idemo/rest_idemo_concat_2mm/ts_files_from_3dROIstats_13rois"
 
 echo "Parcel path " $parcels_2mm
 echo "CWD" $cwdir

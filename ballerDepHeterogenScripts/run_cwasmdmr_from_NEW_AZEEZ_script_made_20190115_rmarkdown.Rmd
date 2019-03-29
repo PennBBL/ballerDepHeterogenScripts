@@ -3,14 +3,14 @@ title: "CWASMDMR"
 author: "Erica Baller"
 date: "January 22, 2019"
 output:
+  word_document: default
   pdf_document: default
   html_document: default
-  word_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-#source("/data/jux/BBL/projects/ballerDepHeterogen/ballerDepHeterogenScripts/Imaging/cwasmdmr/cwasmdmr_NEW_FROM_AZEEZ_20190109.R")
+source("/data/jux/BBL/projects/ballerDepHeterogen/ballerDepHeterogenScripts/Imaging/cwasmdmr/cwasmdmr_NEW_FROM_AZEEZ_20190109.R")
 ```
 
 ## Uses
@@ -39,58 +39,29 @@ Output: "/data/jux/BBL/projects/ballerDepHeterogen/results/csvs/cwas_output_from
 
 ## Stats
 
-```{r stats, echo=FALSE}
-pandz <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/cwas_output_from_R_script_20190122_pandz.csv")
-names_of_parcels <- read.table("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/neuroimaging/nback/parcels/roi27_dictionary.txt", header=FALSE)
+You can also embed plots, for example:
+
+```{r stats, echo=TRUE}
+pandz <- read.csv("/data/jux/BBL/projects/ballerDepHeterogen/results/csvs/cwas_output_from_R_script_20190122_pandz.csv")
+names_of_parcels <-read.csv("/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/nback/parcels/roi27_just_names.txt", header=FALSE) 
 
 #switch order of z and p
 names(pandz) <- c("parcel_num", "pval", "z")
 zandp <- data.frame(cbind(pandz$parcel_num, pandz$z, pandz$pval))
-names_of_parcels<-gsub("nback_func_sc_", "", names_of_parcels$V2)
+names_of_parcels<-gsub("nback_func_sc_", "", names_of_parcels$V1)
 parcels_plus_stats <- data.frame(cbind(names_of_parcels, zandp))
-names(parcels_plus_stats) <- c("brain_region", "num_parcel", "z", "pval")
+names(parcels_plus_stats) <- c("brain_ region", "num_parcel", "z", "pval")
 parcels_plus_stats_sig <- data.frame(parcels_plus_stats[which(parcels_plus_stats$pval < 0.05), ])
-
+print("All parcels")
 print(parcels_plus_stats)
-names(parcels_plus_stats_sig) <- c("brain_region", "num_parcel", "z", "pval<0.05")
+print("P < 0.05)")
 print(parcels_plus_stats_sig)
-
-
-###################################################
-## Extracting anovas with significant p values ####
-###################################################
-
-#lm agesq
-#Looking at Hydra_k3
-#Look at model summaries
-
-
-#Pull p-values
-p_vals <- as.data.frame(parcels_plus_stats$pval)
-names(p_vals) <- c("pval")
-print(p_vals)
-#Print original p-values to three decimal places
-p_round <- round(p_vals,3)
-
-#FDR correct p-values
-pfdr_vals <- p.adjust(p_vals[,1],method="fdr")
-
-#Convert to data frame
-pfdr_vals <- as.data.frame(pfdr_vals)
-row.names(pfdr_vals) <- row.names(parcels_plus_stats$brain_region)
-
-#To print fdr-corrected p-values to three decimal places
-pfdr_vals_round <- round(pfdr_vals,3)
-
-#List the components that survive FDR correction
-survived_fdr<- row.names(pfdr_vals_round)[pfdr_vals<0.05]
-
-
-print("MDMR- 27 parcels- FDR corrected")
-print(survived_fdr)
 
 ```
 
-
+##Write output
+```{r write_output, echo=FALSE}
+#write.csv(x = cwas_output, file = "/data/jux/BBL/projects/ballerDepHeterogen/results/csvs/cwas_output_from_R_script_20190122_pandz.csv")
+```
 
 

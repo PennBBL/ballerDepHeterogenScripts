@@ -1,0 +1,6 @@
+source('/data/jux/BBL/projects/ballerDepHeterogen/ballerDepHeterogenScripts/Imaging/matched/fc_communities_three_scans/fc_and_mdmr_functions_NEW_NBACK_27parcels.R')
+args <- commandArgs(trailingOnly=TRUE)
+cat(args,'\n')
+timeseries <- as.numeric(args[1])
+echo "In call ... timeseries -> "$timeseries
+write_new_ts_file_with_14_rois(timeseries)

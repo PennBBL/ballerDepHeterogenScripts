@@ -319,6 +319,16 @@ get_14roi_concat_node_info <- function() {
 
 #############################
 ####                     ####
+#### 13 Funcional ROIS   ####
+####                     ####
+#############################
+get_13roi_node_info <- function() {
+  NodeName <- read.csv2("/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/rest/roi_details/nback13parcelNodeNames.txt",
+                        header=FALSE)
+  out <- list(NodeName = NodeName)
+}
+#############################
+####                     ####
 #### Netpath 2mm 27/8/14 ####
 ####                     ####
 #############################
@@ -336,9 +346,17 @@ get_14roi_concat_netpath_2mm <- function(scanid) {
   netpath <- Sys.glob(paste0('/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/rest_nback_idemo_14FunctionalROIs_2mm/ts_files_from_3dROIstats_14rois_2mm/', scanid, '*.txt'))
 }
 
+get_8roi_rest_netpath_2mm <- function(scanid){
+  netpath <- Sys.glob(paste0('/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/rest/rest_2mm/ts_files_from_3dROIstats_8rois/', scanid, '*.txt'))
+}
 
+get_13roi_rest_netpath_2mm <- function(scanid) {
+  netpath <- Sys.glob(paste0('/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/rest/rest_2mm/ts_files_from_3dROIstats_13rois/', scanid,'*.txt'))
+}
 
-
+get_13roi_concat_netpath <- function(scanid) {
+  netpath <- Sys.glob(paste0('/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/concat_rest_nback_idemo_2mm/ts_files_from_3dROIstats_13rois/', scanid,'*.txt'))
+}
 ##############################
 ####                      ####
 #### grab network matrix  ####
@@ -381,6 +399,20 @@ get_net_from_sample <- function(sample,parcellation,resolution,modality) {
         print(paste0(i,"/",n_sample,": copying ",bblid,'_',scanid, ' of ',parcellation, ' atlas'))
         netpath <- get_14roi_concat_netpath(scanid)
         sample_net[[i]] <- grab_net_from_path(netpath)
+    } else if (parcellation == '8roi_rest') {
+       print(paste0(i,'/',n_sample,': copying ',bblid,'_',scanid, 'of',parcellation, ' atlas'))
+       netpath <- get_8roi_rest_netpath_2mm(scanid)
+       ts <- read.table(netpath)
+       sample_net[[i]] <- get_net_from_ts(ts = ts)
+       #grab_net_from_path(netpath)
+       #sample_net[[i]] <- get_net
+    } else if(parcellation == '13roi_rest') {
+      print(paste0(i,'/',n_sample,': copying ',bblid,'_',scanid, 'of',parcellation, ' atlas'))
+      netpath <- get_13roi_rest_netpath_2mm(scanid)
+      ts <- read.table(netpath)
+      sample_net[[i]] <- get_net_from_ts(ts = ts)
+      #grab_net_from_path(netpath)
+      #sample_net[[i]] <- get_net
     } else if (parcellation == 'gordon') {
       print(paste0(i,"/",n_sample,": copying ",bblid,'_',scanid, ' of ',parcellation,' atlas'))
       netpath <- get_gordon_netpath(scanid)
@@ -472,7 +504,15 @@ get_net_from_sample_concat <- function(sample,parcellation,resolution,modality) 
       net_from_ts <- get_net_from_ts(ts = ts)
       print(paste0("output dim", dim(net_from_ts)[1], " by", dim(net_from_ts)[2]))
       sample_net[[i]] <- net_from_ts
-    } else if (parcellation == '8x27roi') {
+    } else if(parcellation == '13roi'){
+      print(paste0(i,"/",n_sample,": copying ",bblid,'_',scanid, ' of ',parcellation, ' atlas'))
+      netpath <- get_13roi_concat_netpath(scanid)
+      ts <- read.table(netpath)
+      print(paste0(netpath," ts dim", dim(ts)[2]))
+      net_from_ts <- get_net_from_ts(ts = ts)
+      print(paste0("output dim", dim(net_from_ts)[1], " by", dim(net_from_ts)[2]))
+      sample_net[[i]] <- net_from_ts
+    }else if (parcellation == '8x27roi') {
       print(paste0(i,"/",n_sample,": copying ",bblid,'_',scanid, ' of ',parcellation, ' atlas'))
       
       #copy in 27 ROItable
@@ -849,6 +889,16 @@ list_to_matrix_edge_analysis <- function(list) {
   
 }
 
+matrix_to_nodal_strength_array <- function(m) {
+  dim_length <- dim(m)[1] 
+  array_out <- array(NA, dim_length)
+  for(c in 1:dim_length) {
+    node_strength <- sum(m[,c]) - 1
+    array_out[c] <- node_strength
+  }
+  return(array_out)
+}
+
 ## better_level_plot ##
 better_levelplot <- function(adj, node_names, title) {
   adj_norm <- adj/max(abs(adj))
@@ -942,6 +992,18 @@ write_new_ts_file_with_14_rois <- function(ts) {
   write.table(x = timeseries_14rois, file = ts, row.names = F, col.names = F)
 }
 
+###############################################
+###    Get 13rois from 27 roi textfile       ###
+###############################################
+write_new_ts_file_with_13_rois <- function(ts) {
+  rois_to_keep <- read.table("/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/rest/roi_details/nback13parcelNodeIndex.txt")
+  print(paste0("rois to keep -->>> ", rois_to_keep))
+  print(paste0("timeseries --->>> ", ts))
+  timeseries <- read.table(ts)
+  timeseries_13rois <- timeseries[,rois_to_keep$V1]
+  # timeseries_8rois <- timeseries[,c(1,3,7,11,12,18,19,20)]
+  write.table(x = timeseries_13rois, file = ts, row.names = F, col.names = F)
+}
 #########################
 ### make_new_textfiles ##
 #########################

@@ -11,7 +11,7 @@ df_r100 <-data.frame(read.csv("/data/joy/BBL/studies/pnc/n1601_dataFreeze/neuroi
 df_r200 <-data.frame(read.csv("/data/joy/BBL/studies/pnc/n1601_dataFreeze/neuroimaging/nback/n1601schaefer200.csv"))
 df_r400 <-data.frame(read.csv("/data/joy/BBL/studies/pnc/n1601_dataFreeze/neuroimaging/nback/n1601schaefer400.csv"))
 
-gsub(pattern = "NA", replacement = "0", x = df_r100)
+#gsub(pattern = "NA", replacement = "0", x = df_r100)
 
 #make new df only with contrast 4
 df_r100_con4 <- df_r100[,grep("contrast4", names(df_r100))]

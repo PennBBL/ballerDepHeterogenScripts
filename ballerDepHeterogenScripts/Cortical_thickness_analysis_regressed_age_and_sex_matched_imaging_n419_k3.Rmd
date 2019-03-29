@@ -1,5 +1,5 @@
 ---
-title: "Cortical_CT_analysis_matched_age_and_sex_imaging_k3, n419"
+title: "Cortical_CT_analysis_matched_age_and_sex_imaging_k3"
 author: "Erica Baller"
 date: "6/29/2018"
 output:

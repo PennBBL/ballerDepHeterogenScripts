@@ -1427,9 +1427,9 @@ fs_fdr_corrected_vals <- fs_fdr_corrected_with0s[which(fs_fdr_corrected_with0s >
 fs_fdr_corrected <- data.frame(cbind(fs_fdr_corrected_vals, fs_fdr_corrected_index))
 
 #write csv for BrainNet
-write.table(pfdr_anova_lm_agesq, '/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/nback_fdr_corr_forBrainNet.csv', col.names = FALSE, quote=FALSE, sep=",")
+write.table(pfdr_anova_lm_agesq, '/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/nback_fdr_corr_forBrainNet_13rois.csv', col.names = FALSE, quote=FALSE, sep=",")
 
-write.table(fs_fdr_corrected_with0s$f_anova_lm_agesq,'/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/nback_f_fdr_corr0s_forBrainNet.csv', col.names = FALSE, quote=FALSE, sep=",")
+write.table(fs_fdr_corrected_with0s$f_anova_lm_agesq,'/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/nback_f_fdr_corr0s_forBrainNet_13rois.csv', col.names = FALSE, quote=FALSE, sep=",")
 
 write.table(fs_fdr_corrected, '/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/nback_f_fdr_corr_forBrainNet.csv', col.names = FALSE, quote=FALSE, sep=",", row.names = FALSE)
 
@@ -2317,7 +2317,7 @@ subset_for_violin$Hydra_k3 <- gsub(pattern = "3", replacement = "Subtype 3", x =
 ggplot(subset_for_violin, aes(x = Hydra_k3, y = network_strength, fill = Hydra_k3)) +  
    geom_violin(trim = TRUE) + 
    xlab("Clusters") + ylab(paste0("Network Strength (r)")) +
-   scale_y_continuous(limits=c(0, 30)) + 
+   scale_y_continuous(limits=c(0, 70)) + 
    theme(legend.position = "none",
           axis.text.x = element_text(size=30),
           axis.text.y = element_text(size = 20),
@@ -2332,7 +2332,7 @@ ggplot(subset_for_violin, aes(x = Hydra_k3, y = network_strength, fill = Hydra_k
 ggplot(subset_for_violin, aes(x = Hydra_k3, y = network_strength, fill = Hydra_k3)) +  
    geom_jitter(aes(color=Hydra_k3), width = 0.1, size = 3) + 
    xlab("Clusters") + ylab(paste0("Network Strength (r)")) +
-   scale_y_continuous(limits=c(0, 30)) + 
+   scale_y_continuous(limits=c(0, 70)) + 
    theme(legend.position = "none",
           axis.text.x = element_text(size=30),
           axis.text.y = element_text(size = 20),
@@ -2350,7 +2350,7 @@ ggplot(subset_for_violin, aes(x = Hydra_k3, y = network_strength, fill = Hydra_k
 ggplot(subset_for_violin, aes(x = Hydra_k3, y = network_strength, fill = Hydra_k3)) +  
    geom_jitter(aes(color=Hydra_k3), width = 0.1, size = 3) + 
    xlab("Clusters") + ylab(paste0("Network Strength (r)")) +
-   scale_y_continuous(limits=c(0, 30)) +
+   scale_y_continuous(limits=c(0, 70)) +
    scale_x_discrete(limits=cluster_titles) +
    theme(legend.position = "none",
           axis.text.x = element_text(size=30),
@@ -2378,7 +2378,7 @@ ggplot(data, aes(Hydra_k3, network_strength,col=Hydra_k3)) +
   geom_errorbar(mapping=aes(x=Hydra_k3, ymin=MeanValue, ymax=MeanValue, width=0.4)) +
   coord_fixed(ratio = 0.12) +
   xlab("Clusters") + ylab(paste0("Network Strength (r)")) +
-  scale_y_continuous(limits=c(0, 30)) + 
+  scale_y_continuous(limits=c(0, 70)) + 
   theme(legend.position = "none",
           axis.text.x = element_text(size=30),
           axis.text.y = element_text(size = 20),
@@ -2830,7 +2830,7 @@ subset_for_violin$Hydra_k3 <- gsub(pattern = "3", replacement = "Subtype 3", x =
 ggplot(subset_for_violin, aes(x = Hydra_k3, y = network_strength, fill = Hydra_k3)) +  
    geom_violin(trim = TRUE) + 
    xlab("Clusters") + ylab(paste0("Network Strength (r)")) +
-   scale_y_continuous(limits=c(0, 30)) + 
+   scale_y_continuous(limits=c(0, 70)) + 
    theme(legend.position = "none",
           axis.text.x = element_text(size=30),
           axis.text.y = element_text(size = 20),
@@ -2845,7 +2845,7 @@ ggplot(subset_for_violin, aes(x = Hydra_k3, y = network_strength, fill = Hydra_k
 ggplot(subset_for_violin, aes(x = Hydra_k3, y = network_strength, fill = Hydra_k3)) +  
    geom_jitter(aes(color=Hydra_k3), width = 0.1, size = 3) + 
    xlab("Clusters") + ylab(paste0("Network Strength (r)")) +
-   scale_y_continuous(limits=c(0, 30)) + 
+   scale_y_continuous(limits=c(0, 70)) + 
    theme(legend.position = "none",
           axis.text.x = element_text(size=30),
           axis.text.y = element_text(size = 20),
@@ -2863,7 +2863,7 @@ ggplot(subset_for_violin, aes(x = Hydra_k3, y = network_strength, fill = Hydra_k
 ggplot(subset_for_violin, aes(x = Hydra_k3, y = network_strength, fill = Hydra_k3)) +  
    geom_jitter(aes(color=Hydra_k3), width = 0.1, size = 3) + 
    xlab("Clusters") + ylab(paste0("Network Strength (r)")) +
-   scale_y_continuous(limits=c(0, 30)) +
+   scale_y_continuous(limits=c(0, 70)) +
    scale_x_discrete(limits=cluster_titles) +
    theme(legend.position = "none",
           axis.text.x = element_text(size=30),
@@ -2891,7 +2891,7 @@ ggplot(data, aes(Hydra_k3, network_strength,col=Hydra_k3)) +
   geom_errorbar(mapping=aes(x=Hydra_k3, ymin=MeanValue, ymax=MeanValue, width=0.4)) +
   coord_fixed(ratio = 0.12) +
   xlab("Clusters") + ylab(paste0("Network Strength (r)")) +
-  scale_y_continuous(limits=c(0, 30)) + 
+  scale_y_continuous(limits=c(0, 70)) + 
   theme(legend.position = "none",
           axis.text.x = element_text(size=30),
           axis.text.y = element_text(size = 20),
@@ -3120,5 +3120,504 @@ mats <- list(td, s1, s2, s3, overall_mean)
 lapply(mats, function(mat) {
   better_chorDiagram_13(adj = mat, node_names = node_names)
 })
+```
+
+
+```{r rest_alone_within_between}
+
+#read in csvs, CHANGE THINGS HERE
+
+num_communities <- 2
+num_clusters <- 3
+#exclusion <- "weighted"
+
+#data has the OLD files, that were not pearson correlated correctly
+#filename <- Sys.glob(paste0("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/output_of_fc/concatenate_rest_nback_idemo/fc_concat_", exclusion, "_r", res, "_com", num_communities, "/fc_concat_", exclusion, "_r", res, "_com", num_communities, ".csv"))
+
+filename <- Sys.glob(paste0("/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/df_27rois_rest_alone_within_between_n333_20190329.csv"))
+#, exclusion, "_r", res, "_com", num_communities, "/fc_concat_", exclusion, "_r", res, "_com", num_communities, ".csv"))
+
+rest_QA <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/neuroimaging/rest/n1601_RestQAData_20170714.csv")
+nback_QA <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/neuroimaging/nback/n1601_NbackConnectQAData_20170718.csv")
+idemo_QA <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/neuroimaging/idemo/n1601_idemo_FinalQA_092817.csv")
+
+fc_networks_and_dem_clinical_psych_data <- read.csv(filename)
+
+#fc_networks_and_dem_clinical_psych_data <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/data/output_of_fc/fc_r400_com17/fc_r400_com17.csv")
+
+#subset_with_clusters_AG_matched - rename because this is what will be used for the rest of the script
+subset_with_clusters_AG_matched <- fc_networks_and_dem_clinical_psych_data
+
+#Get cluster and network names
+clusters <- names(fc_networks_and_dem_clinical_psych_data[grep ("Hydra", names(fc_networks_and_dem_clinical_psych_data))])
+num_fc_pairs <- (num_communities * (num_communities -1))/2 + num_communities
+networks <- names(subset_with_clusters_AG_matched[2:(num_fc_pairs+1)])
+
+
+####New as of 10/21/2018 ####
+#read in new hydra clusters
+new_hydra_clusters <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/hydra_output_from_cbica/hydra_matched/20181121_OLD_HYDRA_with_new_script_from_toni/CogData_age_and_sex_n1424_matched_imaging_plus_non_imaging_replication_20181121_HydraSubtypes.csv", header = TRUE, sep = ",")
+
+# remove old hydra clusters
+subset_with_clusters_AG_matched <- subset_with_clusters_AG_matched[, !(colnames(subset_with_clusters_AG_matched) %in% c(clusters))]
+
+#add new hydra clusters 
+subset_with_clusters_AG_matched <- merge(subset_with_clusters_AG_matched, new_hydra_clusters, by = "bblid")
+
+#merge with the QA measures
+subset_with_clusters_AG_matched <- merge(subset_with_clusters_AG_matched, rest_QA, by = c("bblid", "scanid"))
+subset_with_clusters_AG_matched <- merge(subset_with_clusters_AG_matched, nback_QA, by = c("bblid", "scanid"))
+subset_with_clusters_AG_matched <- merge(subset_with_clusters_AG_matched, idemo_QA, by = c("bblid", "scanid"))
+
+subset_with_clusters_AG_matched$ageSq <- as.numeric(I(scale(subset_with_clusters_AG_matched$age_in_years, scale = FALSE, center = TRUE)^2))
+subset_with_clusters_AG_matched$dep_binarized <- subset_with_clusters_AG_matched$Hydra_k1
+
+#set up within/between networks
+within <- c("Task_active_Task_active", "Default_mode_Default_mode")
+#within <- c("visual_visual", "somatomotor_somatomotor", "dorsalAttention_dorsalAttention", "salienceVentralAttention_salienceVentralAttention", "limbic_limbic", "frontoparietalControl_frontoparietalControl", "default_default")
+between <- networks[!is.element(networks, within)]
+
+#Coerce hydra values into factor format
+#fc_networks_and_dem_clinical_psych_data[clusters] <- lapply(fc_networks_and_dem_clinical_psych_data[clusters], factor)
+subset_with_clusters_AG_matched[clusters] <- lapply(subset_with_clusters_AG_matched[clusters], factor)
+
+subset_with_clusters_AG_matched_noTD <-eval(parse(text=as.name(paste0("subset_with_clusters_AG_matched[which(subset_with_clusters_AG_matched$Hydra_k", num_clusters, " != -1),]"))))
+
+#get number of measures (to be used later on when trying to make graphs), for every different modality WILL HAVE TO CHANGE THIS
+num_measures <- length(networks)
+num_within <- length(within)
+num_between<- num_measures - num_within
+#get cluster titles 
+
+cluster_titles <- get_cluster_titles(hydra_cluster = num_clusters)
+
+#################################
+# Linear Model for each measure #
+##### Results stored in list ####
+#################################
+
+
+
+
+#lm ageSq and mean centered
+network_cluster_stats_lm_agesq_AG_matched <- lapply(networks, function(network) 
+{
+  lm(substitute(i ~ restRelMeanRMSMotion + nbackRelMeanRMSMotion + idemoRelMeanRMSMotion + Hydra_k3, list(i = as.name(network))), data = subset_with_clusters_AG_matched)
+})
+names(network_cluster_stats_lm_agesq_AG_matched) <- networks
+
+#lm Hydra K3 Anova
+network_cluster_stats_anova_lm_agesq_AG_matched <- lapply(network_cluster_stats_lm_agesq_AG_matched, anova) 
+names(network_cluster_stats_anova_lm_agesq_AG_matched) <- networks
+
+
+#####################################
+###### By FC Connectivity Measure ###############
+#####################################
+#can do with all gender as well, as well as matched/unmatched, etc
+#loop through each cluster and each network measure, make text and evaluate the following: mean of each cluster by measure, and sd of each cluster by measure
+
+cluster_titles <- get_cluster_titles(hydra_cluster = num_clusters)
+cluster_vector <- get_cluster_numerical_vector(hydra_cluster = num_clusters)
+groups <- data.frame(cbind(cluster_titles, cluster_vector))
+names(groups) <- c("cl", "numeric")
+total_num_groups <- num_clusters + 1
+
+#construct data frame of names of connectivity groups
+df_names <- data.frame(rep(groups$cl, num_measures), rep(networks, each = total_num_groups))
+names(df_names) <- c("cl", "network")
+
+#construct mean_sd_sem data frame
+df_mean_sd_sem <- NULL
+for(network in networks) {
+  mean_sd_sem <- data_frame_mean_sd_sem(data_frame = subset_with_clusters_AG_matched, variable = network, hydra_cluster = num_clusters)
+  df_mean_sd_sem <- rbind(df_mean_sd_sem, mean_sd_sem)
+}
+
+#combine data frames and remove the extra cluster names
+all_mean_sd_sem <- data.frame(df_names, df_mean_sd_sem)
+all_mean_sd_sem <- subset(all_mean_sd_sem, select = -c(cl.1))
+                          
+for(network in networks){
+  for(num in 1:total_num_groups) {
+    clst <- groups[num,1]
+    meas <- groups[num,2]
+    mean_for_eval <- paste("mean(subset_with_clusters_AG_matched$", network, "[which(subset_with_clusters_AG_matched$Hydra_k3 == ", groups[num,2], ")])", sep="")
+    mean_grp <- eval(parse(text=as.name(mean_for_eval)))
+    all_mean_sd_sem$mean[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$network == network)] <- mean_grp
+    
+    sd_for_eval <- paste("sd(subset_with_clusters_AG_matched$", network, "[which(subset_with_clusters_AG_matched$Hydra_k3 == ", groups[num,2], ")])", sep="")
+    sd_grp <- eval(parse(text=as.name(sd_for_eval)))
+    all_mean_sd_sem$sd[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$network == network)] <- sd_grp
+  #  all_mean_sd_sem$sem[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$network == network)] <- all_mean_sd_sem$sd[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$network == network)]/sqrt(nrow(subset_with_clusters_AG_matched))
+    
+    #THIS WAS CHANGED 8/8, sem should be based on the number of subjects in each group!
+    all_mean_sd_sem$sem[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$network == network)] <- all_mean_sd_sem$sd[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$network == network)]/sqrt(length(which(subset_with_clusters_AG_matched$Hydra_k3 == meas)))
+  }
+}
+
+
+#add sems to networks_for_plot
+#networks_for_plot$sem <- all_sem_one_col
+#names(networks_for_plot) <- c("cluster", "network", "z_score", "sem")
+ggplot(data = all_mean_sd_sem, aes(x = network, y = mean, group = cl)) +  ylab("Community Connectivity") +
+  geom_line(aes(color=cl)) +
+  geom_point(aes(color=cl)) + 
+  geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
+  ggtitle("Hydra cluster by Network Connectivity")
+
+####################
+###within only
+####################
+#construct data frame of names of connectivity groups
+df_names_within <- data.frame(rep(groups$cl, num_within), rep(within, each = total_num_groups))
+names(df_names_within) <- c("cl", "network")
+
+#construct mean_sd_sem data frame
+df_mean_sd_sem_within <- NULL
+for(network in within) {
+  mean_sd_sem <- data_frame_mean_sd_sem(data_frame = subset_with_clusters_AG_matched, variable = network, hydra_cluster = num_clusters)
+  df_mean_sd_sem_within <- rbind(df_mean_sd_sem_within, mean_sd_sem)
+}
+
+#combine data frames and remove the extra cluster names
+all_mean_sd_sem_within <- data.frame(df_names_within, df_mean_sd_sem_within)
+all_mean_sd_sem_within <- subset(all_mean_sd_sem_within, select = -c(cl.1))
+                          
+for(network in within){
+  for(num in 1:total_num_groups) {
+    clst <- groups[num,1]
+    meas <- groups[num,2]
+    mean_for_eval <- paste("mean(subset_with_clusters_AG_matched$", network, "[which(subset_with_clusters_AG_matched$Hydra_k3 == ", groups[num,2], ")])", sep="")
+    mean_grp <- eval(parse(text=as.name(mean_for_eval)))
+    all_mean_sd_sem_within$mean[which(all_mean_sd_sem_within$cl == clst & all_mean_sd_sem_within$network == network)] <- mean_grp
+    
+    sd_for_eval <- paste("sd(subset_with_clusters_AG_matched$", network, "[which(subset_with_clusters_AG_matched$Hydra_k3 == ", groups[num,2], ")])", sep="")
+    sd_grp <- eval(parse(text=as.name(sd_for_eval)))
+    all_mean_sd_sem_within$sd[which(all_mean_sd_sem_within$cl == clst & all_mean_sd_sem_within$network == network)] <- sd_grp
+  #  all_mean_sd_sem$sem[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$network == network)] <- all_mean_sd_sem$sd[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$network == network)]/sqrt(nrow(subset_with_clusters_AG_matched))
+    
+    #THIS WAS CHANGED 8/8, sem should be based on the number of subjects in each group!
+    all_mean_sd_sem_within$sem[which(all_mean_sd_sem_within$cl == clst & all_mean_sd_sem_within$network == network)] <- all_mean_sd_sem_within$sd[which(all_mean_sd_sem_within$cl == clst & all_mean_sd_sem_within$network == network)]/sqrt(length(which(subset_with_clusters_AG_matched$Hydra_k3 == meas)))
+  }
+}
+
+
+#add sems to networks_for_plot
+#networks_for_plot$sem <- all_sem_one_col
+#names(networks_for_plot) <- c("cluster", "network", "z_score", "sem")
+ggplot(data = all_mean_sd_sem_within, aes(x = network, y = mean, group = cl)) +  ylab("Community Connectivity") +
+  geom_line(aes(color=cl)) +
+  geom_point(aes(color=cl)) + 
+  geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
+  ggtitle("Hydra cluster by WITHIN Network Connectivity")
+
+###################
+###between only
+###################
+#construct data frame of names of connectivity groups
+df_names_between <- data.frame(rep(groups$cl, num_between), rep(between, each = total_num_groups))
+names(df_names_between) <- c("cl", "network")
+
+#construct mean_sd_sem data frame
+df_mean_sd_sem_between <- NULL
+for(network in between) {
+  mean_sd_sem <- data_frame_mean_sd_sem(data_frame = subset_with_clusters_AG_matched, variable = network, hydra_cluster = num_clusters)
+  df_mean_sd_sem_between <- rbind(df_mean_sd_sem_between, mean_sd_sem)
+}
+
+#combine data frames and remove the extra cluster names
+all_mean_sd_sem_between <- data.frame(df_names_between, df_mean_sd_sem_between)
+all_mean_sd_sem_between <- subset(all_mean_sd_sem_between, select = -c(cl.1))
+                          
+for(network in between){
+  for(num in 1:total_num_groups) {
+    clst <- groups[num,1]
+    meas <- groups[num,2]
+    mean_for_eval <- paste("mean(subset_with_clusters_AG_matched$", network, "[which(subset_with_clusters_AG_matched$Hydra_k3 == ", groups[num,2], ")])", sep="")
+    mean_grp <- eval(parse(text=as.name(mean_for_eval)))
+    all_mean_sd_sem_between$mean[which(all_mean_sd_sem_between$cl == clst & all_mean_sd_sem_between$network == network)] <- mean_grp
+    
+    sd_for_eval <- paste("sd(subset_with_clusters_AG_matched$", network, "[which(subset_with_clusters_AG_matched$Hydra_k3 == ", groups[num,2], ")])", sep="")
+    sd_grp <- eval(parse(text=as.name(sd_for_eval)))
+    all_mean_sd_sem_between$sd[which(all_mean_sd_sem_between$cl == clst & all_mean_sd_sem_between$network == network)] <- sd_grp
+  #  all_mean_sd_sem$sem[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$network == network)] <- all_mean_sd_sem$sd[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$network == network)]/sqrt(nrow(subset_with_clusters_AG_matched))
+    
+    #THIS WAS CHANGED 8/8, sem should be based on the number of subjects in each group!
+    all_mean_sd_sem_between$sem[which(all_mean_sd_sem_between$cl == clst & all_mean_sd_sem_between$network == network)] <- all_mean_sd_sem_between$sd[which(all_mean_sd_sem_between$cl == clst & all_mean_sd_sem_between$network == network)]/sqrt(length(which(subset_with_clusters_AG_matched$Hydra_k3 == meas)))
+  }
+}
+
+
+#add sems to networks_for_plot
+#networks_for_plot$sem <- all_sem_one_col
+#names(networks_for_plot) <- c("cluster", "network", "z_score", "sem")
+ggplot(data = all_mean_sd_sem_between, aes(x = network, y = mean, group = cl)) +  ylab("Community Connectivity") +
+  geom_line(aes(color=cl)) +
+  geom_point(aes(color=cl)) + 
+  geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) +
+  ggtitle("Hydra cluster by BETWEEN Network Connectivity")
+
+#bar graph
+ggplot(all_mean_sd_sem_between, aes(x = cl, y = mean, fill = cl)) + geom_col() + 
+    geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem),width=.2,position=position_dodge(.9)) + 
+    xlab("Clusters") + ylab(paste0("R")) + 
+    theme(legend.position = "none") +
+    ggtitle(paste0("Connectivity between Task active/DMN by Cluster"))  #scale_fill_discrete(breaks=cl) +
+    #guides(fill=guide_legend(title=NULL)) 
+
+
+
+#violin plot
+subset_for_violin <- subset_with_clusters_AG_matched
+subset_for_violin$Hydra_k3 <- gsub(pattern = "-1", replacement = "TD", x = subset_for_violin$Hydra_k3)
+subset_for_violin$Hydra_k3 <- gsub(pattern = "1", replacement = "Subtype 1", x = subset_for_violin$Hydra_k3)
+subset_for_violin$Hydra_k3 <- gsub(pattern = "2", replacement = "Subtype 2", x = subset_for_violin$Hydra_k3)
+subset_for_violin$Hydra_k3 <- gsub(pattern = "3", replacement = "Subtype 3", x = subset_for_violin$Hydra_k3)
+
+
+ggplot(subset_for_violin, aes(x = Hydra_k3, y = Task_active_Default_mode, fill = Hydra_k3)) +  
+   geom_violin(trim = TRUE) + 
+   xlab("Clusters") + ylab(paste0("R")) +
+   scale_y_continuous(limits=c(-0.5, 0.2)) + 
+   theme(legend.position = "none",
+          axis.text.x = element_text(size=15),
+          axis.text.y = element_text(size = 15),
+          axis.title.y = element_text(size = 15),
+          axis.title.x = element_blank(),
+          plot.title = element_text(size = 20)) +
+    stat_summary(fun.data=mean_se, 
+                 geom="pointrange") + 
+    ggtitle(paste0("Network Strength, P=0.03"))  
+  
+
+ggplot(subset_for_violin, aes(x = Hydra_k3, y = Task_active_Default_mode, fill = Hydra_k3)) +  
+   geom_jitter(aes(color=Hydra_k3), width = 0.1, size = 1) + 
+   xlab("Clusters") + ylab(paste0("R")) +
+   scale_y_continuous(limits=c(-1, 1)) + 
+   theme(legend.position = "none",
+          axis.text.x = element_text(size=15),
+          axis.text.y = element_text(size = 15),
+          axis.title.y = element_text(size = 15),
+          axis.title.x = element_blank(),
+          plot.title = element_text(size = 15)) +
+   geom_segment(aes(x = 0.85, y = all_mean_sd_sem_between$mean[2]), size = 1.2, xend = 1.15, yend = all_mean_sd_sem_between$mean[2]) +
+   geom_segment(aes(x = 1.85, y = all_mean_sd_sem_between$mean[3]), size = 1.2, xend = 2.15, yend = all_mean_sd_sem_between$mean[3]) +
+   geom_segment(aes(x = 2.85, y = all_mean_sd_sem_between$mean[4]), size = 1.2, xend = 3.15, yend = all_mean_sd_sem_between$mean[4]) +
+   geom_segment(aes(x = 3.85, y = all_mean_sd_sem_between$mean[1]), size = 1.2, xend = 4.15, yend = all_mean_sd_sem_between$mean[1]) +
+    #coord_fixed(ratio = 0.12) +
+    ggtitle(paste0("Between network connectivity, P=0.03"))#, network_strength_overall_p)) 
+
+#reverse order
+ggplot(subset_for_violin, aes(x = Hydra_k3, y = Task_active_Default_mode, fill = Hydra_k3)) +  
+   geom_jitter(aes(color=Hydra_k3), width = 0.1, size = 1) + 
+   xlab("Clusters") + ylab(paste0("R")) +
+   scale_y_continuous(limits=c(-0.5, 0.2)) +
+   scale_x_discrete(limits=cluster_titles) +
+   theme(legend.position = "none",
+          axis.text.x = element_text(size=15),
+          axis.text.y = element_text(size =15),
+          axis.title.y = element_text(size = 15),
+          axis.title.x = element_blank(),
+          plot.title = element_text(size = 15)) +
+   geom_segment(aes(x = 0.85, y = all_mean_sd_sem_between$mean[1]), size = 1.2, xend = 1.15, yend = all_mean_sd_sem_between$mean[1]) +
+   geom_segment(aes(x = 1.85, y = all_mean_sd_sem_between$mean[2]), size = 1.2, xend = 2.15, yend = all_mean_sd_sem_between$mean[2]) +
+   geom_segment(aes(x = 2.85, y = all_mean_sd_sem_between$mean[3]), size = 1.2, xend = 3.15, yend = all_mean_sd_sem_between$mean[3]) +
+   geom_segment(aes(x = 3.85, y = all_mean_sd_sem_between$mean[4]), size = 1.2, xend = 4.15, yend = all_mean_sd_sem_between$mean[4]) +
+  #  coord_fixed(ratio = 0.12) +
+    ggtitle(paste0("Between network connectivity, P=0.03")) #, network_strength_overall_p)) 
+
+#for second kind of bar/scatter
+data=subset_for_violin
+data$MeanValue=c(1:length(data$Hydra_k3))
+data$MeanValue[which(data$Hydra_k3=='TD')]=mean(data$Task_active_Default_mod[which(data$Hydra_k3=='TD')])
+data$MeanValue[which(data$Hydra_k3=='Subtype 1')]=mean(data$Task_active_Default_mod[which(data$Hydra_k3=='Subtype 1')])
+data$MeanValue[which(data$Hydra_k3=='Subtype 2')]=mean(data$Task_active_Default_mod[which(data$Hydra_k3=='Subtype 2')])
+data$MeanValue[which(data$Hydra_k3=='Subtype 3')]=mean(data$Task_active_Default_mod[which(data$Hydra_k3=='Subtype 3')])
+
+ggplot(data, aes(Hydra_k3, Task_active_Default_mode,col=Hydra_k3)) +
+  geom_jitter(position=position_jitter(width=0.1),size=1) +
+  geom_errorbar(mapping=aes(x=Hydra_k3, ymin=MeanValue, ymax=MeanValue, width=0.4)) +
+  #coord_fixed(ratio = 0.12) +
+  xlab("Clusters") + ylab(paste0("R")) +
+  scale_y_continuous(limits=c(-0.5, 0.2)) + 
+  theme(legend.position = "none",
+          axis.text.x = element_text(size=15),
+          axis.text.y = element_text(size = 15),
+          axis.title.y = element_text(size = 15),
+          axis.title.x = element_blank(),
+          plot.title = element_text(size = 15)) +
+  ggtitle(paste0("Between network connectivity, P=0.03"))#,network_strength_overall_p)) 
+
+
+
+###################################################
+## Extracting anovas with significant p values ####
+###################################################
+
+#lm agesq
+#Looking at Hydra_k3
+#Look at model summaries
+models_anova_lm_agesq <- lapply(network_cluster_stats_anova_lm_agesq_AG_matched, summary)
+
+#Pull p-values
+p_anova_lm_agesq <- sapply(network_cluster_stats_anova_lm_agesq_AG_matched, function(v) v$"Pr(>F)"[1]) #$coef[,"Pr(>F)"][2]) #get the p value for dep binarized
+
+#Convert to data frame
+p_anova_lm_agesq <- as.data.frame(p_anova_lm_agesq)
+
+#print BEFORE FDR correction 
+print("LM Agesq anova scores, BEFORE FDR correction: i.e., uncorrected")
+print(p_anova_lm_agesq)
+
+#Print original p-values to three decimal places
+p_round_anova_lm_agesq <- round(p_anova_lm_agesq,3)
+
+#FDR correct p-values
+pfdr_anova_lm_agesq <- p.adjust(p_anova_lm_agesq[,1],method="fdr")
+
+#Convert to data frame
+pfdr_anova_lm_agesq <- as.data.frame(pfdr_anova_lm_agesq)
+row.names(pfdr_anova_lm_agesq) <- networks
+
+#To print fdr-corrected p-values to three decimal places
+pfdr_round_anova_lm_agesq <- round(pfdr_anova_lm_agesq,3)
+
+#List the components that survive FDR correction
+network_fdr_anova_lm_agesq <- row.names(pfdr_anova_lm_agesq)[pfdr_anova_lm_agesq<0.05]
+
+#make a data frame with names and fdr values (rounded to 3 decimals)
+network_names_and_fdr_values_anova_lm_agesq <- data.frame(cbind(network_fdr_anova_lm_agesq, round(pfdr_anova_lm_agesq[pfdr_anova_lm_agesq<0.05],3)))
+
+#add titles to names_and_fdr tables
+names(network_names_and_fdr_values_anova_lm_agesq) <- c("network", "p_FDR_corr")
+
+print("LM Agesq- Mean centered age that was then squared, FDR corrected")
+print(network_names_and_fdr_values_anova_lm_agesq)
+
+#####separating within and between connectivity
+
+within_lm <- network_cluster_stats_lm_agesq_AG_matched[within]
+between_lm <- network_cluster_stats_lm_agesq_AG_matched[!is.element(network_cluster_stats_anova_lm_agesq_AG_matched, within_lm)]
+
+within_anova <- network_cluster_stats_anova_lm_agesq_AG_matched[within]
+between_anova<- network_cluster_stats_anova_lm_agesq_AG_matched[!is.element(network_cluster_stats_anova_lm_agesq_AG_matched, within_anova)]
+
+within_fdr <- fdr_anova(data_frame = within_anova)
+between_fdr <- fdr_anova(data_frame = between_anova)
+
+print("FDR corrected- within communities")
+print(within_fdr)
+
+print("FDR corrected - between communities")
+print(between_fdr)
+
+print("Pairwise contrasts, within communities, fdr_corrected")
+pair_output_within <- pairwise_contrasts_3clusters(within_lm, within_fdr)
+print(pair_output_within) #call 
+#print(pairwise_contrasts_within_Hydra_k3)
+
+print("Pairwise contrasts, between communities, fdr_corrected")
+pair_output_between <- pairwise_contrasts_3clusters(between_lm, between_fdr)
+print(pair_output_between) #call 
+
+#print(pairwise_contrasts_between_Hydra_k3)
+
+
+######################################################
+####Pairwise t-tests for anova-corrected lm means ####
+######################################################
+#######THIS ONLY WORKS FOR 3 CLUSTERS
+
+#put lm model into emmeans format
+network_emmodel_lm_agesq_AG_matched <- lapply(network_cluster_stats_lm_agesq_AG_matched, function(x) {as.list(ref_grid(x))})
+network_emmgrid_lm_agesq_AG_matched <- lapply(network_emmodel_lm_agesq_AG_matched, function(x) {as.emmGrid(x)})
+
+#run emmeans
+network_emmeans_lm_agesq_AG_matched <- lapply(network_emmgrid_lm_agesq_AG_matched, function(x) {emmeans(x, "Hydra_k3")})
+
+#run pairwise contrasts
+network_emmpairs_lm_agesq_AG_matched <- lapply(network_emmeans_lm_agesq_AG_matched, function(x) {pairs(x)})
+
+#Only include stuff that was fdr corrected (i.e., only keep parts of the model (or only display) ones that are corrected),this will be null if nothing was corrected
+network_emmpairs_lm_agesq_AG_matched_FDR_corrected <- network_emmpairs_lm_agesq_AG_matched[c(network_fdr_anova_lm_agesq)]
+
+
+################
+  ####Corrected #######
+######Make table of contrasts, rows are names of brain regions that are fdr corrected, columns are contrasts, values are pvalues
+
+#contrast names, -1 = controls, 1-3 are clusters
+contrast_names <- c("-1 - 1", "-1 - 2", "-1 - 3", "1 - 2", "1 - 3", "2 - 3")
+#go through each fdr corrected brain region, and extract p values
+contrast_table <- lapply(network_emmpairs_lm_agesq_AG_matched_FDR_corrected, function(x) {round(summary(x)$p.value,3)})
+#get the names of the brain regions that were fdr corrected
+fdr_corrected_brain_regions <- names(contrast_table)
+#build table that will hold the name of the brain region and the p values
+pairwise_table <- data.frame(matrix(nrow = length(fdr_corrected_brain_regions), ncol = 6))
+#give the appropriate names
+rownames(pairwise_table) <- fdr_corrected_brain_regions
+colnames(pairwise_table) <- contrast_names
+
+#loop through each brain region, and manually assign the columns to be the p values
+for (region in fdr_corrected_brain_regions)
+{
+  pair_pval <- contrast_table[[region]]
+  pairwise_table[region,] <- pair_pval
+}
+
+#get the mprage out of the name
+
+#Add FDR correction
+pairwise_table_with_fdr <- pairwise_table
+pairwise_table_with_fdr$p_FDR_corr <- network_names_and_fdr_values_anova_lm_agesq$p_FDR_corr
+
+#print values
+print("LM Agesq pairwise contrasts for FDR corrected values Cortical network")
+print(pairwise_table)
+
+print ("LM Agesq pairwise contrasts and FDR corr Cortical network")
+print(pairwise_table_with_fdr)
+
+sapply(network_emmpairs_lm_agesq_AG_matched_FDR_corrected, function(x) {print(x)})
+
+######------------------------
+  ####Uncorrected######
+######Make table of contrasts, rows are names of brain regions that are fdr corrected, columns are contrasts, values are pvalues
+
+#contrast names, -1 = controls, 1-3 are clusters
+contrast_names <- c("-1 - 1", "-1 - 2", "-1 - 3", "1 - 2", "1 - 3", "2 - 3")
+#go through each fdr corrected brain region, and extract p values
+contrast_table <- lapply(network_emmpairs_lm_agesq_AG_matched, function(x) {round(summary(x)$p.value,3)})
+#get the names of the brain regions that were fdr corrected
+brain_regions <- names(contrast_table)
+#build table that will hold the name of the brain region and the p values
+pairwise_table <- data.frame(matrix(nrow = length(brain_regions), ncol = 6))
+#give the appropriate names
+rownames(pairwise_table) <- brain_regions
+colnames(pairwise_table) <- contrast_names
+
+#loop through each brain region, and manually assign the columns to be the p values
+for (region in brain_regions)
+{
+  pair_pval <- contrast_table[[region]]
+  pairwise_table[region,] <- pair_pval
+}
+
+#Add FDR correction
+#pairwise_table_with_fdr <- pairwise_table
+#pairwise_table_with_fdr$p_FDR_corr <- network_names_and_fdr_values_anova_lm_agesq$p_FDR_corr
+
+#print values
+print("LM Agesq pairwise contrasts UNCORRECTED values Cortical network ")
+print(pairwise_table)
+
+
+sapply(network_emmpairs_lm_agesq_AG_matched, function(x) {print(x)})
+
+
 ```
 

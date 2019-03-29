@@ -4,18 +4,17 @@
 today=$(date +"%Y%m%d_%s")
 #metric=pearson  # pearson is standard 
 # formula='"age + sex + etc"'  no demeaning
-#formula='Hydra_k3+age_in_years+sex'
-formula='Hydra_k3'
-factors=""  #defines which ones you want an MDMR statistical map out for-- limit yourself! requires permutations for each (i.e., just MAP)
+formula='logk'
+factors="logk"  #defines which ones you want an MDMR statistical map out for-- limit yourself! requires permutations for each (i.e., just MAP)
 formula2=$(echo $formula | cut -d"\"" -f2)
-datadir=/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/for_cwasmdmr_concat_4mm
-outdir=/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/for_cwasmdmr_concat_4mm
-covariates=/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/subject_lists/subj_list_concat_weighted_n312_with_headers.csv  #this is a path to a .csv with your subject level data, which includes col headers w/ variables for formula specified above
+datadir=/data/jux/BBL/projects/pncItcNetworks/subjectData
+outdir=/data/jux/BBL/projects/pncItcNetworks/subjectData
+covariates=$datadir/demographics/n270_nback_rest_idemo.csv #this is a path to a .csv with your subject level data, which includes col headers w/ variables for formula specified above
 ###############
-scriptdir=/data/joy/BBL/applications/Rlibraries/connectir/connectir/scripts
-#data/joy/BBL/applications/R-3.2.5/bin
+scriptdir=/data/joy/BBL/applications/R-3.2.5/bin
 modelname=$(echo $formula2 | sed "s/+/_/g" | sed "s/\*/x/g" | sed "s/ //g" )
-inputdir=/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/for_cwasmdmr_concat_4mm/weighted_n312/n312_pearson
+#modelname="$(echo $formula2 | sed "s/+/_/g" | sed "s/\*/x/g" | sed "s/ //g" )"
+inputdir=/data/jux/BBL/projects/pncItcNetworks/subjectData/n269/n269_pearson
 
 
 echo $modelname
@@ -30,13 +29,11 @@ echo "model file: $covariates"
 
 model=$covariates
 
-rm -rf $modelname
-
 ### RUN CONNECTIR_MDMR ###
 ##########################
 
 
-Rscript $scriptdir/connectir_mdmr.R \
+$scriptdir/Rscript $scriptdir/connectir_mdmr.R \
 	--indir=$inputdir \
 	--formula="$formula" \
 	--model=$model \

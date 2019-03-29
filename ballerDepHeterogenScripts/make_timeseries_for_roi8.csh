@@ -8,7 +8,7 @@
 #The ROIs were defined by taking areas that showed differences between Hydra_k3 groups during Nback activation
 
 set currdir = `pwd`
-set wkdir = "/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/concat_restbold_nback_idemo/rest_nback_idemo_8FunctionalROIs/"
+set wkdir = "/data/jux/BBL/projects/ballerDepHeterogen/data/neuroimaging/processed_data/rest/rest_2mm/"
 set oldts = $wkdir/ts_files_from_3dROIstats
 set newts = $wkdir/ts_files_from_3dROIstats_8rois
 
