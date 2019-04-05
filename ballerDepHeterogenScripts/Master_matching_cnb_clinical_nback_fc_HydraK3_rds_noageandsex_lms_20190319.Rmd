@@ -3,8 +3,8 @@ title: "Master file with RDS, and no age and sex in lms "
 author: "Erica Baller"
 date: "3/19/2019"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -330,7 +330,7 @@ for(vers in matched_versions) {
 ###############Combine imaging matched and imaging non-matched groups ####################
 
 #first remove imaging info from the imaging group
-#Gets you a group of 1424 , just like original.... YAY!
+#n= 1424
 data_age_and_sex.matched_imaging_without_imaging_data_in_data_frame <- data_age_and_sex.matched_imaging[,-c(77:89)]
 imaging_plus_non_imaging_matched_groups_data_age_and_sex <- rbind(data_age_and_sex.matched_imaging_without_imaging_data_in_data_frame, data_age_and_sex.matched_non_imaging)
 
@@ -1391,8 +1391,8 @@ ggplot(data = all_mean_sd_sem, aes(x = newNames, y = mean, group = cl)) + ylab("
 models_anova_lm_agesq <- lapply(parcellation_cluster_stats_anova_lm_agesq_AG_matched, summary)
 
 #Pull p-values
-p_anova_lm_agesq <- sapply(parcellation_cluster_stats_anova_lm_agesq_AG_matched, function(v) v$"Pr(>F)"[1]) 
-f_anova_lm_agesq <- sapply(parcellation_cluster_stats_anova_lm_agesq_AG_matched, function(v) v$"F value"[1])
+p_anova_lm_agesq <- sapply(parcellation_cluster_stats_anova_lm_agesq_AG_matched, function(v) v$"Pr(>F)"[2]) 
+f_anova_lm_agesq <- sapply(parcellation_cluster_stats_anova_lm_agesq_AG_matched, function(v) v$"F value"[2])
 
 #$coef[,"Pr(>F)"][2]) #get the p value for dep binarized
 
@@ -1610,7 +1610,7 @@ ggplot(data = new_order, aes(x = newNames, y = mean, group = cl)) + ylab("% Sign
   geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1, size=1.5) +
   scale_x_discrete(name = " ", limits=new_order$newNames) + labs(colour = "cluster") +
   guides(colour = guide_legend(override.aes = list(size=10))) +
-  theme(axis.text.x = element_text(size = 20, angle=60, hjust = 1), 
+  theme(axis.text.x = element_text(size = 25, angle=60, hjust = 1), 
         axis.text.y = element_text(size = 30),
         title = element_text(size = 30), 
         legend.text = element_text(size = 30), 
@@ -1772,7 +1772,7 @@ ggplot(data = new_order, aes(x = newNames, y = mean, group = cl)) + ylab("Nodal 
  # geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1) +
   scale_x_discrete(name = " ", limits=new_order$newNames) + labs(colour = "cluster") +
   guides(colour = guide_legend(override.aes = list(size=10))) +
-  theme(axis.text.x = element_text(size = 20, angle=60, hjust = 1), 
+  theme(axis.text.x = element_text(size = 25, angle=60, hjust = 1), 
         axis.text.y = element_text(size = 30),
         title = element_text(size = 30), 
         legend.text = element_text(size = 30), 
@@ -2913,7 +2913,7 @@ visreg(network_strength_lm)
 models_anova_lm_agesq <- lapply(parcellation_cluster_stats_anova_lm_agesq_AG_matched, summary)
 
 #Pull p-values
-p_anova_lm_agesq <- sapply(parcellation_cluster_stats_anova_lm_agesq_AG_matched, function(v) v$"Pr(>F)"[1]) #$coef[,"Pr(>F)"][2]) #get the p value for dep binarized
+p_anova_lm_agesq <- sapply(parcellation_cluster_stats_anova_lm_agesq_AG_matched, function(v) v$"Pr(>F)"[4]) #$coef[,"Pr(>F)"][2]) #get the p value for dep binarized
 
 #Convert to data frame
 p_anova_lm_agesq <- as.data.frame(p_anova_lm_agesq)
@@ -3365,10 +3365,19 @@ ggplot(data = all_mean_sd_sem_between, aes(x = network, y = mean, group = cl)) +
 ggplot(all_mean_sd_sem_between, aes(x = cl, y = mean, fill = cl)) + geom_col() + 
     geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem),width=.2,position=position_dodge(.9)) + 
     xlab("Clusters") + ylab(paste0("R")) + 
-    theme(legend.position = "none") +
+    theme(legend.position = "none",
+          axis.title.x= element_blank()) +
     ggtitle(paste0("Connectivity between Task active/DMN by Cluster"))  #scale_fill_discrete(breaks=cl) +
     #guides(fill=guide_legend(title=NULL)) 
 
+ggplot(all_mean_sd_sem_between, aes(x = cl, y = mean, fill = cl)) + geom_col() + 
+    geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem),width=.2,position=position_dodge(.9)) + 
+    xlab("Clusters") + ylab(paste0("R")) + 
+    scale_x_discrete(limits=cluster_titles) + 
+    theme(legend.position = "none",
+          axis.title.x= element_blank()) +
+    ggtitle(paste0("Connectivity between Task active/DMN by Cluster"))  #scale_fill_discrete(breaks=cl) +
+    #guides(fill=guide_legend(title=NULL)) 
 
 
 #violin plot
@@ -3397,7 +3406,7 @@ ggplot(subset_for_violin, aes(x = Hydra_k3, y = Task_active_Default_mode, fill =
 ggplot(subset_for_violin, aes(x = Hydra_k3, y = Task_active_Default_mode, fill = Hydra_k3)) +  
    geom_jitter(aes(color=Hydra_k3), width = 0.1, size = 1) + 
    xlab("Clusters") + ylab(paste0("R")) +
-   scale_y_continuous(limits=c(-1, 1)) + 
+   scale_y_continuous(limits=c(-0.5, 0.2)) + 
    theme(legend.position = "none",
           axis.text.x = element_text(size=15),
           axis.text.y = element_text(size = 15),

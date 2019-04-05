@@ -411,7 +411,7 @@ FDR correction
 models_anova_lm_agesq <- lapply(network_cluster_stats_anova_lm_agesq_AG_matched, summary)
 
 #Pull p-values
-p_anova_lm_agesq <- sapply(network_cluster_stats_anova_lm_agesq_AG_matched, function(v) v$"Pr(>F)"[1]) #$coef[,"Pr(>F)"][2]) #get the p value for dep binarized
+p_anova_lm_agesq <- sapply(network_cluster_stats_anova_lm_agesq_AG_matched, function(v) v$"Pr(>F)"[4]) #$coef[,"Pr(>F)"][2]) #get the p value for dep binarized
 
 #Convert to data frame
 p_anova_lm_agesq <- as.data.frame(p_anova_lm_agesq)
