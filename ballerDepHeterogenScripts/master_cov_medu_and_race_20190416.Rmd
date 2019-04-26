@@ -1,10 +1,10 @@
 ---
-title: "Master Replicated 0405019"
+title: "Master Replicated 04172019, covaried for medu and race"
 author: "Erica Baller"
-date: "4/5/2019"
+date: "4/16/2019"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -566,7 +566,7 @@ cnb_accuracy_names <- cnb_measure_names[grep(pattern = "s_z", x = cnb_measure_na
 #lm ageSq and mean centered
 cnb_score_cluster_stats_matched <- lapply(cnb_measure_names, function(x) 
 {
-  lm(substitute(i ~ Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_matched)
+  lm(substitute(i ~ medu1 + race_binarized + Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_matched)
 })
 names(cnb_score_cluster_stats_matched) <- cnb_measure_names
 
@@ -857,7 +857,6 @@ print(pairwise_table)
 
 print("LM Agesq pairwise contrasts with FDR corrected values, CNB scores")
 print(pairwise_table_with_fdr)
-write.csv(pairwise_table_with_fdr, "/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/pairwise_table_CNB.csv")
 
 sapply(cnb_emmpairs_matched_FDR_corrected, function(x) {print(x)})
 
@@ -890,7 +889,7 @@ clinical_measure_names <- clinical_measure_names[-grep("_ar", clinical_measure_n
 clinical_score_cluster_stats_matched <- lapply(clinical_measure_names, function(x) 
 {
 #  lm(substitute(i ~ sex + age_in_years + ageSq + Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_matched)
-   lm(substitute(i ~ Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_matched)
+   lm(substitute(i ~ medu1 + race_binarized +  Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_matched)
 
   })
 names(clinical_score_cluster_stats_matched) <- clinical_measure_names
@@ -937,18 +936,14 @@ all_mean_sd_sem$new_names <- new_names
 upper_case <- gsub(pattern = "\\b([a-z])", replacement = "\\U\\1", all_mean_sd_sem$new_names, perl = TRUE)
 all_mean_sd_sem$new_names <- upper_case
 
-
-
 ggplot(data = all_mean_sd_sem, aes(x = clinical, y = mean, group = cluster)) + ylab("Mean Z-score")  +
   ggtitle("Clinical Bifactor Scores") + 
   geom_line(aes(color=cluster, size=.1), show.legend = F) +
   geom_point(aes(color=cluster)) + 
   geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1, size=1.5) +
-  annotate("text", x = 13, y = 0.45, label = "*", size = 20) + 
   scale_x_discrete(limits=all_mean_sd_sem$clinical, labels=all_mean_sd_sem$new_names, name = " ") +
-  scale_y_continuous(limits=c(-0.7, 1)) +
   guides(colour = guide_legend(override.aes = list(size=10))) +
-  theme(axis.text.x = element_text(size = 30, hjust = 1, angle = 60), 
+  theme(axis.text.x = element_text(size = 20, hjust = 1, angle = 60), 
         axis.text.y = element_text(size = 30),
         title = element_text(size = 30), 
         legend.text = element_text(size = 30), 
@@ -1049,7 +1044,7 @@ pairwise_table_with_fdr$p_FDR_corr <- clinical_names_and_fdr_values_anova_lm_age
 
 print("LM Agesq pairwise contrasts with FDR corrected values, Bifactor scores")
 print(pairwise_table_with_fdr)
-write.csv(pairwise_table_with_fdr, "/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/pairwise_table_BIFACTOR.csv")
+
 sapply(clinical_emmpairs_matched_FDR_corrected, function(x) {print(x)})
 ```
 
@@ -1079,7 +1074,7 @@ clinical_measure_names <- c("staiPreState", "staiPreTrait")
 clinical_score_cluster_stats_matched <- lapply(clinical_measure_names, function(x) 
 {
   #lm(substitute(i ~ sex + age_in_years + ageSq + Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_matched)
-  lm(substitute(i ~ Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_matched)
+  lm(substitute(i ~ medu1 + race_binarized +  Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_matched)
 
 })
 names(clinical_score_cluster_stats_matched) <- clinical_measure_names
@@ -1229,7 +1224,7 @@ pairwise_table_with_fdr$p_FDR_corr <- clinical_names_and_fdr_values_anova_lm_age
 
 print("Pairwise contrasts with FDR corrected values, Bifactor scores")
 print(pairwise_table_with_fdr)
-write.csv(pairwise_table_with_fdr, "/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/pairwise_table_ANXIETY.csv")
+
 sapply(clinical_emmpairs_matched_FDR_corrected, function(x) {print(x)})
 
 ```
@@ -1262,7 +1257,7 @@ make_demographics_table(data_frame = subset_with_clusters_matched, hydra_cluster
 #lm ageSq and mean centered
 parcellation_cluster_stats_matched <- lapply(parcellations, function(parcellation) 
 {
-  lm(substitute(i ~ nbackRelMeanRMSMotion + Hydra_k3, list(i = as.name(parcellation))), data = subset_with_clusters_matched)
+  lm(substitute(i ~ medu1 + race_binarized +  nbackRelMeanRMSMotion + Hydra_k3, list(i = as.name(parcellation))), data = subset_with_clusters_matched)
 })
 names(parcellation_cluster_stats_matched) <- parcellations
 
@@ -1270,13 +1265,16 @@ names(parcellation_cluster_stats_matched) <- parcellations
 parcellation_cluster_stats_anova_matched <- lapply(parcellation_cluster_stats_matched, anova) 
 names(parcellation_cluster_stats_anova_matched) <- parcellations
 
-
-#construct data frame 
+#Just active areas
 groups <- data.frame(cbind(cluster_titles, numeric_vector))
 names(groups) <- c("cl", "numeric")
+
+
+#construct data frame 
 df_names <- data.frame(rep(groups$cl, num_measures), rep(parcellations, each = total_num_groups))
 names(df_names) <- c("cl", "parcellation")
 
+#construct mean_sd_sem data frame
 df_mean_sd_sem <- NULL
 for(parcellation in parcellations) {
   mean_sd_sem <- data_frame_mean_sd_sem(data_frame = subset_with_clusters_matched, variable = parcellation, hydra_cluster = num_clusters)
@@ -1345,156 +1343,83 @@ ggplot(data = all_mean_sd_sem, aes(x = newNames, y = mean, group = cl)) + ylab("
 ## Extracting anovas with significant p values ####
 ###################################################
 #Look at model summaries
-models_anova <- lapply(parcellation_cluster_stats_anova_matched, summary)
+models_anova_lm_agesq <- lapply(parcellation_cluster_stats_anova_matched, summary)
 
 #Pull p-values
-p_anova <- sapply(parcellation_cluster_stats_anova_matched, function(v) v$"Pr(>F)"[2]) 
-f_anova <- sapply(parcellation_cluster_stats_anova_matched, function(v) v$"F value"[2])
+p_anova_lm_agesq <- sapply(parcellation_cluster_stats_anova_matched, function(v) v$"Pr(>F)"[4]) 
+f_anova_lm_agesq <- sapply(parcellation_cluster_stats_anova_matched, function(v) v$"F value"[4])
 
 #Convert to data frame
-p_anova <- as.data.frame(p_anova)
-f_anova <- as.data.frame(f_anova)
+p_anova_lm_agesq <- as.data.frame(p_anova_lm_agesq)
+f_anova_lm_agesq <- as.data.frame(f_anova_lm_agesq)
 
-p_anova_task_active <- as.data.frame(p_anova[1:21,])
-row.names(p_anova_task_active) <- row.names(p_anova)[1:21]
-names(p_anova_task_active) <- c("p_anova_task_active")
+p_anova_lm_agesq_task_active <- as.data.frame(p_anova_lm_agesq[1:21,])
+row.names(p_anova_lm_agesq_task_active) <- row.names(p_anova_lm_agesq)[1:21]
+names(p_anova_lm_agesq_task_active) <- c("p_anova_lm_agesq_task_active")
 
 #print BEFORE FDR correction 
 print("LM N-back uncorrected")
-print(p_anova)
+print(p_anova_lm_agesq)
 
 print("LM anova scores task active areas, uncorrected")
-print(p_anova_task_active)
+print(p_anova_lm_agesq_task_active)
 
 
 #Print original p-values to three decimal places
-p_round_anova <- round(p_anova,3)
+p_round_anova_lm_agesq <- round(p_anova_lm_agesq,3)
 
 #FDR correct p-values
-pfdr_anova <- p.adjust(p_anova[,1],method="fdr")
-pfdr_anova_task_active <- p.adjust(p_anova_task_active[,1],method="fdr")
+pfdr_anova_lm_agesq <- p.adjust(p_anova_lm_agesq[,1],method="fdr")
+pfdr_anova_lm_agesq_task_active <- p.adjust(p_anova_lm_agesq_task_active[,1],method="fdr")
 
 #Convert to data frame
-pfdr_anova <- as.data.frame(pfdr_anova)
-pfdr_anova_task_active <- as.data.frame((pfdr_anova_task_active))
+pfdr_anova_lm_agesq <- as.data.frame(pfdr_anova_lm_agesq)
+pfdr_anova_lm_agesq_task_active <- as.data.frame((pfdr_anova_lm_agesq_task_active))
 
 #keep Fs only for p's that were FDR corrected and less than 0.05 and zero out the rest
 
-fs_fdr_corrected_with0s <- f_anova
-fs_fdr_corrected_with0s[which(pfdr_anova >= 0.05),] <- 0 
+fs_fdr_corrected_with0s <- f_anova_lm_agesq
+fs_fdr_corrected_with0s[which(pfdr_anova_lm_agesq >= 0.05),] <- 0 
 fs_fdr_corrected_index <- which(fs_fdr_corrected_with0s > 0)
 fs_fdr_corrected_vals <- fs_fdr_corrected_with0s[which(fs_fdr_corrected_with0s > 0),]
 fs_fdr_corrected <- data.frame(cbind(fs_fdr_corrected_vals, fs_fdr_corrected_index))
 
 #write csv for caret
-#write.table(pfdr_anova, '/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/nback_fdr_corr_6rois_taskactive.csv', col.names = FALSE, quote=FALSE, sep=",")
+#write.table(pfdr_anova_lm_agesq, '/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/nback_fdr_corr_12rois_taskactive.csv', col.names = FALSE, quote=FALSE, sep=",")
 
-#write.table(fs_fdr_corrected_with0s$f_anova,'/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/nback_f_fdr_corr0s_6rois_task_active.csv', col.names = FALSE, quote=FALSE, sep=",")
+#write.table(fs_fdr_corrected_with0s$f_anova_lm_agesq,'/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/nback_f_fdr_corr0s_12rois_task_active.csv', col.names = FALSE, quote=FALSE, sep=",")
 
-#write.table(fs_fdr_corrected, '/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/nback_f_fdr_corr_6rois_task_active.csv', col.names = FALSE, quote=FALSE, sep=",", row.names = FALSE)
+#write.table(fs_fdr_corrected, '/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/nback_f_fdr_corr_12rois_task_active.csv', col.names = FALSE, quote=FALSE, sep=",", row.names = FALSE)
 
 #also include zeros for task_deactive areas
-#write.table(c(fs_fdr_corrected_with0s$f_anova, rep(0,6)), '/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/nback_f_fdr_corr0s_6rois_fromFull27set.csv', col.names = FALSE, quote=FALSE, sep=",")
+#write.table(c(fs_fdr_corrected_with0s$f_anova_lm_agesq, rep(0,6)), '/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/nback_f_fdr_corr0s_12rois_fromFull27set.csv', col.names = FALSE, quote=FALSE, sep=",")
 
 #change row names
-row.names(pfdr_anova) <- parcellations
-row.names(pfdr_anova_task_active) <- parcellations[1:21]
+row.names(pfdr_anova_lm_agesq) <- parcellations
+row.names(pfdr_anova_lm_agesq_task_active) <- parcellations[1:21]
 
 #To print fdr-corrected p-values to three decimal places
-pfdr_round_anova <- round(pfdr_anova,3)
-pfdr_round_anova_task_active <- round(pfdr_anova_task_active,3)
+pfdr_round_anova_lm_agesq <- round(pfdr_anova_lm_agesq,3)
+pfdr_round_anova_lm_agesq_task_active <- round(pfdr_anova_lm_agesq_task_active,3)
 
 #List the components that survive FDR correction
-parcellation_fdr_anova <- row.names(pfdr_anova)[pfdr_anova<0.05]
-parcellation_fdr_anova_task_active <- row.names(pfdr_anova_task_active)[pfdr_anova_task_active<0.05]
+parcellation_fdr_anova_lm_agesq <- row.names(pfdr_anova_lm_agesq)[pfdr_anova_lm_agesq<0.05]
+parcellation_fdr_anova_lm_agesq_task_active <- row.names(pfdr_anova_lm_agesq_task_active)[pfdr_anova_lm_agesq_task_active<0.05]
 
 #make a data frame with names and fdr values (rounded to 3 decimals)
-parcellation_names_and_fdr_values_anova <- data.frame(cbind(parcellation_fdr_anova, round(pfdr_anova[pfdr_anova<0.05],4)))
-parcellation_names_and_fdr_values_anova_task_active <- data.frame(cbind(parcellation_fdr_anova_task_active, round(pfdr_anova_task_active[pfdr_anova_task_active<0.05],4)))
+parcellation_names_and_fdr_values_anova_lm_agesq <- data.frame(cbind(parcellation_fdr_anova_lm_agesq, round(pfdr_anova_lm_agesq[pfdr_anova_lm_agesq<0.05],4)))
+parcellation_names_and_fdr_values_anova_lm_agesq_task_active <- data.frame(cbind(parcellation_fdr_anova_lm_agesq_task_active, round(pfdr_anova_lm_agesq_task_active[pfdr_anova_lm_agesq_task_active<0.05],4)))
 
 #add titles to names_and_fdr tables
-names(parcellation_names_and_fdr_values_anova) <- c("parcellation", "p_FDR_corr")
-names(parcellation_names_and_fdr_values_anova_task_active) <- c("parcellation", "p_FDR_corr")
+names(parcellation_names_and_fdr_values_anova_lm_agesq) <- c("parcellation", "p_FDR_corr")
+names(parcellation_names_and_fdr_values_anova_lm_agesq_task_active) <- c("parcellation", "p_FDR_corr")
 
 print("FDR corrected")
-print(parcellation_names_and_fdr_values_anova)
-print(parcellation_names_and_fdr_values_anova_task_active)
+print(parcellation_names_and_fdr_values_anova_lm_agesq)
+print(parcellation_names_and_fdr_values_anova_lm_agesq_task_active)
 
-######################################################
-####Pairwise t-tests for anova-corrected lm means ####
-######################################################
-#######THIS ONLY WORKS FOR 3 CLUSTERS
-
-#put lm model into emmeans format
-parcellation_emmodel_AG_matched <- lapply(parcellation_cluster_stats_matched, function(x) {as.list(ref_grid(x))})
-parcellation_emmgrid_AG_matched <- lapply(parcellation_emmodel_AG_matched, function(x) {as.emmGrid(x)})
-
-#run emmeans
-parcellation_emmeans_AG_matched <- lapply(parcellation_emmgrid_AG_matched, function(x) {emmeans(x, "Hydra_k3")})
-
-#run pairwise contrasts
-parcellation_emmpairs_AG_matched <- lapply(parcellation_emmeans_AG_matched, function(x) {pairs(x)})
-
-#Only include stuff that was fdr corrected (i.e., only keep parts of the model (or only display) ones that are corrected),this will be null if nothing was corrected
-parcellation_emmpairs_AG_matched_FDR_corrected <- parcellation_emmpairs_AG_matched[c(parcellation_fdr_anova)]
-
-
-################
-####Corrected #######
-######Make table of contrasts, rows are names of brain regions that are fdr corrected, columns are contrasts, values are pvalues
-
-#contrast names, -1 = controls, 1-3 are clusters
-contrast_names <- c("-1 - 1", "-1 - 2", "-1 - 3", "1 - 2", "1 - 3", "2 - 3")
-
-
-#go through each fdr corrected brain region, and extract p values
-contrast_table <- lapply(parcellation_emmpairs_AG_matched_FDR_corrected, function(x) {round(summary(x)$p.value,3)})
-#contrast_table <- lapply(parcellation_emmpairs_AG_matched, function(x) {round(summary(x)$p.value,3)})
-
-#get the names of the brain regions that were fdr corrected
-fdr_corrected_brain_regions <- names(contrast_table)
-
-#build table that will hold the name of the brain region and the p values
-pairwise_table <- data.frame(matrix(nrow = length(fdr_corrected_brain_regions), ncol = 6))
-#pairwise_table <- data.frame(matrix(nrow = length(fdr_corrected_brain_regions), ncol = 3))
-
-#give the appropriate names
-rownames(pairwise_table) <- fdr_corrected_brain_regions
-colnames(pairwise_table) <- contrast_names
-
-#loop through each brain region, and manually assign the columns to be the p values
-for (region in fdr_corrected_brain_regions)
-{
-  pair_pval <- contrast_table[[region]]
-  pairwise_table[region,] <- pair_pval
-}
-
-#get fdr correcting for pairwise contrasts
-pairwise_table_post_pairwise_fdr <- pairwise_table[,4:6]
-for (region in fdr_corrected_brain_regions)
-{
-  pair_pval <- contrast_table[[region]][4:6]
-  pairwise_fdr <- p.adjust(pair_pval,method="fdr")
-  pairwise_table_post_pairwise_fdr[region,] <- pairwise_fdr
-}
-#get the mprage out of the name
-
-#Add FDR correction
-pairwise_table_with_fdr <- pairwise_table
-
-
-pairwise_table_with_fdr$p_FDR_corr <- parcellation_names_and_fdr_values_anova$p_FDR_corr
-
-print ("LM pairwise contrasts and FDR corrrected values Jneurosci parcellations")
-print(pairwise_table_with_fdr)
-
-sapply(parcellation_emmpairs_AG_matched_FDR_corrected, function(x) {print(x)})
-write.csv(pairwise_table_with_fdr, "/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/pairwise_table_NBACK.csv")
-
-
-
-#### graph only the significant areas###
-parcellation_task_active <- parcellation_names_and_fdr_values_anova_task_active$parcellation
+#### graph ###
+parcellation_task_active <- parcellation_names_and_fdr_values_anova_lm_agesq_task_active$parcellation
 parcellations <- parcellation_task_active
 num_measures <- length(parcellations)
 
@@ -1567,7 +1492,11 @@ ggplot(data = all_mean_sd_sem, aes(x = newNames, y = mean, group = cl)) + ylab("
         plot.title = element_text(size=35),
         legend.title=element_blank())
 
-new_order <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/all_mean_sd_sem_nback_sorted_6task_active.csv")
+#write.csv(all_mean_sd_sem, "/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/all_mean_sd_sem_nback_unsorted_12task_active.csv")
+
+#new order sorted from least % signal change to most % signal change
+new_order <- read.csv("/Users/eballer/BBL/from_chead/ballerDepHeterogen/results/csvs/all_mean_sd_sem_nback_sorted_12task_active.csv")
+
 ggplot(data = new_order, aes(x = newNames, y = mean, group = cl)) + ylab("% Signal Change") +  
   ggtitle("N-back Functional Regions of Interest") + 
   geom_line(aes(color=cl, size=.1), show.legend = F) +
@@ -1582,5 +1511,7 @@ ggplot(data = new_order, aes(x = newNames, y = mean, group = cl)) + ylab("% Sign
         plot.title = element_text(size=35),
         legend.title=element_blank())
 
-
 ```
+
+
+
