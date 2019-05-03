@@ -541,6 +541,28 @@ ggplot(dat_sex_race_no_significance, aes(x = cl, y = percent_caucasian, fill=cl)
   ggtitle(title3) + scale_fill_discrete(breaks=cluster_titles) + 
   guides(fill=guide_legend(title=NULL))
 
+
+
+################################
+### graphs by percent female ###
+################################
+percent_females <- 100- percent_men_all_clusters
+percentages_for_plot <- data.frame(cl=cluster_titles, percent_females = percent_females)
+names(percentages_for_plot) <- c("cluster", "percent")
+
+#Set Titles for plots
+title1 <- paste0("Hydra_k", num_clusters, " Percentages")
+
+if(chisq_matched_sex$p.value < 0.05) {
+  title2 <- paste0("Hydra_k", num_clusters, "% Female, p < 0.05")
+} else {
+  title2 <- paste0("Hydra_k", num_clusters, "% Female, p = NS")
+}
+
+ggplot(data = percentages_for_plot, aes(x = cluster, y = percent, fill=cluster)) + 
+  geom_bar(stat = "identity")  + 
+  scale_y_continuous(limits=c(0, 100)) + 
+  ggtitle(title2)
 #############################
 ######### Bar Graphs ########
 #############################
