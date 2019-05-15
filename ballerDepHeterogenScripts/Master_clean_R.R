@@ -74,9 +74,6 @@ overall_data <- subset.data.frame(overall_data, ((smry_dep == 4) | ((smry_dep < 
 #only include good imaging scans, n = 1540
 imaging_include <- subset.data.frame(imaging_summary, (t1Exclude == 0))
 
-#get subset with imaging, merge overall data (N = 3022) with imaging (n = 1540), Final n = 646
-overall_data_imaging <- merge(overall_data, imaging_include, by = "bblid")
-
 ####################################
 ###       Prepping Dataset       ###
 ####################################
@@ -85,9 +82,12 @@ overall_data_imaging <- merge(overall_data, imaging_include, by = "bblid")
 dep_binarized <- ifelse(overall_data$smry_dep == 4, 1, -1)
 overall_data <- cbind(overall_data, dep_binarized) #N = 3284
 
+#binarize race
+race_binarized <- ifelse(overall_data$race == 1, 1, 2)
+overall_data <-cbind(overall_data, race_binarized)
+
 #make depression and gender into factor scores 
 overall_data$dep_binarized <- as.factor(overall_data$dep_binarized)
-
 overall_data$sex <- as.factor(overall_data$sex)
 
 #divide ageAtCNB by 12 for age 
@@ -95,6 +95,9 @@ overall_data$age_in_years <- overall_data$ageAtCnb1/12
 
 #race binarized for plotting purposes, caucasian 1, non-caucasion 0
 overall_data$race_binarized <- ifelse(as.factor(overall_data$race) == 1, 1, 0)
+
+#get subset with imaging, merge overall data (N = 3022) with imaging (n = 1540), Final n = 646
+overall_data_imaging <- merge(overall_data, imaging_include, by = "bblid")
 
 ####################################
 ###    Matching with Matchit     ###
