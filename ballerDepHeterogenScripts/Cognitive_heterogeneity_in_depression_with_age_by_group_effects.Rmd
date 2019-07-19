@@ -1,10 +1,10 @@
 ---
-title: "Cognitive Heterogeneity in Depressed Youth"
+title: "Cognitive Heterogeneity in Depressed Youth Age*group"
 author: "Erica Baller"
-date: "5/14/2019"
+date: "7/18/2019"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -72,6 +72,7 @@ Steps:
    - Subtype 1: Cognition Preserved 
    - Subtype 2: Cognition Impaired
    - Subtype 3: Impulsive
+- age * sex, significant only for lan_z and edi
 
 5) Clinical bifactor analysis
 - Bifactor scores were calculated (excluding measures that were used to classify depression in initial sample construction)
@@ -81,6 +82,7 @@ Steps:
   - Subtypes 1 and 3 were indistinguishable on clinical factor scores (P(FDR) = NS)
   - Subtype 1 had higher anxious-miser scores than Subtype 2 (P=0.030)
   - Subtype 2 had higher fear scores than Subtypes 1 and 3 (P(FDR)<0.0001)
+- age * sex, no between subtype differences
 
 6) Anxious-misery analysis
 - Anxious misery factor scores were calculated 
@@ -93,6 +95,7 @@ Steps:
       - Subtype 3 vs TD (P=0.08, NS)
     - Trait Pairwise: All Subtypes vs TD (P<0.001)
   - Subtypes 1-3 did NOT differ on EITHER state or trait anxiety (P=NS)
+- age * sex, no between subtype differences
 
 7) Nback
 - Using 21 functionally defined regions of interest from Satterthwaite et al, 2013, percent signal change between 2bk and 0bk was evaluated by cluster
@@ -104,7 +107,7 @@ Steps:
     - dorsal anterior cingulate
     - left dorsal frontal/mfg
     - left dorsolateral prefrontal cortex 
-
+- age * sex, no significant differences
 
 
 ```{r sample_construction}
@@ -575,7 +578,7 @@ cnb_accuracy_names <- cnb_measure_names[grep(pattern = "s_z", x = cnb_measure_na
 #lm
 cnb_score_cluster_stats_matched <- lapply(cnb_measure_names, function(x) 
 {
-  lm(substitute(i ~ Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_matched)
+  lm(substitute(i ~ age_in_years + Hydra_k3 + age_in_years:Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_matched)
 })
 names(cnb_score_cluster_stats_matched) <- cnb_measure_names
 
@@ -805,7 +808,7 @@ ggplot(data = all_mean_sd_sem, aes(x = factor(cnb, level = cnb_speed_names), y =
 models_anova <- lapply(cnb_score_cluster_stats_anova_matched, summary)
 
 #Pull p-values
-p_anova <- sapply(cnb_score_cluster_stats_anova_matched, function(v) v$"Pr(>F)"[1]) #$coef[,"Pr(>F)"][2]) #get the p value for dep binarized
+p_anova <- sapply(cnb_score_cluster_stats_anova_matched, function(v) v$"Pr(>F)"[3]) #$coef[,"Pr(>F)"][2]) #get the p value for dep binarized
 
 #Convert to data frame
 p_anova <- as.data.frame(p_anova)
@@ -915,7 +918,7 @@ clinical_measure_names <- clinical_measure_names[-grep("_ar", clinical_measure_n
 #lm  and mean centered
 clinical_score_cluster_stats_matched <- lapply(clinical_measure_names, function(x) 
 {
-   lm(substitute(i ~ Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_matched)
+   lm(substitute(i ~ age_in_years + Hydra_k3 + age_in_years:Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_matched)
 })
 names(clinical_score_cluster_stats_matched) <- clinical_measure_names
 
@@ -988,7 +991,7 @@ ggplot(data = all_mean_sd_sem, aes(x = clinical, y = mean, group = cluster)) + y
 models_anova <- lapply(clinical_score_cluster_stats_anova_matched, summary)
 
 #Pull p-values
-p_anova <- sapply(clinical_score_cluster_stats_anova_matched, function(v) v$"Pr(>F)"[1]) #$coef[,"Pr(>F)"][2]) #get the p value for dep binarized
+p_anova <- sapply(clinical_score_cluster_stats_anova_matched, function(v) v$"Pr(>F)"[3]) #$coef[,"Pr(>F)"][2]) #get the p value for dep binarized
 
 #Convert to data frame
 p_anova <- as.data.frame(p_anova)
@@ -1099,7 +1102,7 @@ clinical_measure_names <- c("staiPreState", "staiPreTrait")
 #lm 
 clinical_score_cluster_stats_matched <- lapply(clinical_measure_names, function(x) 
 {
-  lm(substitute(i ~ Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_matched)
+  lm(substitute(i ~ age_in_years + Hydra_k3 + age_in_years:Hydra_k3, list(i = as.name(x))), data = subset_with_clusters_matched)
 })
 names(clinical_score_cluster_stats_matched) <- clinical_measure_names
 
@@ -1164,7 +1167,7 @@ ggplot(data = all_mean_sd_sem, aes(x = clinical, y = mean, group = cluster)) + y
 models_anova <- lapply(clinical_score_cluster_stats_anova_matched, summary)
 
 #Pull p-values
-p_anova <- sapply(clinical_score_cluster_stats_anova_matched, function(v) v$"Pr(>F)"[1]) #get the p value for dep binarized
+p_anova <- sapply(clinical_score_cluster_stats_anova_matched, function(v) v$"Pr(>F)"[2]) #get the p value for dep binarized
 
 #Convert to data frame
 p_anova <- as.data.frame(p_anova)
@@ -1280,7 +1283,7 @@ make_demographics_table(data_frame = subset_with_clusters_matched, hydra_cluster
 #lm 
 parcellation_cluster_stats_matched <- lapply(parcellations, function(parcellation) 
 {
-  lm(substitute(i ~ nbackRelMeanRMSMotion + Hydra_k3, list(i = as.name(parcellation))), data = subset_with_clusters_matched)
+  lm(substitute(i ~ nbackRelMeanRMSMotion + age_in_years + Hydra_k3 + age_in_years:Hydra_k3, list(i = as.name(parcellation))), data = subset_with_clusters_matched)
 })
 names(parcellation_cluster_stats_matched) <- parcellations
 
@@ -1302,25 +1305,26 @@ for(parcellation in parcellations) {
 
 #combine data frames and remove the extra cluster names
 all_mean_sd_sem <- data.frame(df_names, df_mean_sd_sem)
-all_mean_sd_sem <- subset(all_mean_sd_sem, select = -c(cl.1))
+if (dim(all_mean_sd_sem)[1] > 0) {
+  all_mean_sd_sem <- subset(all_mean_sd_sem, select = -c(cl.1))
 
-for(parcellation in parcellations){
-  for(num in 1:total_num_groups) {
-    clst <- groups[num,1]
-    meas <- groups[num,2]
-    mean_for_eval <- paste("mean(subset_with_clusters_matched$", parcellation, "[which(subset_with_clusters_matched$Hydra_k", num_clusters, " == ", groups[num,2], ")])", sep="")
-    mean_grp <- eval(parse(text=as.name(mean_for_eval)))
-    all_mean_sd_sem$mean[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$parcellation == parcellation)] <- mean_grp
+  for(parcellation in parcellations){
+    for(num in 1:total_num_groups) {
+      clst <- groups[num,1]
+      meas <- groups[num,2]
+      mean_for_eval <- paste("mean(subset_with_clusters_matched$", parcellation, "[which(subset_with_clusters_matched$Hydra_k", num_clusters, " == ", groups[num,2], ")])", sep="")
+      mean_grp <- eval(parse(text=as.name(mean_for_eval)))
+      all_mean_sd_sem$mean[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$parcellation == parcellation)] <- mean_grp
     
-    sd_for_eval <- paste("sd(subset_with_clusters_matched$", parcellation, "[which(subset_with_clusters_matched$Hydra_k", num_clusters, " == ", groups[num,2], ")])", sep="")
-    sd_grp <- eval(parse(text=as.name(sd_for_eval)))
-    all_mean_sd_sem$sd[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$parcellation == parcellation)] <- sd_grp
-    sem_calc <- paste0("all_mean_sd_sem$sem[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$parcellation == parcellation)] <- all_mean_sd_sem$sd[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$parcellation == parcellation)]/sqrt(length(which(subset_with_clusters_matched$Hydra_k", num_clusters," == meas)))")
-    eval(parse(text=as.name(sem_calc)))
+      sd_for_eval <- paste("sd(subset_with_clusters_matched$", parcellation, "[which(subset_with_clusters_matched$Hydra_k", num_clusters, " == ", groups[num,2], ")])", sep="")
+      sd_grp <- eval(parse(text=as.name(sd_for_eval)))
+      all_mean_sd_sem$sd[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$parcellation == parcellation)] <- sd_grp
+      sem_calc <- paste0("all_mean_sd_sem$sem[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$parcellation == parcellation)] <- all_mean_sd_sem$sd[which(all_mean_sd_sem$cl == clst & all_mean_sd_sem$parcellation == parcellation)]/sqrt(length(which(subset_with_clusters_matched$Hydra_k", num_clusters," == meas)))")
+      eval(parse(text=as.name(sem_calc)))
     
+    }
   }
 }
-
 
 
 ###################################################
@@ -1330,8 +1334,8 @@ for(parcellation in parcellations){
 models_anova <- lapply(parcellation_cluster_stats_anova_matched, summary)
 
 #Pull p-values
-p_anova <- sapply(parcellation_cluster_stats_anova_matched, function(v) v$"Pr(>F)"[2]) 
-f_anova <- sapply(parcellation_cluster_stats_anova_matched, function(v) v$"F value"[2])
+p_anova <- sapply(parcellation_cluster_stats_anova_matched, function(v) v$"Pr(>F)"[4]) 
+f_anova <- sapply(parcellation_cluster_stats_anova_matched, function(v) v$"F value"[4])
 
 #Convert to data frame
 p_anova <- as.data.frame(p_anova)
@@ -1452,6 +1456,7 @@ for(parcellation in parcellations) {
 
 #combine data frames and remove the extra cluster names
 all_mean_sd_sem <- data.frame(df_names, df_mean_sd_sem)
+if(dim(all_mean_sd_sem)[1] > 0){
 all_mean_sd_sem <- subset(all_mean_sd_sem, select = -c(cl.1))
 
 for(parcellation in parcellations){
@@ -1508,5 +1513,5 @@ ggplot(data = new_order, aes(x = newNames, y = mean, group = cl)) + ylab("% Sign
         plot.title = element_text(size=35),
         legend.title=element_blank())
 
-
+}
 ```
