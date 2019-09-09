@@ -988,7 +988,7 @@ ggplot(data = all_mean_sd_sem, aes(x = clinical, y = mean, group = cluster)) + y
 models_anova <- lapply(clinical_score_cluster_stats_anova_matched, summary)
 
 #Pull p-values
-p_anova <- sapply(clinical_score_cluster_stats_anova_matched, function(v) v$"Pr(>F)"[2]) #$coef[,"Pr(>F)"][2]) #get the p value for dep binarized
+p_anova <- sapply(clinical_score_cluster_stats_anova_matched, function(v) v$"Pr(>F)"[3]) #$coef[,"Pr(>F)"][2]) #get the p value for dep binarized
 
 #Convert to data frame
 p_anova <- as.data.frame(p_anova)
@@ -1164,7 +1164,7 @@ ggplot(data = all_mean_sd_sem, aes(x = clinical, y = mean, group = cluster)) + y
 models_anova <- lapply(clinical_score_cluster_stats_anova_matched, summary)
 
 #Pull p-values
-p_anova <- sapply(clinical_score_cluster_stats_anova_matched, function(v) v$"Pr(>F)"[2]) #get the p value for dep binarized
+p_anova <- sapply(clinical_score_cluster_stats_anova_matched, function(v) v$"Pr(>F)"[3]) #get the p value for dep binarized
 
 #Convert to data frame
 p_anova <- as.data.frame(p_anova)

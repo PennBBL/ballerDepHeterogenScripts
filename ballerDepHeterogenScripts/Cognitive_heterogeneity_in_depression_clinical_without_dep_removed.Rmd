@@ -448,28 +448,6 @@ seq_6 <- seq(1:6)
 hydra_aris_for_plot <- cbind(seq_6, data.frame(hydra_aris[1:6,1]))
 names(hydra_aris_for_plot) <- c("cluster", "ARI")
 
-p2 <- ggplot(data=hydra_aris_for_plot, aes(x=cluster, y=ARI, group=1)) +
-  geom_line(color="black", size=1.5) +
-  theme_classic(base_size = 24) +
-  ggtitle("HYDRA") + 
-  theme(legend.position="none", 
-        plot.title = element_text(hjust = 0.5), 
-        axis.ticks.length = unit(5, "pt"),
-        axis.ticks = element_line(size = 1.5),
-        axis.line= element_line(size = 1.5),
-        axis.text = element_text(face="bold")) +
-  scale_y_continuous(breaks=c(0,.10,.20,.30,.40,.50,.60)) +
-  expand_limits(y=.5) +
-  scale_x_continuous(breaks=c(1,2,3,4,5,6)) +
-  labs(x = "Number of Subtypes") +
-  geom_segment(aes(x = 3, y = 0, xend = 3, yend = .39), linetype="dashed", color = "red", size=1.5) +
-  annotate(geom="text", x=3, y=.42, label="0.39", color="red", size=9)
-
-#ARIs 2-6
-seq_start2 <- seq(from = 2, to = 6)
-hydra_aris_for_plot <- cbind(seq_start2, data.frame(hydra_aris[2:6,1]))
-names(hydra_aris_for_plot) <- c("cluster", "ARI")
-
 ggplot(data=hydra_aris_for_plot, aes(x=cluster, y=ARI, group=1)) +
   geom_line(color="black", size=1.5) +
   theme_classic(base_size = 24) +
@@ -482,7 +460,7 @@ ggplot(data=hydra_aris_for_plot, aes(x=cluster, y=ARI, group=1)) +
         axis.text = element_text(face="bold")) +
   scale_y_continuous(breaks=c(0,.10,.20,.30,.40,.50,.60)) +
   expand_limits(y=.5) +
-  scale_x_continuous(breaks=c(2,3,4,5,6)) +
+  scale_x_continuous(breaks=c(1,2,3,4,5,6)) +
   labs(x = "Number of Subtypes") +
   geom_segment(aes(x = 3, y = 0, xend = 3, yend = .39), linetype="dashed", color = "red", size=1.5) +
   annotate(geom="text", x=3, y=.42, label="0.39", color="red", size=9)
@@ -746,8 +724,6 @@ for(cnb in cnb_accuracy_names){
 names(all_mean_sd_sem) <- c("cluster", "cnb", "mean", "sd", "sem")
 accuracy_names_no_z <- toupper(gsub("_z", "", cnb_accuracy_names))
 accuracy_full_names <- extended_names[1:12,2]
-accuracy_names_orderby_system <- c("ABF","ATT","WM","VMEM","FMEM","SMEM","SPA","EMO","VR","LMEM")
-spped_names_orderby_system <- c("ABF","ATT","WM","VMEM","FMEM","SMEM","SM", "SPA","EMO","VR","MOT")
 
   ggplot(data = all_mean_sd_sem, aes(x = factor(cnb, level = cnb_accuracy_names), y = mean, group = cluster)) + ylab("Mean Z-score") + xlab("Accuracy") + 
   ggtitle("Accuracy") + 
