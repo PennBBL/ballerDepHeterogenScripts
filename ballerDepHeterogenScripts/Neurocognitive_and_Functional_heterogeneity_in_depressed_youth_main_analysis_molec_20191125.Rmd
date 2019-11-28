@@ -3,8 +3,8 @@ title: "Neurocognitive and Functional Heterogeneity in Depressed Youth"
 author: "Erica Baller"
 date: "11/25/2019"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -622,6 +622,25 @@ ggplot(data = all_mean_sd_sem, aes(x = factor(newNames, level = summary_scores_f
         plot.title = element_text(size=35),
         legend.title=element_blank())
 
+##### Just Accuracy and Spped ######
+
+#remove efficiency
+all_mean_sd_sem <- all_mean_sd_sem[1:8,]
+
+#plot
+ggplot(data = all_mean_sd_sem, aes(x = factor(newNames, level = summary_scores_first_letter_cap), y = mean, group = cluster)) + ylab("Mean Z-score") + xlab("Summary Scores") + 
+  ggtitle("Summary Factor Scores") +
+  geom_line(aes(color=cluster, size=.1), show.legend = F) +
+  geom_point(aes(color=cluster)) + 
+  geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1, size=1.5) +
+  scale_x_discrete(name = " ") +
+  guides(colour = guide_legend(override.aes = list(size=10))) +
+  theme(axis.text.x = element_text(size = 30), 
+        axis.text.y = element_text(size = 30),
+        title = element_text(size = 30), 
+        legend.text = element_text(size = 30), 
+        plot.title = element_text(size=35),
+        legend.title=element_blank())
 #####################################
 ###### By CNB Measure ###############
 #####################################
@@ -1691,7 +1710,7 @@ names(contrast_table) <- contrast_names
 
 contrast_table <- as.data.frame(t(contrast_table))
 
-row.names(contrast_table) <- c("2back DPrime")
+row.names(contrast_table) <- c("2-back d'")
 
 contrast_table$"F value" <- round(anova_nback_behavior$`F value`[1],3)
 contrast_table$"Pr(>F)" <- round(anova_nback_behavior$`Pr(>F)`[1],4)
@@ -1706,18 +1725,18 @@ graphing_df <- data.frame(subtype = c("TD", "Subtype 1", "Subtype 2", "Subtype 3
 #graphing_df$subtype <- as.facter(graphing_df$subtype)
 #graphing_df$
 plot_dprime<- ggplot(data=graphing_df, aes(x=subtype, y=mean)) +
-  ylab("Mean") + xlab("Subtype") +
-  ggtitle("2-back DPrime by Subtype") + 
+  ylab("Mean d'") + xlab("Subtype") +
+  ggtitle("2-back Performance by Subtype") + 
   geom_line(aes(color=subtype, size=.1), show.legend = F) +
   geom_point(aes(color=subtype, size=.2)) + 
   geom_errorbar(aes(ymin=mean-sem, ymax=mean+sem), width=.1, size=1.5) +
   scale_x_discrete(name = " ") +
   scale_y_continuous(limits = c(0,3)) +
   theme(legend.position = "none",
-        plot.title = element_text(size = 20),
-        axis.title.y = element_text(size = 20),
-        axis.text.x = element_text(size = 20, angle=60, hjust = 1), 
-        axis.text.y = element_text(size = 20))
+        plot.title = element_text(size = 40),
+        axis.title.y = element_text(size = 30),
+        axis.text.x = element_text(size = 30, angle=60, hjust = 1), 
+        axis.text.y = element_text(size = 30))
 plot_dprime
 
 ```
